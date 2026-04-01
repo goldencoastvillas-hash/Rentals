@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@import "react-day-picker/style.css";
+
+:root {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.rdp-root {
+  --rdp-accent-color: #0d9488;
+  --rdp-accent-background-color: #ccfbf1;
+}
