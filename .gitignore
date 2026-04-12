@@ -1,9 +1,14 @@
-node_modules/
-dist/
-build/
+# Secretos y entorno local
 .env
 .env.*
 !.env.example
-*.log
+frontend/rentals-config.js
+backend/.env
+
+# Dependencias
+node_modules/
+
+# OS / IDE
 .DS_Store
-coverage/
+Thumbs.db
+*.log

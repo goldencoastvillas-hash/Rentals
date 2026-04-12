@@ -3,42 +3,3928 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rentals Miami — Casas y carros</title>
+    <title>Golden Coast Villas Rentals — Casas y carros en Florida</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
       rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
     />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+      :root {
+        --bg: #f5f2eb;
+        --bg-sand: #e8dfd0;
+        --surface: #fffdf8;
+        --surface2: #f0ebe3;
+        --text: #1a3338;
+        --muted: #5a6d72;
+        --accent: #006d77;
+        --accent-deep: #004f57;
+        --gold: #c9a227;
+        --gold-bright: #d4af37;
+        --accent2: #c9a227;
+        --border: rgba(0, 109, 119, 0.18);
+        --radius: 12px;
+        --nav-h: 72px;
+        --font-sans: "Montserrat", system-ui, sans-serif;
+        --font-serif: "Playfair Display", Georgia, serif;
+        --teal-glow: rgba(0, 109, 119, 0.14);
+        --gold-glow: rgba(201, 162, 39, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--font-sans);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        min-height: 100vh;
+      }
+
+      h1,
+      h2,
+      .hero h1,
+      .page-inner h1,
+      .section-title {
+        font-family: var(--font-serif);
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        color: var(--accent-deep);
+      }
+
+      .view {
+        display: none;
+        min-height: 100vh;
+      }
+
+      .view.is-active {
+        display: block;
+      }
+
+      /* ——— Barra superior ——— */
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255, 253, 248, 0.94);
+        backdrop-filter: blur(12px);
+        border-bottom: 2px solid rgba(0, 109, 119, 0.2);
+        box-shadow: 0 4px 24px rgba(26, 51, 56, 0.06);
+      }
+
+      .header-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+        height: var(--nav-h);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .brand-link {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        text-decoration: none;
+        color: inherit;
+        min-width: 0;
+      }
+
+      .brand-link:hover {
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        height: 56px;
+        width: auto;
+        max-width: min(280px, 55vw);
+        object-fit: contain;
+        object-position: left center;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .nav-btn {
+        appearance: none;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 0.9rem;
+        padding: 0.45rem 0.75rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: color 0.15s, background 0.15s;
+      }
+
+      .nav-btn:hover,
+      .nav-btn.is-current {
+        color: var(--accent-deep);
+        background: var(--gold-glow);
+      }
+
+      .nav-btn--accent {
+        border-color: rgba(201, 162, 39, 0.55);
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .nav-btn--accent:hover {
+        background: var(--teal-glow);
+        border-color: var(--accent);
+        color: var(--accent-deep);
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-panel {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 0.35rem;
+        min-width: 180px;
+        padding: 0.35rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 12px 40px rgba(26, 51, 56, 0.12);
+      }
+
+      .dropdown.is-open .dropdown-panel {
+        display: block;
+      }
+
+      .dropdown-panel button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        padding: 0.55rem 0.75rem;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .dropdown-panel button:hover {
+        background: var(--surface2);
+      }
+
+      /* ——— Inicio: hero ——— */
+      .hero {
+        text-align: center;
+        padding: 2.5rem 1.25rem 2rem;
+        background: radial-gradient(ellipse 90% 70% at 50% -30%, rgba(0, 109, 119, 0.12), transparent),
+          radial-gradient(ellipse 55% 45% at 100% 10%, rgba(201, 162, 39, 0.14), transparent),
+          linear-gradient(180deg, var(--bg-sand) 0%, var(--bg) 100%);
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 2.85rem);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--text);
+      }
+
+      .hero .hero-sub {
+        margin: 0.35rem 0 0;
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.45em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .hero .hero-loc {
+        margin: 0.4rem 0 0;
+        font-size: 0.82rem;
+        font-family: var(--font-sans);
+        font-weight: 500;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+
+      .hero p {
+        margin: 0.75rem auto 0;
+        max-width: 520px;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .section-title {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1.25rem 0.75rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      /* ——— Carruseles ——— */
+      .carousel-wrap {
+        max-width: 1100px;
+        margin: 0 auto 2.5rem;
+        padding: 0 1.25rem;
+      }
+
+      .carousel {
+        position: relative;
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .carousel-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: var(--surface2) transparent;
+      }
+
+      .carousel-track::-webkit-scrollbar {
+        height: 8px;
+      }
+
+      .carousel-track::-webkit-scrollbar-thumb {
+        background: var(--surface2);
+        border-radius: 4px;
+      }
+
+      .carousel-slide {
+        flex: 0 0 100%;
+        scroll-snap-align: start;
+        position: relative;
+        aspect-ratio: 21 / 9;
+        min-height: 200px;
+      }
+
+      .carousel-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .carousel-caption {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(transparent, rgba(26, 51, 56, 0.88));
+        font-size: 0.95rem;
+        color: #f8f6f1;
+      }
+
+      .carousel-nav {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-top: 1px solid var(--border);
+        background: rgba(255, 253, 248, 0.92);
+      }
+
+      .carousel-nav button {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+
+      .carousel-nav button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* ——— Nosotros resumen ——— */
+      .about-snippet {
+        max-width: 1100px;
+        margin: 0 auto 2.5rem;
+        padding: 1.75rem 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+
+      .about-snippet h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.25rem;
+      }
+
+      .about-snippet p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      /* ——— Footer ——— */
+      .site-footer {
+        margin-top: auto;
+        padding: 2rem 1.25rem;
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .footer-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .footer-inner p {
+        margin: 0.35rem 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .footer-inner .legal {
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        opacity: 0.85;
+      }
+
+      /* ——— Páginas internas ——— */
+      .page-inner {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 4rem;
+      }
+
+      .page-inner.wide {
+        max-width: 1100px;
+      }
+
+      .page-inner h1 {
+        margin-top: 0;
+        font-size: 1.75rem;
+      }
+
+      .page-inner p {
+        color: var(--muted);
+      }
+
+      .grid-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      .card img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+      }
+
+      .card-body {
+        padding: 1rem 1.1rem 1.15rem;
+      }
+
+      .card-body h3 {
+        margin: 0 0 0.35rem;
+        font-size: 1.05rem;
+      }
+
+      .card-body dl {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .card-body dt {
+        display: inline;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .card-body dd {
+        display: inline;
+        margin: 0;
+      }
+
+      .card-body dd::after {
+        content: "";
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      /* ——— Admin login ——— */
+      .login-box {
+        max-width: 400px;
+        margin: 2rem auto 0;
+        padding: 1.75rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+
+      .login-box label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+
+      .login-box input {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .login-box button[type="submit"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 12px rgba(0, 109, 119, 0.25);
+      }
+
+      .login-box button[type="submit"]:hover {
+        filter: brightness(1.08);
+      }
+
+      .form-error {
+        color: #f87171;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        display: none;
+      }
+
+      .form-error.is-visible {
+        display: block;
+      }
+
+      /* ——— Panel admin ——— */
+      .admin-layout {
+        display: flex;
+        min-height: calc(100vh - var(--nav-h));
+      }
+
+      .admin-sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 1.25rem 0;
+      }
+
+      .admin-sidebar h2 {
+        margin: 0 1rem 1rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .admin-sidebar button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.65rem 1.25rem;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .admin-sidebar button:hover,
+      .admin-sidebar button.is-active {
+        color: var(--accent-deep);
+        background: var(--teal-glow);
+        border-left: 3px solid var(--accent);
+      }
+
+      .admin-main {
+        flex: 1;
+        padding: 1.5rem 1.5rem 3rem;
+        overflow: auto;
+      }
+
+      .admin-main h1 {
+        margin: 0 0 1rem;
+        font-size: 1.35rem;
+      }
+
+      .reserva-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .reserva-list li {
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 0.75rem;
+        background: var(--surface);
+      }
+
+      .reserva-list strong {
+        color: var(--accent);
+      }
+
+      .logout-row {
+        margin-bottom: 1rem;
+      }
+
+      .logout-row button {
+        padding: 0.45rem 0.9rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .logout-row button:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .admin-sidebar h2 + button {
+        margin-top: 0;
+      }
+
+      .admin-sidebar h2:not(:first-child) {
+        margin-top: 1.25rem;
+      }
+
+      .admin-submenu {
+        display: none;
+        flex-direction: column;
+        padding-left: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-left: 2px solid var(--border);
+      }
+
+      .admin-submenu.is-open {
+        display: flex;
+      }
+
+      .admin-submenu button {
+        padding-left: 1.5rem;
+        font-size: 0.88rem;
+      }
+
+      .catalogo-toggle.is-open {
+        color: var(--accent-deep);
+        background: var(--teal-glow);
+      }
+
+      #catalogo-toggle {
+        margin-top: 1rem;
+      }
+
+      .form-page-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .pagination-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding: 0.75rem 0;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+
+      .pagination-bar select {
+        margin-left: 0.35rem;
+        padding: 0.35rem 0.5rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .row-actions {
+        position: relative;
+        text-align: right;
+      }
+
+      .btn-kebab {
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+
+      .btn-kebab:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .row-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 0.25rem;
+        min-width: 160px;
+        padding: 0.35rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 8px 24px rgba(26, 51, 56, 0.12);
+        z-index: 50;
+      }
+
+      .row-menu.is-open {
+        display: block;
+      }
+
+      .row-menu button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 0.65rem;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+
+      .row-menu button:hover {
+        background: var(--surface2);
+      }
+
+      .row-menu button.danger {
+        color: #f87171;
+      }
+
+      .admin-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: flex-end;
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+
+      .admin-toolbar .field {
+        flex: 1 1 140px;
+        min-width: 0;
+      }
+
+      .admin-toolbar label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 0.25rem;
+      }
+
+      .admin-toolbar input,
+      .admin-toolbar select {
+        width: 100%;
+        padding: 0.5rem 0.6rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .admin-toolbar .field-check {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 1.35rem;
+      }
+
+      .admin-toolbar .field-check input {
+        width: auto;
+      }
+
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: flex-end;
+        padding-top: 1.35rem;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+        border: none;
+        color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 109, 119, 0.22);
+      }
+
+      .btn-primary:hover {
+        filter: brightness(1.06);
+        color: #fff;
+        box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.55);
+      }
+
+      .btn-danger {
+        border-color: rgba(248, 113, 113, 0.5);
+        color: #f87171;
+      }
+
+      .btn-danger:hover {
+        background: rgba(248, 113, 113, 0.12);
+      }
+
+      .admin-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+      }
+
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+      }
+
+      .admin-table th,
+      .admin-table td {
+        padding: 0.65rem 0.85rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      .admin-table th {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .admin-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .admin-table img.thumb {
+        width: 72px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+
+      .admin-table .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+
+      .admin-hint {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+
+      .file-warning {
+        display: none;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0.85rem 1.25rem;
+        background: rgba(201, 162, 39, 0.15);
+        border: 1px solid rgba(201, 162, 39, 0.45);
+        border-radius: var(--radius);
+        color: #6b5a1e;
+        font-size: 0.9rem;
+      }
+
+      .file-warning.is-visible {
+        display: block;
+      }
+
+      .password-wrap {
+        position: relative;
+        margin-bottom: 1rem;
+      }
+
+      .password-wrap input {
+        width: 100%;
+        padding: 0.65rem 2.75rem 0.65rem 0.75rem;
+        margin-bottom: 0;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .toggle-pass {
+        position: absolute;
+        right: 0.35rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .toggle-pass:hover {
+        color: var(--accent);
+        background: var(--teal-glow);
+      }
+
+      .toggle-pass svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        fill: currentColor;
+      }
+
+      .login-hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: -0.5rem 0 1rem;
+      }
+
+      .filters-panel {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.75rem 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        align-items: end;
+      }
+
+      .filters-panel label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 0.25rem;
+      }
+
+      .filters-panel input,
+      .filters-panel select {
+        width: 100%;
+        padding: 0.5rem 0.6rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .filters-panel .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+
+      .admin-search-row {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .admin-search-row input {
+        flex: 1 1 220px;
+        max-width: 400px;
+        padding: 0.55rem 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.5rem;
+      }
+
+      .card-tags span {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.45rem;
+        border-radius: 6px;
+        background: var(--teal-glow);
+        color: var(--accent-deep);
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      code {
+        font-size: 0.85em;
+        background: rgba(0, 109, 119, 0.08);
+        color: var(--accent-deep);
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+      }
+
+      .section-title-btn {
+        display: inline;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+        font: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+        cursor: pointer;
+        text-align: left;
+        text-decoration: underline;
+        text-decoration-color: rgba(0, 109, 119, 0.35);
+        text-underline-offset: 3px;
+      }
+
+      .section-title-btn:hover {
+        color: var(--accent);
+        text-decoration-color: var(--accent);
+      }
+
+      .carousel-slide.is-clickable {
+        cursor: pointer;
+      }
+
+      .card.is-clickable {
+        cursor: pointer;
+        transition: box-shadow 0.15s, border-color 0.15s;
+      }
+
+      .card.is-clickable:hover {
+        box-shadow: 0 8px 28px rgba(26, 51, 56, 0.1);
+        border-color: rgba(0, 109, 119, 0.35);
+      }
+
+      .card-actions {
+        margin-top: 0.85rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .btn-reservar {
+        appearance: none;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.88rem;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+        color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 109, 119, 0.22);
+      }
+
+      .btn-reservar:hover {
+        filter: brightness(1.06);
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(26, 51, 56, 0.45);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        overflow-y: auto;
+      }
+
+      .modal-overlay.is-open {
+        display: flex;
+      }
+
+      .modal-reserva {
+        position: relative;
+        width: 100%;
+        max-width: 720px;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 24px 60px rgba(26, 51, 56, 0.18);
+        padding: 1.35rem 1.35rem 1.5rem;
+      }
+
+      .modal-reserva h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.35rem;
+        font-family: var(--font-serif);
+        padding-right: 2rem;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 0.85rem;
+        right: 0.85rem;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--surface2);
+        color: var(--muted);
+        font-size: 1.35rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .modal-close:hover {
+        color: var(--text);
+        background: var(--teal-glow);
+      }
+
+      .modal-reserva-summary {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.1rem;
+        padding: 0.85rem;
+        background: var(--surface2);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+
+      .modal-reserva-summary img {
+        width: 96px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 8px;
+        flex-shrink: 0;
+      }
+
+      .modal-reserva-summary div {
+        min-width: 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .modal-reserva-summary strong {
+        display: block;
+        color: var(--text);
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .form-reserva label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 0.3rem;
+        margin-top: 0.65rem;
+      }
+
+      .form-reserva label:first-of-type {
+        margin-top: 0;
+      }
+
+      .form-reserva input,
+      .form-reserva select {
+        width: 100%;
+        padding: 0.55rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .form-reserva .form-row-dates {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.65rem;
+      }
+
+      #wrap-calendario-reserva {
+        margin-top: 0.5rem;
+      }
+
+      .cal-label-main {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+      }
+
+      .calendario-reserva-mount {
+        min-height: 120px;
+      }
+
+      .cal-leyenda {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1.25rem;
+        margin: 0.65rem 0 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .cal-swatch {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        margin-right: 0.35rem;
+        vertical-align: middle;
+        border: 1px solid var(--border);
+      }
+
+      .cal-swatch--blocked {
+        background: #cbd5e1;
+      }
+
+      .cal-swatch--past {
+        background: #f1f5f9;
+      }
+
+      .rentals-cal-root {
+        font-size: 0.82rem;
+      }
+
+      .rentals-cal-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.65rem;
+      }
+
+      .rentals-cal-caption {
+        flex: 1;
+        text-align: center;
+        font-weight: 600;
+        color: var(--text);
+        font-size: 0.88rem;
+      }
+
+      .rentals-cal-nav {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        color: var(--text);
+      }
+
+      .rentals-cal-nav:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .rentals-cal-months {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        max-width: 100%;
+      }
+
+      .rentals-cal-month {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0.65rem 0.5rem 0.75rem;
+        background: var(--surface2);
+      }
+
+      .rentals-cal-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-bottom: 0.35rem;
+        text-align: center;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .rentals-cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 3px;
+      }
+
+      .rentals-cal-day {
+        aspect-ratio: 1;
+        max-height: 2.85rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: var(--surface);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1.2;
+      }
+
+      .rentals-cal-day:hover:not(:disabled) {
+        border-color: var(--accent);
+        background: var(--teal-glow);
+      }
+
+      .rentals-cal-day--muted {
+        opacity: 0.35;
+        cursor: default;
+      }
+
+      .rentals-cal-day--past {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .rentals-cal-day--blocked {
+        background: #cbd5e1 !important;
+        color: #64748b !important;
+        cursor: not-allowed;
+        border-color: transparent !important;
+      }
+
+      .rentals-cal-day--inrange {
+        background: rgba(0, 109, 119, 0.14) !important;
+      }
+
+      .rentals-cal-day--start,
+      .rentals-cal-day--end {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%) !important;
+        color: #fff !important;
+        font-weight: 700;
+      }
+
+      .rentals-cal-hint {
+        margin: 0.5rem 0 0;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      .form-reserva .form-error-msg {
+        display: none;
+        color: #dc2626;
+        font-size: 0.82rem;
+        margin-top: 0.5rem;
+      }
+
+      .form-reserva .form-error-msg.is-visible {
+        display: block;
+      }
+
+      .form-reserva .estimado-box {
+        margin-top: 0.85rem;
+        padding: 0.65rem 0.75rem;
+        background: rgba(201, 162, 39, 0.12);
+        border: 1px solid rgba(201, 162, 39, 0.35);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: var(--text);
+      }
+
+      .form-reserva .btn-submit-reserva {
+        width: 100%;
+        margin-top: 1.1rem;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(18, 140, 126, 0.35);
+      }
+
+      .form-reserva .btn-submit-reserva:hover {
+        filter: brightness(1.05);
+      }
+
+      .form-reserva .hint-wa {
+        margin-top: 0.65rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      #map-casas {
+        height: min(480px, 65vh);
+        width: 100%;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        z-index: 1;
+      }
+
+      .admin-map-legend {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+
+      .reserva-list .empty-hint {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      @media (max-width: 640px) {
+        .header-inner {
+          flex-wrap: wrap;
+          height: auto;
+          padding-top: 0.75rem;
+          padding-bottom: 0.75rem;
+        }
+
+        .admin-layout {
+          flex-direction: column;
+        }
+
+        .admin-sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .brand-mark {
+          height: 48px;
+          max-width: min(260px, 78vw);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root">
-      <main
-        style="
-          min-height: 100vh;
-          display: grid;
-          place-items: center;
-          margin: 0;
-          padding: 2rem;
-          font-family: Arial, sans-serif;
-          background: #f8fafc;
-          color: #0f172a;
-          text-align: center;
-        "
-      >
-        <section style="max-width: 720px">
-          <h1 style="margin-bottom: 0.75rem; font-size: 2rem">Rentals Miami</h1>
-          <p style="margin: 0 0 1rem 0; font-size: 1.05rem">
-            Plataforma de alquiler de casas y carros.
-          </p>
-          <p style="margin: 0; color: #475569">
-            Si ves este mensaje, el sitio base ya esta generado. Al iniciar Vite, React
-            cargara automaticamente la aplicacion completa.
-          </p>
-        </section>
-      </main>
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="#" class="brand-link" data-nav="inicio" aria-label="Golden Coast Villas Rentals — Inicio">
+          <img
+            class="brand-mark"
+            src="assets/logo-golden-coast.png"
+            width="260"
+            height="72"
+            alt="Golden Coast Villas — Rentals — Florida, USA"
+          />
+        </a>
+        <nav class="nav-actions" aria-label="Principal">
+          <button type="button" class="nav-btn" data-nav="inicio">Inicio</button>
+          <button type="button" class="nav-btn" data-nav="nosotros">Nosotros</button>
+          <div class="dropdown" id="servicios-dropdown">
+            <button type="button" class="nav-btn" id="servicios-toggle" aria-expanded="false" aria-haspopup="true">
+              Servicios ▾
+            </button>
+            <div class="dropdown-panel" role="menu">
+              <button type="button" role="menuitem" data-nav="servicios-carros">Carros</button>
+              <button type="button" role="menuitem" data-nav="servicios-casas">Casas</button>
+            </div>
+          </div>
+          <button type="button" class="nav-btn nav-btn--accent" data-nav="admin-login">Admin</button>
+        </nav>
+      </div>
+    </header>
+
+    <div id="file-protocol-warning" class="file-warning" role="alert">
+      Abriste la página como <strong>archivo local (file://)</strong>. Para evitar limitaciones del navegador, en la carpeta <code>frontend</code> ejecuta
+      <code>npm run dev</code> y entra a <strong>http://localhost:5173</strong>.
     </div>
-    <noscript>Necesitas activar JavaScript para usar esta aplicacion.</noscript>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Vista: Inicio -->
+    <section id="view-inicio" class="view is-active" aria-label="Inicio">
+      <div class="hero">
+        <h1>Golden Coast Villas</h1>
+        <p class="hero-sub">Rentals</p>
+        <p class="hero-loc">Florida · USA</p>
+        <p>Alquiler de casas y vehículos en el sur de Florida. Reserva con confianza.</p>
+      </div>
+
+      <p class="section-title">
+        <button type="button" class="section-title-btn" data-nav="servicios-carros" title="Ver todos los carros disponibles">
+          Carros disponibles
+        </button>
+      </p>
+      <div class="carousel-wrap">
+        <div class="carousel" data-carousel="carros">
+          <div class="carousel-track" tabindex="0"></div>
+          <div class="carousel-nav">
+            <button type="button" aria-label="Anterior">‹</button>
+            <button type="button" aria-label="Siguiente">›</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="section-title">
+        <button type="button" class="section-title-btn" data-nav="servicios-casas" title="Ver todas las casas disponibles">
+          Casas disponibles
+        </button>
+      </p>
+      <div class="carousel-wrap">
+        <div class="carousel" data-carousel="casas">
+          <div class="carousel-track" tabindex="0"></div>
+          <div class="carousel-nav">
+            <button type="button" aria-label="Anterior">‹</button>
+            <button type="button" aria-label="Siguiente">›</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-snippet">
+        <h2>Nosotros</h2>
+        <p>
+          Somos un equipo local dedicado a conectar viajeros y residentes con propiedades y vehículos de calidad en Miami y alrededores.
+          <a href="#" data-nav="nosotros">Conoce más sobre Golden Coast Villas</a>
+        </p>
+      </div>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <p><strong>Contacto</strong></p>
+          <p>Teléfonos: <a href="tel:+13055550100">+1 (305) 555-0100</a> · <a href="tel:+13055550101">+1 (305) 555-0101</a></p>
+          <p>Correo: <a href="mailto:info@goldencoastvillas.com">info@goldencoastvillas.com</a></p>
+          <p class="legal">Nos reservamos todos los derechos © <span id="year"></span> Golden Coast Villas Rentals.</p>
+        </div>
+      </footer>
+    </section>
+
+    <!-- Vista: Nosotros (empresa) -->
+    <section id="view-nosotros" class="view" aria-label="Nosotros">
+      <div class="page-inner">
+        <h1>Nosotros</h1>
+        <p>
+          <strong>Golden Coast Villas Rentals</strong> nació con la idea de simplificar el alquiler de viviendas y vehículos en una de las ciudades más dinámicas de Estados Unidos.
+          Trabajamos con propietarios verificados y mantenemos un catálogo actualizado para que encuentres la opción que mejor se adapte a tu estancia o tu movilidad.
+        </p>
+        <p>
+          Nuestro equipo conoce el mercado local: desde barrios residenciales hasta rutas costeras. Estamos para orientarte en disponibilidad, precios y condiciones de cada reserva.
+        </p>
+        <p>
+          Valores: transparencia en precios, respuesta ágil y atención personalizada. Si tienes dudas, contáctanos por teléfono o correo; estaremos encantados de ayudarte.
+        </p>
+      </div>
+    </section>
+
+    <!-- Vista: Servicios — Carros -->
+    <section id="view-servicios-carros" class="view" aria-label="Carros">
+      <div class="page-inner wide">
+        <h1>Carros en alquiler</h1>
+        <p>Filtra por marca, categoría, transmisión o rango de precio.</p>
+        <div class="filters-panel" id="filters-carros">
+          <div>
+            <label for="f-car-marca">Marca</label>
+            <input type="text" id="f-car-marca" placeholder="Cualquiera" autocomplete="off" />
+          </div>
+          <div>
+            <label for="f-car-categoria">Categoría</label>
+            <select id="f-car-categoria">
+              <option value="">Cualquiera</option>
+              <option value="sedan">Sedán</option>
+              <option value="suv">SUV</option>
+              <option value="deportivo">Deportivo</option>
+              <option value="electrico">Eléctrico</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-car-trans">Transmisión</label>
+            <select id="f-car-trans">
+              <option value="">Cualquiera</option>
+              <option value="automatica">Automática</option>
+              <option value="manual">Manual</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-car-pmin">Precio mín. / día</label>
+            <input type="number" id="f-car-pmin" min="0" step="1" placeholder="—" />
+          </div>
+          <div>
+            <label for="f-car-pmax">Precio máx. / día</label>
+            <input type="number" id="f-car-pmax" min="0" step="1" placeholder="—" />
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="btn btn-primary" id="f-car-apply">Aplicar filtros</button>
+            <button type="button" class="btn" id="f-car-reset">Limpiar</button>
+          </div>
+        </div>
+        <div class="grid-cards" id="grid-carros"></div>
+      </div>
+    </section>
+
+    <!-- Vista: Servicios — Casas -->
+    <section id="view-servicios-casas" class="view" aria-label="Casas">
+      <div class="page-inner wide">
+        <h1>Casas y apartamentos</h1>
+        <p>Busca por nombre, ubicación y comodidades.</p>
+        <div class="filters-panel" id="filters-casas">
+          <div style="grid-column: 1 / -1">
+            <label for="f-casa-q">Nombre o ubicación</label>
+            <input type="search" id="f-casa-q" placeholder="Ej. Brickell, villa, beach…" autocomplete="off" />
+          </div>
+          <div>
+            <label for="f-casa-tipo">Tipo</label>
+            <select id="f-casa-tipo">
+              <option value="">Cualquiera</option>
+              <option value="casa">Casa</option>
+              <option value="apartamento">Apartamento</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-casa-cuartos">Cuartos (mín.)</label>
+            <select id="f-casa-cuartos">
+              <option value="">Cualquiera</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-casa-banos">Baños (mín.)</label>
+            <select id="f-casa-banos">
+              <option value="">Cualquiera</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-casa-mascotas">Mascotas</label>
+            <select id="f-casa-mascotas">
+              <option value="">Cualquiera</option>
+              <option value="si">Sí aceptan</option>
+              <option value="no">No aceptan</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-casa-aire">Aire acondicionado</label>
+            <select id="f-casa-aire">
+              <option value="">Cualquiera</option>
+              <option value="si">Sí</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-casa-parking">Parking</label>
+            <select id="f-casa-parking">
+              <option value="">Cualquiera</option>
+              <option value="si">Sí</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-casa-piscina">Piscina</label>
+            <select id="f-casa-piscina">
+              <option value="">Cualquiera</option>
+              <option value="si">Sí</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="btn btn-primary" id="f-casa-apply">Aplicar filtros</button>
+            <button type="button" class="btn" id="f-casa-reset">Limpiar</button>
+          </div>
+        </div>
+        <div class="grid-cards" id="grid-casas"></div>
+      </div>
+    </section>
+
+    <!-- Vista: Admin — Login -->
+    <section id="view-admin-login" class="view" aria-label="Acceso administradores">
+      <div class="page-inner">
+        <h1>Administración</h1>
+        <p>Ingresa con tu usuario, contraseña y correo para acceder al panel.</p>
+        <div class="login-box">
+          <p class="form-error" id="login-error" role="alert">
+            Completa usuario, contraseña y un correo válido (ej. admin@rentals.com). No pongas la clave en el campo de correo.
+          </p>
+          <p class="login-hint">Prueba: usuario <strong>Admin</strong>, correo <strong>admin@rentals.com</strong>, clave <strong>Admin123</strong> (cuando conectes el backend a Supabase).</p>
+          <form id="admin-form" novalidate>
+            <label for="admin-user">Usuario</label>
+            <input id="admin-user" name="user" type="text" autocomplete="username" required placeholder="Admin" />
+            <label for="admin-pass">Contraseña</label>
+            <div class="password-wrap">
+              <input id="admin-pass" name="pass" type="password" autocomplete="current-password" required placeholder="•••••••" />
+              <button type="button" class="toggle-pass" id="toggle-admin-pass" aria-pressed="false" aria-label="Mostrar u ocultar contraseña" title="Mostrar contraseña">
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 5c-5 0-9 5-9 7s4 7 9 7 9-5 9-7-4-7-9-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <label for="admin-email">Correo electrónico</label>
+            <input id="admin-email" name="email" type="email" autocomplete="email" required placeholder="admin@rentals.com" />
+            <button type="submit">Entrar</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vista: Admin — Panel -->
+    <section id="view-admin-panel" class="view" aria-label="Panel de administración">
+      <div class="admin-layout">
+        <aside class="admin-sidebar" aria-label="Menú administración">
+          <h2>Reservas</h2>
+          <button type="button" class="is-active" data-admin-tab="activas">Activas</button>
+          <button type="button" data-admin-tab="historial">Historial</button>
+          <button type="button" data-admin-tab="mapa">Mapa — casas</button>
+          <button type="button" class="catalogo-toggle" id="catalogo-toggle" aria-expanded="false" aria-controls="catalogo-submenu">Catálogo ▾</button>
+          <div id="catalogo-submenu" class="admin-submenu">
+            <button type="button" data-admin-tab="carros">Carros</button>
+            <button type="button" data-admin-tab="casas">Casas</button>
+          </div>
+        </aside>
+        <div class="admin-main">
+          <div class="logout-row">
+            <button type="button" id="admin-logout">Cerrar sesión</button>
+          </div>
+          <div id="panel-activas">
+            <h1>Reservas activas</h1>
+            <ul class="reserva-list" id="list-activas"></ul>
+          </div>
+          <div id="panel-historial" hidden>
+            <h1>Historial de reservas</h1>
+            <ul class="reserva-list" id="list-historial"></ul>
+          </div>
+          <div id="panel-admin-mapa" hidden>
+            <h1>Mapa — casas en Miami</h1>
+            <p class="admin-map-legend">
+              Ubicaciones de referencia de cada propiedad (coordenadas del catálogo). Acerca el mapa para ver barrios.
+            </p>
+            <div id="map-casas" role="application" aria-label="Mapa de casas en Miami"></div>
+          </div>
+          <div id="panel-admin-carros" hidden>
+            <h1>Catálogo — Carros</h1>
+            <p class="admin-hint">Los cambios se guardan en este navegador. Usa <strong>Añadir carro</strong> para abrir el formulario.</p>
+            <div class="admin-search-row">
+              <label for="admin-carros-search" class="visually-hidden">Buscar carros</label>
+              <input
+                type="search"
+                id="admin-carros-search"
+                placeholder="Marca, modelo, categoría (ej. eléctrico, SUV), transmisión…"
+                autocomplete="off"
+              />
+              <button type="button" class="btn btn-primary" id="btn-add-carro">Añadir carro</button>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table" aria-label="Listado de carros">
+                <thead>
+                  <tr>
+                    <th>Foto</th>
+                    <th>Vehículo</th>
+                    <th>Cilindraje</th>
+                    <th>Cat.</th>
+                    <th>Trans.</th>
+                    <th>Precio/día</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-admin-carros"></tbody>
+              </table>
+            </div>
+            <div class="pagination-bar">
+              <label>
+                Filas por página
+                <select id="admin-carros-page-size" aria-label="Filas por página carros">
+                  <option value="2">2</option>
+                  <option value="5" selected>5</option>
+                  <option value="10">10</option>
+                </select>
+              </label>
+              <span id="admin-carros-page-info"></span>
+              <button type="button" class="btn" id="admin-carros-prev">Anterior</button>
+              <button type="button" class="btn" id="admin-carros-next">Siguiente</button>
+            </div>
+          </div>
+          <div id="panel-admin-casas" hidden>
+            <h1>Catálogo — Casas</h1>
+            <p class="admin-hint">Los cambios se guardan en este navegador. Usa <strong>Añadir casa</strong> para abrir el formulario.</p>
+            <div class="admin-search-row">
+              <label for="admin-casas-search" class="visually-hidden">Buscar casas por nombre o ubicación</label>
+              <input
+                type="search"
+                id="admin-casas-search"
+                placeholder="Nombre, dirección, casa o apartamento, nº habitaciones (ej. 4)…"
+                autocomplete="off"
+              />
+              <button type="button" class="btn btn-primary" id="btn-add-casa">Añadir casa</button>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table" aria-label="Listado de casas">
+                <thead>
+                  <tr>
+                    <th>Foto</th>
+                    <th>Nombre</th>
+                    <th>Ubicación</th>
+                    <th>Tipo</th>
+                    <th>Hab.</th>
+                    <th>Precio/noche/p.</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-admin-casas"></tbody>
+              </table>
+            </div>
+            <div class="pagination-bar">
+              <label>
+                Filas por página
+                <select id="admin-casas-page-size" aria-label="Filas por página casas">
+                  <option value="2">2</option>
+                  <option value="5" selected>5</option>
+                  <option value="10">10</option>
+                </select>
+              </label>
+              <span id="admin-casas-page-info"></span>
+              <button type="button" class="btn" id="admin-casas-prev">Anterior</button>
+              <button type="button" class="btn" id="admin-casas-next">Siguiente</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vista: Admin — Formulario carro -->
+    <section id="view-admin-form-carro" class="view" aria-label="Formulario carro">
+      <div class="page-inner wide">
+        <div class="form-page-toolbar">
+          <button type="button" class="btn" id="btn-back-form-carro">← Volver al catálogo de carros</button>
+        </div>
+        <h1 id="form-carro-title">Añadir carro</h1>
+        <form id="form-carro" class="admin-toolbar" style="max-width: 900px" novalidate>
+          <input type="hidden" id="carro-edit-id" value="" />
+          <div class="field">
+            <label for="carro-marca">Marca</label>
+            <input id="carro-marca" type="text" required placeholder="Toyota" />
+          </div>
+          <div class="field">
+            <label for="carro-modelo">Modelo</label>
+            <input id="carro-modelo" type="text" required placeholder="Camry" />
+          </div>
+          <div class="field">
+            <label for="carro-cilindraje">Cilindraje</label>
+            <input id="carro-cilindraje" type="text" required placeholder="2.5 L" />
+          </div>
+          <div class="field">
+            <label for="carro-precio">Precio / día (USD)</label>
+            <input id="carro-precio" type="number" min="0" step="0.01" required placeholder="45" />
+          </div>
+          <div class="field">
+            <label for="carro-categoria">Categoría</label>
+            <select id="carro-categoria" required>
+              <option value="sedan">Sedán</option>
+              <option value="suv">SUV</option>
+              <option value="deportivo">Deportivo</option>
+              <option value="electrico">Eléctrico</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="carro-transmision">Transmisión</label>
+            <select id="carro-transmision" required>
+              <option value="automatica">Automática</option>
+              <option value="manual">Manual</option>
+            </select>
+          </div>
+          <div class="field" style="flex: 2 1 240px">
+            <label for="carro-img">URL de foto</label>
+            <input id="carro-img" type="url" required placeholder="https://..." />
+          </div>
+          <div class="field-check">
+            <input id="carro-disponible" type="checkbox" checked />
+            <label for="carro-disponible" style="padding: 0; margin: 0">Disponible</label>
+          </div>
+          <div class="btn-row" style="flex-basis: 100%">
+            <button type="submit" class="btn btn-primary" id="carro-submit">Guardar carro</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Vista: Admin — Formulario casa -->
+    <section id="view-admin-form-casa" class="view" aria-label="Formulario casa">
+      <div class="page-inner wide">
+        <div class="form-page-toolbar">
+          <button type="button" class="btn" id="btn-back-form-casa">← Volver al catálogo de casas</button>
+        </div>
+        <h1 id="form-casa-title">Añadir casa</h1>
+        <form id="form-casa" class="admin-toolbar" style="max-width: 900px" novalidate>
+          <input type="hidden" id="casa-edit-id" value="" />
+          <div class="field">
+            <label for="casa-nombre">Nombre</label>
+            <input id="casa-nombre" type="text" required placeholder="Villa Coral Gables" />
+          </div>
+          <div class="field" style="flex: 2 1 240px">
+            <label for="casa-ubicacion">Ubicación</label>
+            <input id="casa-ubicacion" type="text" required placeholder="Coral Gables, FL" />
+          </div>
+          <div class="field">
+            <label for="casa-precio">Precio / noche / persona (USD)</label>
+            <input id="casa-precio" type="number" min="0" step="0.01" required placeholder="85" />
+          </div>
+          <div class="field">
+            <label for="casa-tipo-inm">Tipo</label>
+            <select id="casa-tipo-inm" required>
+              <option value="casa">Casa</option>
+              <option value="apartamento">Apartamento</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="casa-cuartos">Cuartos</label>
+            <input id="casa-cuartos" type="number" min="1" max="20" step="1" required value="3" />
+          </div>
+          <div class="field">
+            <label for="casa-banos">Baños</label>
+            <input id="casa-banos" type="number" min="1" max="20" step="1" required value="2" />
+          </div>
+          <div class="field">
+            <label for="casa-lat">Latitud (referencia)</label>
+            <input id="casa-lat" type="number" step="any" required placeholder="25.7617" />
+          </div>
+          <div class="field">
+            <label for="casa-lng">Longitud</label>
+            <input id="casa-lng" type="number" step="any" required placeholder="-80.1918" />
+          </div>
+          <div class="field" style="flex: 2 1 240px">
+            <label for="casa-img">URL de foto</label>
+            <input id="casa-img" type="url" required placeholder="https://..." />
+          </div>
+          <div class="field" style="flex: 2 1 100%">
+            <label for="casa-airbnb-ical">URL iCal de exportación de Airbnb (opcional)</label>
+            <input
+              id="casa-airbnb-ical"
+              type="url"
+              placeholder="Airbnb → Disponibilidad → Exportar calendario → copiar enlace .ics"
+              autocomplete="off"
+            />
+            <p class="admin-hint" style="margin-top: 0.4rem; font-size: 0.8rem">
+              <strong>Importante:</strong> ese enlace es solo para que <em>esta web</em> lea las reservas de Airbnb y bloquee fechas aquí. Lo que Airbnb te pide como “enlace de tu calendario” para pegar <em>en Airbnb</em> es opcional: sirve para que Airbnb importe reservas hechas en otro sitio; no hace falta para que aquí funcione el bloqueo. Si no usas esa función en Airbnb, puedes dejarlo vacío o poner cualquier feed público más adelante.
+            </p>
+          </div>
+          <div class="field-check">
+            <input id="casa-mascotas" type="checkbox" />
+            <label for="casa-mascotas" style="padding: 0; margin: 0">Mascotas</label>
+          </div>
+          <div class="field-check">
+            <input id="casa-aire" type="checkbox" checked />
+            <label for="casa-aire" style="padding: 0; margin: 0">Aire acondicionado</label>
+          </div>
+          <div class="field-check">
+            <input id="casa-parking" type="checkbox" checked />
+            <label for="casa-parking" style="padding: 0; margin: 0">Parking</label>
+          </div>
+          <div class="field-check">
+            <input id="casa-piscina" type="checkbox" />
+            <label for="casa-piscina" style="padding: 0; margin: 0">Piscina</label>
+          </div>
+          <div class="field-check">
+            <input id="casa-disponible" type="checkbox" checked />
+            <label for="casa-disponible" style="padding: 0; margin: 0">Disponible</label>
+          </div>
+          <div class="btn-row" style="flex-basis: 100%">
+            <button type="submit" class="btn btn-primary" id="casa-submit">Guardar casa</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <div id="modal-reserva" class="modal-overlay" aria-hidden="true">
+      <div class="modal-reserva" role="dialog" aria-modal="true" aria-labelledby="modal-reserva-title">
+        <button type="button" class="modal-close" id="modal-reserva-close" aria-label="Cerrar">&times;</button>
+        <h2 id="modal-reserva-title">Reservar</h2>
+        <div id="modal-reserva-summary" class="modal-reserva-summary"></div>
+        <form id="form-reserva" class="form-reserva" novalidate>
+          <input type="hidden" id="reserva-tipo" value="" />
+          <input type="hidden" id="reserva-item-id" value="" />
+          <label for="reserva-nombre">Nombre completo</label>
+          <input id="reserva-nombre" type="text" required autocomplete="name" placeholder="Tu nombre" />
+          <label for="reserva-telefono">Teléfono (WhatsApp preferible)</label>
+          <input id="reserva-telefono" type="tel" required autocomplete="tel" placeholder="+1 305 555 0100" />
+          <label for="reserva-correo">Correo electrónico</label>
+          <input id="reserva-correo" type="email" required autocomplete="email" placeholder="correo@ejemplo.com" />
+          <label for="reserva-doc">Pasaporte o identificación</label>
+          <input id="reserva-doc" type="text" required autocomplete="off" placeholder="Número de documento" />
+          <div id="wrap-reserva-personas" hidden>
+            <label for="reserva-personas">Personas</label>
+            <select id="reserva-personas" aria-label="Número de personas">
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+          <input type="hidden" id="reserva-fecha-inicio" value="" />
+          <input type="hidden" id="reserva-fecha-fin" value="" />
+          <div id="wrap-calendario-reserva">
+            <span class="cal-label-main">Calendario — elige entrada y salida</span>
+            <div id="calendario-reserva-mount" class="calendario-reserva-mount" aria-live="polite"></div>
+            <p class="cal-leyenda">
+              <span><span class="cal-swatch cal-swatch--blocked"></span> No disponible (reservas o Airbnb)</span>
+              <span><span class="cal-swatch cal-swatch--past"></span> Fecha pasada</span>
+            </p>
+          </div>
+          <p id="reserva-form-error" class="form-error-msg" role="alert"></p>
+          <div id="reserva-estimado" class="estimado-box" hidden></div>
+          <button type="submit" class="btn-submit-reserva">Confirmar y notificar al administrador (WhatsApp)</button>
+          <p class="hint-wa">Se abrirá WhatsApp con el resumen. El equipo te contactará para cerrar el alquiler.</p>
+        </form>
+      </div>
+    </div>
+
+    <noscript>
+      <p style="padding: 2rem; text-align: center; color: #64748b">Activa JavaScript para usar la navegación del sitio.</p>
+    </noscript>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="rentals-config.js"></script>
+    <script>
+      window.RENTALS_CONFIG = Object.assign(
+        {
+          supabaseUrl: "",
+          supabaseAnonKey: "",
+          adminWhatsappDigits: "573508321565",
+        },
+        window.RENTALS_CONFIG || {}
+      );
+    </script>
+    <script src="rentals-supabase.js"></script>
+    <script src="rentals-calendar.js"></script>
+    <script>
+      (function () {
+        var STORAGE_CARROS = "rentals_miami_carros_v2";
+        var STORAGE_CARROS_LEGACY = "rentals_miami_carros_v1";
+        var STORAGE_CASAS = "rentals_miami_casas_v2";
+        var STORAGE_CASAS_LEGACY = "rentals_miami_casas_v1";
+        var STORAGE_RESERVAS = "rentals_miami_reservas_v1";
+
+        /** Catálogo cargado desde Supabase (solo lectura en esta web) */
+        var REMOTE_CATALOG = false;
+
+        function adminWhatsappDigits() {
+          var c = window.RENTALS_CONFIG || {};
+          return String(c.adminWhatsappDigits || "573508321565").replace(/\D/g, "") || "573508321565";
+        }
+
+        var mapCasasInstance = null;
+        var mapCasasMarkers = null;
+        var reservaCalendarHandle = null;
+
+        var DEFAULT_LAT = 25.7617;
+        var DEFAULT_LNG = -80.1918;
+
+        var adminPageCarros = 1;
+        var adminPageCasas = 1;
+        var adminPageSizeCarros = 5;
+        var adminPageSizeCasas = 5;
+        var adminCarSearch = "";
+        var openKebabCarro = null;
+        var openKebabCasa = null;
+
+        var SEED_CARROS = [
+          { id: "seed-c1", marca: "Toyota", modelo: "Camry", cilindraje: "2.5 L", precio: 45, img: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&q=80", disponible: true, categoria: "sedan", transmision: "automatica" },
+          { id: "seed-c2", marca: "Honda", modelo: "CR-V", cilindraje: "1.5 L turbo", precio: 62, img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58aa?w=800&q=80", disponible: true, categoria: "suv", transmision: "automatica" },
+          { id: "seed-c3", marca: "Ford", modelo: "Mustang", cilindraje: "5.0 L V8", precio: 95, img: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80", disponible: true, categoria: "deportivo", transmision: "manual" },
+          { id: "seed-c4", marca: "Tesla", modelo: "Model 3", cilindraje: "Eléctrico", precio: 78, img: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&q=80", disponible: true, categoria: "electrico", transmision: "automatica" },
+        ];
+
+        var SEED_CASAS = [
+          { id: "seed-h1", nombre: "Villa Coral Gables", ubicacion: "Coral Gables, FL", precio: 85, img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80", disponible: true, tipo_inmueble: "casa", cuartos: 4, banos: 3, mascotas: true, aire_acondicionado: true, estacionamiento: true, piscina: true, lat: 25.7214, lng: -80.2683 },
+          { id: "seed-h2", nombre: "Loft Brickell", ubicacion: "Brickell, Miami", precio: 72, img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80", disponible: true, tipo_inmueble: "apartamento", cuartos: 2, banos: 2, mascotas: false, aire_acondicionado: true, estacionamiento: true, piscina: false, lat: 25.7617, lng: -80.1918 },
+          { id: "seed-h3", nombre: "Casa South Beach", ubicacion: "Miami Beach, FL", precio: 98, img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80", disponible: true, tipo_inmueble: "casa", cuartos: 5, banos: 4, mascotas: true, aire_acondicionado: true, estacionamiento: true, piscina: true, lat: 25.7907, lng: -80.13 },
+          { id: "seed-h4", nombre: "Residencia Wynwood", ubicacion: "Wynwood, Miami", precio: 65, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80", disponible: true, tipo_inmueble: "apartamento", cuartos: 3, banos: 2, mascotas: false, aire_acondicionado: true, estacionamiento: false, piscina: false, lat: 25.8011, lng: -80.199 },
+        ];
+
+        function newId(prefix) {
+          if (typeof crypto !== "undefined" && crypto.randomUUID) return prefix + "-" + crypto.randomUUID();
+          return prefix + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+        }
+
+        function esc(s) {
+          return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function saveJson(key, arr) {
+          try {
+            localStorage.setItem(key, JSON.stringify(arr));
+          } catch (e) {}
+        }
+
+        function normalizeCarro(c) {
+          var cat = c.categoria || "sedan";
+          return {
+            id: c.id,
+            marca: c.marca,
+            modelo: c.modelo,
+            cilindraje: c.cilindraje,
+            precio: Number(c.precio),
+            img: c.img,
+            disponible: c.disponible !== false,
+            categoria: cat,
+            transmision: c.transmision || "automatica",
+          };
+        }
+
+        function normalizeCasa(h) {
+          return {
+            id: h.id,
+            nombre: h.nombre,
+            ubicacion: h.ubicacion,
+            precio: Number(h.precio),
+            img: h.img,
+            disponible: h.disponible !== false,
+            tipo_inmueble: h.tipo_inmueble || "casa",
+            cuartos: h.cuartos != null ? Number(h.cuartos) : 3,
+            banos: h.banos != null ? Number(h.banos) : 2,
+            mascotas: !!h.mascotas,
+            aire_acondicionado: h.aire_acondicionado !== false,
+            estacionamiento: h.estacionamiento !== false,
+            piscina: !!h.piscina,
+            lat: h.lat != null ? Number(h.lat) : DEFAULT_LAT,
+            lng: h.lng != null ? Number(h.lng) : DEFAULT_LNG,
+            airbnb_ical_url: h.airbnb_ical_url ? String(h.airbnb_ical_url).trim() : "",
+          };
+        }
+
+        function rowDbToCarro(row) {
+          return normalizeCarro({
+            id: row.id,
+            marca: row.marca,
+            modelo: row.modelo,
+            cilindraje: row.cilindraje,
+            precio: row.precio_por_dia,
+            img: row.foto_url,
+            disponible: row.disponible,
+            categoria: row.categoria,
+            transmision: row.transmision,
+          });
+        }
+
+        function rowDbToCasa(row) {
+          return normalizeCasa({
+            id: row.id,
+            nombre: row.nombre,
+            ubicacion: row.ubicacion,
+            precio: row.precio_noche_persona,
+            img: row.foto_url,
+            disponible: row.disponible,
+            tipo_inmueble: row.tipo_inmueble,
+            cuartos: row.cuartos,
+            banos: row.banos,
+            mascotas: row.mascotas,
+            aire_acondicionado: row.aire_acondicionado,
+            estacionamiento: row.estacionamiento,
+            piscina: row.piscina,
+            lat: row.lat,
+            lng: row.lng,
+            airbnb_ical_url: row.airbnb_ical_url,
+          });
+        }
+
+        function loadCarrosArray() {
+          try {
+            var raw = localStorage.getItem(STORAGE_CARROS);
+            if (raw) {
+              var data = JSON.parse(raw);
+              if (Array.isArray(data) && data.length) return data.map(normalizeCarro);
+            }
+            var leg = localStorage.getItem(STORAGE_CARROS_LEGACY);
+            if (leg) {
+              var migrated = JSON.parse(leg).map(normalizeCarro);
+              saveJson(STORAGE_CARROS, migrated);
+              return migrated;
+            }
+          } catch (e) {}
+          return SEED_CARROS.map(normalizeCarro);
+        }
+
+        function loadCasasArray() {
+          try {
+            var raw = localStorage.getItem(STORAGE_CASAS);
+            if (raw) {
+              var data = JSON.parse(raw);
+              if (Array.isArray(data) && data.length) return data.map(normalizeCasa);
+            }
+            var leg = localStorage.getItem(STORAGE_CASAS_LEGACY);
+            if (leg) {
+              var migrated = JSON.parse(leg).map(normalizeCasa);
+              saveJson(STORAGE_CASAS, migrated);
+              return migrated;
+            }
+          } catch (e) {}
+          return SEED_CASAS.map(normalizeCasa);
+        }
+
+        var CARROS = loadCarrosArray();
+        var CASAS = loadCasasArray();
+        var adminCasaSearch = "";
+
+        function labelTipoInm(t) {
+          return t === "apartamento" ? "Apartamento" : "Casa";
+        }
+
+        function labelCatCar(c) {
+          var m = { sedan: "Sedán", suv: "SUV", deportivo: "Deportivo", electrico: "Eléctrico" };
+          return m[c] || c;
+        }
+
+        function labelTrans(t) {
+          return t === "manual" ? "Manual" : "Automática";
+        }
+
+        function closeAllRowMenus() {
+          document.querySelectorAll(".row-menu.is-open").forEach(function (m) {
+            m.classList.remove("is-open");
+          });
+          openKebabCarro = null;
+          openKebabCasa = null;
+        }
+
+        function normalizeSearchStr(s) {
+          return String(s || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function filteredCarrosAdmin() {
+          var qRaw = adminCarSearch.trim();
+          if (!qRaw) return CARROS.slice();
+          var q = normalizeSearchStr(qRaw);
+          if (!q) return CARROS.slice();
+          var tokens = q.split(/\s+/).filter(function (t) {
+            return t.length > 0;
+          });
+
+          return CARROS.filter(function (c) {
+            var catLabel = normalizeSearchStr(labelCatCar(c.categoria));
+            var blob = normalizeSearchStr(
+              [
+                c.marca,
+                c.modelo,
+                c.cilindraje,
+                c.categoria,
+                catLabel,
+                labelTrans(c.transmision),
+                c.transmision,
+                "electrico electric ev bateria",
+              ].join(" ")
+            );
+            if (blob.indexOf(q) !== -1) return true;
+            if (tokens.length === 0) return false;
+            return tokens.some(function (t) {
+              return t.length >= 2 && blob.indexOf(t) !== -1;
+            });
+          });
+        }
+
+        function parseBedroomHint(qRaw, qn) {
+          var t = (qRaw || "").trim();
+          if (/^\d+$/.test(t)) return parseInt(t, 10);
+          var m = qn.match(/\b(\d+)\s*(hab|habitaciones|hab\.|cuartos|rooms|dorm)\b/);
+          if (m) return parseInt(m[1], 10);
+          m = qn.match(/\b(\d+)\s*\+?\s*hab\b/);
+          if (m) return parseInt(m[1], 10);
+          m = qn.match(/^\s*(\d+)\b\s+\S/);
+          if (m) {
+            var n = parseInt(m[1], 10);
+            if (n >= 1 && n <= 20) return n;
+          }
+          return null;
+        }
+
+        function scoreCasaAdmin(h, qRaw, qn) {
+          var score = 0;
+          if (!qn) return 1;
+          var nombre = normalizeSearchStr(h.nombre);
+          var ub = normalizeSearchStr(h.ubicacion);
+          var tipo = h.tipo_inmueble || "casa";
+
+          if (qn.indexOf("apartamento") !== -1 || qn.indexOf("apartam") !== -1 || qn.indexOf("apto") !== -1 || qn.indexOf("depto") !== -1) {
+            if (tipo === "apartamento") score += 80;
+          }
+          if (/\bcasa\b/.test(" " + qn + " ") || qn === "casa") {
+            if (tipo === "casa") score += 80;
+          }
+
+          if (ub.indexOf(qn) !== -1) score += 50;
+          if (nombre.indexOf(qn) !== -1) score += 45;
+
+          var words = qn.split(/\s+/).filter(function (w) {
+            return w.length > 1 && w !== "casa" && w !== "apartamento" && !/^hab/.test(w) && w !== "habitaciones" && w !== "cuartos";
+          });
+          words.forEach(function (w) {
+            if (ub.indexOf(w) !== -1) score += 22;
+            if (nombre.indexOf(w) !== -1) score += 18;
+          });
+
+          var bedHint = parseBedroomHint(qRaw, qn);
+          if (bedHint != null && h.cuartos === bedHint) score += 100;
+
+          return score;
+        }
+
+        function filteredCasasAdmin() {
+          var qRaw = adminCasaSearch.trim();
+          if (!qRaw) return CASAS.slice();
+          var qn = normalizeSearchStr(qRaw);
+          var bedNum = parseBedroomHint(qRaw, qn);
+          var pureNum = /^\d+$/.test(qRaw.trim());
+
+          var scored = CASAS.map(function (h) {
+            return { h: h, score: scoreCasaAdmin(h, qRaw, qn) };
+          });
+
+          var filtered = scored.filter(function (x) {
+            if (pureNum) return true;
+            return x.score > 0;
+          });
+
+          filtered.sort(function (a, b) {
+            var ha = a.h;
+            var hb = b.h;
+            if (bedNum != null && !isNaN(bedNum)) {
+              var ma = ha.cuartos === bedNum ? 0 : 1;
+              var mb = hb.cuartos === bedNum ? 0 : 1;
+              if (ma !== mb) return ma - mb;
+            }
+            if (b.score !== a.score) return b.score - a.score;
+            return hb.cuartos - ha.cuartos;
+          });
+
+          return filtered.map(function (x) {
+            return x.h;
+          });
+        }
+
+        function persistCarros() {
+          if (REMOTE_CATALOG) return;
+          saveJson(STORAGE_CARROS, CARROS);
+        }
+
+        function persistCasas() {
+          if (REMOTE_CATALOG) return;
+          saveJson(STORAGE_CASAS, CASAS);
+        }
+
+        function carrosPublicos() {
+          return CARROS.filter(function (c) {
+            return c.disponible !== false;
+          });
+        }
+
+        function casasPublicas() {
+          return CASAS.filter(function (h) {
+            return h.disponible !== false;
+          });
+        }
+
+        function loadReservasStorage() {
+          try {
+            var raw = localStorage.getItem(STORAGE_RESERVAS);
+            if (raw) {
+              var data = JSON.parse(raw);
+              if (Array.isArray(data)) return data;
+            }
+          } catch (e) {}
+          return [];
+        }
+
+        function saveReservasStorage(arr) {
+          try {
+            localStorage.setItem(STORAGE_RESERVAS, JSON.stringify(arr));
+          } catch (e) {}
+        }
+
+        function reservasActivasList() {
+          return loadReservasStorage().filter(function (r) {
+            var e = r.estado || "";
+            return e !== "Completada" && e !== "Cancelada";
+          });
+        }
+
+        function reservasHistorialList() {
+          return loadReservasStorage().filter(function (r) {
+            var e = r.estado || "";
+            return e === "Completada" || e === "Cancelada";
+          });
+        }
+
+        function newReservaRef() {
+          var t = Date.now().toString(36).toUpperCase();
+          return "RM-" + t.slice(-6);
+        }
+
+        function pad2(n) {
+          return (n < 10 ? "0" : "") + n;
+        }
+
+        function formatDateES(isoYmd) {
+          if (!isoYmd || typeof isoYmd !== "string") return "";
+          var p = isoYmd.split("-");
+          if (p.length !== 3) return isoYmd;
+          return pad2(parseInt(p[2], 10)) + "/" + pad2(parseInt(p[1], 10)) + "/" + p[0];
+        }
+
+        function parseISODateLocal(ymd) {
+          var p = String(ymd || "").split("-");
+          if (p.length !== 3) return null;
+          var d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+          return isNaN(d.getTime()) ? null : d;
+        }
+
+        /** Noches entre dos fechas (check-in / check-out), mínimo 1 */
+        function nightsBetween(startYmd, endYmd) {
+          var a = parseISODateLocal(startYmd);
+          var b = parseISODateLocal(endYmd);
+          if (!a || !b) return 0;
+          var ms = b - a;
+          var n = Math.round(ms / (24 * 3600 * 1000));
+          return Math.max(1, n);
+        }
+
+        function isUuid(s) {
+          return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(s || ""));
+        }
+
+        function $(sel) {
+          return document.querySelector(sel);
+        }
+
+        function showView(id) {
+          document.querySelectorAll(".view").forEach(function (el) {
+            el.classList.toggle("is-active", el.id === id);
+          });
+          var shortId = id.replace("view-", "");
+          document.querySelectorAll(".nav-btn[data-nav]").forEach(function (btn) {
+            if (btn.id === "servicios-toggle") return;
+            var match = btn.dataset.nav === shortId;
+            if (
+              btn.dataset.nav === "admin-login" &&
+              (shortId === "admin-login" ||
+                shortId === "admin-panel" ||
+                shortId === "admin-form-carro" ||
+                shortId === "admin-form-casa")
+            ) {
+              match = true;
+            }
+            btn.classList.toggle("is-current", match);
+          });
+          var servToggle = document.getElementById("servicios-toggle");
+          if (servToggle) {
+            var servicio = shortId === "servicios-carros" || shortId === "servicios-casas";
+            servToggle.classList.toggle("is-current", servicio);
+          }
+        }
+
+        function buildCarousel(name, items, captionFn, tipoClick) {
+          var root = document.querySelector('[data-carousel="' + name + '"]');
+          if (!root) return;
+          var track = root.querySelector(".carousel-track");
+          track.innerHTML = "";
+          if (!items.length) {
+            var empty = document.createElement("div");
+            empty.className = "carousel-slide";
+            empty.style.display = "grid";
+            empty.style.placeItems = "center";
+            empty.style.minHeight = "160px";
+            empty.style.color = "var(--muted)";
+            empty.textContent = "No hay elementos disponibles.";
+            track.appendChild(empty);
+            return;
+          }
+          items.forEach(function (item, i) {
+            var slide = document.createElement("div");
+            slide.className = "carousel-slide";
+            if (tipoClick === "carro" || tipoClick === "casa") {
+              slide.classList.add("is-clickable");
+              slide.setAttribute("role", "button");
+              slide.setAttribute("tabindex", "0");
+              slide.setAttribute("title", "Ver catálogo y reservar");
+              slide.addEventListener("click", function (e) {
+                e.preventDefault();
+                if (tipoClick === "carro") {
+                  navTo("servicios-carros");
+                  openReservaModal("carro", item.id);
+                } else {
+                  navTo("servicios-casas");
+                  openReservaModal("casa", item.id);
+                }
+              });
+              slide.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  slide.click();
+                }
+              });
+            }
+            var img = document.createElement("img");
+            img.src = item.img;
+            img.alt = captionFn(item);
+            img.loading = i === 0 ? "eager" : "lazy";
+            var cap = document.createElement("div");
+            cap.className = "carousel-caption";
+            cap.textContent = captionFn(item);
+            slide.appendChild(img);
+            slide.appendChild(cap);
+            track.appendChild(slide);
+          });
+          var btns = root.querySelectorAll(".carousel-nav button");
+          btns[0].onclick = function () {
+            track.scrollBy({ left: -track.clientWidth, behavior: "smooth" });
+          };
+          btns[1].onclick = function () {
+            track.scrollBy({ left: track.clientWidth, behavior: "smooth" });
+          };
+        }
+
+        function fillGrid(id, items, renderCard) {
+          var grid = document.getElementById(id);
+          if (!grid) return;
+          grid.innerHTML = "";
+          items.forEach(function (item) {
+            grid.appendChild(renderCard(item));
+          });
+        }
+
+        function filterCarrosClient(list) {
+          var marca = (document.getElementById("f-car-marca") && document.getElementById("f-car-marca").value.trim().toLowerCase()) || "";
+          var cat = (document.getElementById("f-car-categoria") && document.getElementById("f-car-categoria").value) || "";
+          var tr = (document.getElementById("f-car-trans") && document.getElementById("f-car-trans").value) || "";
+          var pmin = parseFloat(document.getElementById("f-car-pmin") && document.getElementById("f-car-pmin").value);
+          var pmax = parseFloat(document.getElementById("f-car-pmax") && document.getElementById("f-car-pmax").value);
+          return list.filter(function (c) {
+            if (marca && String(c.marca).toLowerCase().indexOf(marca) === -1) return false;
+            if (cat && c.categoria !== cat) return false;
+            if (tr && c.transmision !== tr) return false;
+            if (!isNaN(pmin) && c.precio < pmin) return false;
+            if (!isNaN(pmax) && c.precio > pmax) return false;
+            return true;
+          });
+        }
+
+        function triState(sel, value) {
+          if (!sel || !value) return true;
+          if (value === "si") return !!sel;
+          if (value === "no") return !sel;
+          return true;
+        }
+
+        function filterCasasClient(list) {
+          var qEl = document.getElementById("f-casa-q");
+          var q = (qEl && qEl.value.trim().toLowerCase()) || "";
+          var tipo = (document.getElementById("f-casa-tipo") && document.getElementById("f-casa-tipo").value) || "";
+          var cuartosMin = parseInt(document.getElementById("f-casa-cuartos") && document.getElementById("f-casa-cuartos").value, 10);
+          var banosMin = parseInt(document.getElementById("f-casa-banos") && document.getElementById("f-casa-banos").value, 10);
+          var masc = (document.getElementById("f-casa-mascotas") && document.getElementById("f-casa-mascotas").value) || "";
+          var aire = (document.getElementById("f-casa-aire") && document.getElementById("f-casa-aire").value) || "";
+          var park = (document.getElementById("f-casa-parking") && document.getElementById("f-casa-parking").value) || "";
+          var pisc = (document.getElementById("f-casa-piscina") && document.getElementById("f-casa-piscina").value) || "";
+          return list.filter(function (h) {
+            if (q && h.nombre.toLowerCase().indexOf(q) === -1 && h.ubicacion.toLowerCase().indexOf(q) === -1) return false;
+            if (tipo && h.tipo_inmueble !== tipo) return false;
+            if (!isNaN(cuartosMin) && h.cuartos < cuartosMin) return false;
+            if (!isNaN(banosMin) && h.banos < banosMin) return false;
+            if (masc === "si" && !h.mascotas) return false;
+            if (masc === "no" && h.mascotas) return false;
+            if (!triState(h.aire_acondicionado, aire)) return false;
+            if (!triState(h.estacionamiento, park)) return false;
+            if (!triState(h.piscina, pisc)) return false;
+            return true;
+          });
+        }
+
+        function cardCarro(c) {
+          var article = document.createElement("article");
+          article.className = "card is-clickable";
+          article.setAttribute("data-carro-id", c.id);
+          article.innerHTML =
+            '<img src="' +
+            esc(c.img) +
+            '" alt="' +
+            esc(c.marca + " " + c.modelo) +
+            '" loading="lazy" />' +
+            '<div class="card-body"><h3>' +
+            esc(c.marca + " " + c.modelo) +
+            "</h3>" +
+            "<dl>" +
+            "<dt>Marca: </dt><dd>" +
+            esc(c.marca) +
+            "</dd>" +
+            "<dt>Cilindraje: </dt><dd>" +
+            esc(c.cilindraje) +
+            "</dd>" +
+            "<dt>Categoría: </dt><dd>" +
+            esc(labelCatCar(c.categoria)) +
+            "</dd>" +
+            "<dt>Transmisión: </dt><dd>" +
+            esc(labelTrans(c.transmision)) +
+            "</dd>" +
+            "<dt>Precio por día: </dt><dd>$" +
+            esc(c.precio) +
+            " USD</dd>" +
+            '</dl><div class="card-actions">' +
+            '<button type="button" class="btn-reservar" data-reservar-carro="' +
+            esc(c.id) +
+            '">Reservar</button></div></div>';
+          article.addEventListener("click", function (e) {
+            if (e.target.closest && e.target.closest("[data-reservar-carro]")) return;
+            openReservaModal("carro", c.id);
+          });
+          var btn = article.querySelector("[data-reservar-carro]");
+          if (btn) {
+            btn.addEventListener("click", function (e) {
+              e.stopPropagation();
+              openReservaModal("carro", c.id);
+            });
+          }
+          return article;
+        }
+
+        function cardCasa(h) {
+          var tags =
+            '<div class="card-tags">' +
+            '<span>' +
+            esc(labelTipoInm(h.tipo_inmueble)) +
+            "</span>" +
+            "<span>" +
+            esc(h.cuartos) +
+            " hab.</span>" +
+            "<span>" +
+            esc(h.banos) +
+            " baños</span>" +
+            (h.mascotas ? '<span>Mascotas OK</span>' : "") +
+            (h.aire_acondicionado ? '<span>AC</span>' : "") +
+            (h.estacionamiento ? '<span>Parking</span>' : "") +
+            (h.piscina ? '<span>Piscina</span>' : "") +
+            "</div>";
+          var article = document.createElement("article");
+          article.className = "card is-clickable";
+          article.setAttribute("data-casa-id", h.id);
+          article.innerHTML =
+            '<img src="' +
+            esc(h.img) +
+            '" alt="' +
+            esc(h.nombre) +
+            '" loading="lazy" />' +
+            '<div class="card-body"><h3>' +
+            esc(h.nombre) +
+            "</h3>" +
+            "<dl>" +
+            "<dt>Ubicación: </dt><dd>" +
+            esc(h.ubicacion) +
+            "</dd>" +
+            "<dt>Precio / noche / persona: </dt><dd>$" +
+            esc(h.precio) +
+            " USD</dd>" +
+            "</dl>" +
+            tags +
+            '<div class="card-actions">' +
+            '<button type="button" class="btn-reservar" data-reservar-casa="' +
+            esc(h.id) +
+            '">Reservar</button></div></div>';
+          article.addEventListener("click", function (e) {
+            if (e.target.closest && e.target.closest("[data-reservar-casa]")) return;
+            openReservaModal("casa", h.id);
+          });
+          var btn = article.querySelector("[data-reservar-casa]");
+          if (btn) {
+            btn.addEventListener("click", function (e) {
+              e.stopPropagation();
+              openReservaModal("casa", h.id);
+            });
+          }
+          return article;
+        }
+
+        function renderAdminCarros() {
+          var tbody = document.getElementById("tbody-admin-carros");
+          if (!tbody) return;
+          tbody.innerHTML = "";
+          closeAllRowMenus();
+          var all = filteredCarrosAdmin();
+          var n = all.length;
+          var size = adminPageSizeCarros;
+          var totalPages = Math.max(1, Math.ceil(n / size) || 1);
+          if (adminPageCarros > totalPages) adminPageCarros = totalPages;
+          if (adminPageCarros < 1) adminPageCarros = 1;
+          var start = (adminPageCarros - 1) * size;
+          var slice = all.slice(start, start + size);
+          slice.forEach(function (c) {
+            var tr = document.createElement("tr");
+            var disp = c.disponible !== false ? "Disponible" : "No disponible";
+            tr.innerHTML =
+              '<td><img class="thumb" src="' +
+              esc(c.img) +
+              '" alt="" /></td>' +
+              "<td><strong>" +
+              esc(c.marca + " " + c.modelo) +
+              "</strong></td>" +
+              "<td>" +
+              esc(c.cilindraje) +
+              "</td>" +
+              "<td>" +
+              esc(labelCatCar(c.categoria)) +
+              "</td>" +
+              "<td>" +
+              esc(labelTrans(c.transmision)) +
+              "</td>" +
+              "<td>$" +
+              esc(c.precio) +
+              "</td>" +
+              "<td>" +
+              esc(disp) +
+              "</td>" +
+              '<td class="row-actions">' +
+              '<button type="button" class="btn-kebab" data-kebab-carro="' +
+              esc(c.id) +
+              '" aria-label="Menú de acciones" aria-haspopup="true">⋮</button>' +
+              '<div class="row-menu">' +
+              '<button type="button" data-edit-carro="' +
+              esc(c.id) +
+              '">Actualizar</button>' +
+              '<button type="button" class="danger" data-del-carro="' +
+              esc(c.id) +
+              '">Eliminar</button>' +
+              "</div></td>";
+            tbody.appendChild(tr);
+          });
+          var info = document.getElementById("admin-carros-page-info");
+          if (info) {
+            info.textContent =
+              n === 0
+                ? "Sin resultados"
+                : "Mostrando " +
+                  (n ? start + 1 : 0) +
+                  "–" +
+                  (start + slice.length) +
+                  " de " +
+                  n +
+                  " · Página " +
+                  adminPageCarros +
+                  " de " +
+                  totalPages;
+          }
+          var prev = document.getElementById("admin-carros-prev");
+          var next = document.getElementById("admin-carros-next");
+          if (prev) prev.disabled = adminPageCarros <= 1 || n === 0;
+          if (next) next.disabled = adminPageCarros >= totalPages || n === 0;
+        }
+
+        function renderAdminCasas() {
+          var tbody = document.getElementById("tbody-admin-casas");
+          if (!tbody) return;
+          tbody.innerHTML = "";
+          closeAllRowMenus();
+          var all = filteredCasasAdmin();
+          var n = all.length;
+          var size = adminPageSizeCasas;
+          var totalPages = Math.max(1, Math.ceil(n / size) || 1);
+          if (adminPageCasas > totalPages) adminPageCasas = totalPages;
+          if (adminPageCasas < 1) adminPageCasas = 1;
+          var start = (adminPageCasas - 1) * size;
+          var slice = all.slice(start, start + size);
+          slice.forEach(function (h) {
+            var tr = document.createElement("tr");
+            var disp = h.disponible !== false ? "Disponible" : "No disponible";
+            tr.innerHTML =
+              '<td><img class="thumb" src="' +
+              esc(h.img) +
+              '" alt="" /></td>' +
+              "<td><strong>" +
+              esc(h.nombre) +
+              "</strong></td>" +
+              "<td>" +
+              esc(h.ubicacion) +
+              "</td>" +
+              "<td>" +
+              esc(labelTipoInm(h.tipo_inmueble)) +
+              "</td>" +
+              "<td>" +
+              esc(h.cuartos) +
+              "</td>" +
+              "<td>$" +
+              esc(h.precio) +
+              "</td>" +
+              "<td>" +
+              esc(disp) +
+              "</td>" +
+              '<td class="row-actions">' +
+              '<button type="button" class="btn-kebab" data-kebab-casa="' +
+              esc(h.id) +
+              '" aria-label="Menú de acciones" aria-haspopup="true">⋮</button>' +
+              '<div class="row-menu">' +
+              '<button type="button" data-edit-casa="' +
+              esc(h.id) +
+              '">Actualizar</button>' +
+              '<button type="button" class="danger" data-del-casa="' +
+              esc(h.id) +
+              '">Eliminar</button>' +
+              "</div></td>";
+            tbody.appendChild(tr);
+          });
+          var info = document.getElementById("admin-casas-page-info");
+          if (info) {
+            info.textContent =
+              n === 0
+                ? "Sin resultados"
+                : "Mostrando " +
+                  (n ? start + 1 : 0) +
+                  "–" +
+                  (start + slice.length) +
+                  " de " +
+                  n +
+                  " · Página " +
+                  adminPageCasas +
+                  " de " +
+                  totalPages;
+          }
+          var prev = document.getElementById("admin-casas-prev");
+          var next = document.getElementById("admin-casas-next");
+          if (prev) prev.disabled = adminPageCasas <= 1 || n === 0;
+          if (next) next.disabled = adminPageCasas >= totalPages || n === 0;
+        }
+
+        function refreshCatalogo() {
+          var carsPub = carrosPublicos();
+          var casasPub = casasPublicas();
+          var carsF = filterCarrosClient(carsPub);
+          var casasF = filterCasasClient(casasPub);
+
+          buildCarousel("carros", carsPub, function (c) {
+            return c.marca + " " + c.modelo + " — $" + c.precio + "/día";
+          }, "carro");
+          buildCarousel("casas", casasPub, function (h) {
+            return h.nombre + " — " + h.ubicacion;
+          }, "casa");
+          fillGrid("grid-carros", carsF, cardCarro);
+          fillGrid("grid-casas", casasF, cardCasa);
+          renderAdminCarros();
+          renderAdminCasas();
+          refreshMapCasasIfNeeded();
+        }
+
+        function fillReservas(listEl, items) {
+          listEl.innerHTML = "";
+          if (!items.length) {
+            var li0 = document.createElement("li");
+            li0.className = "empty-hint";
+            li0.textContent = "No hay entradas por ahora.";
+            listEl.appendChild(li0);
+            return;
+          }
+          items.forEach(function (r) {
+            var li = document.createElement("li");
+            li.innerHTML =
+              "<strong>" +
+              esc(r.ref) +
+              "</strong> — " +
+              esc(r.cliente) +
+              "<br />" +
+              esc(r.detalle) +
+              "<br /><span style=\"color:#94a3b8;font-size:0.85rem\">" +
+              esc(r.estado) +
+              "</span>";
+            listEl.appendChild(li);
+          });
+        }
+
+        function refreshReservasAdminLists() {
+          var activas = reservasActivasList().map(function (r) {
+            return {
+              ref: r.ref,
+              cliente: r.clienteNombre || r.nombre || "Cliente",
+              detalle: r.detalle || "",
+              estado: r.estado || "Pendiente contacto",
+            };
+          });
+          var hist = reservasHistorialList().map(function (r) {
+            return {
+              ref: r.ref,
+              cliente: r.clienteNombre || r.nombre || "Cliente",
+              detalle: r.detalle || "",
+              estado: r.estado || "",
+            };
+          });
+          fillReservas(document.getElementById("list-activas"), activas);
+          fillReservas(document.getElementById("list-historial"), hist);
+        }
+
+        function openReservaModal(tipo, itemId) {
+          var modal = document.getElementById("modal-reserva");
+          var form = document.getElementById("form-reserva");
+          var sum = document.getElementById("modal-reserva-summary");
+          var title = document.getElementById("modal-reserva-title");
+          var err = document.getElementById("reserva-form-error");
+          var wrapPer = document.getElementById("wrap-reserva-personas");
+          if (!modal || !form || !sum || !title) return;
+          if (err) {
+            err.textContent = "";
+            err.classList.remove("is-visible");
+          }
+          var c = tipo === "carro" ? CARROS.find(function (x) { return x.id === itemId; }) : null;
+          var h = tipo === "casa" ? CASAS.find(function (x) { return x.id === itemId; }) : null;
+          if (tipo === "carro" && !c) return;
+          if (tipo === "casa" && !h) return;
+          if (tipo === "carro" && c.disponible === false) {
+            alert("Este vehículo no está disponible en este momento.");
+            return;
+          }
+          if (tipo === "casa" && h.disponible === false) {
+            alert("Esta propiedad no está disponible en este momento.");
+            return;
+          }
+
+          document.getElementById("reserva-tipo").value = tipo;
+          document.getElementById("reserva-item-id").value = itemId;
+          if (wrapPer) wrapPer.hidden = tipo !== "casa";
+
+          if (tipo === "carro") {
+            title.textContent = "Reservar vehículo";
+            sum.innerHTML =
+              '<img src="' +
+              esc(c.img) +
+              '" alt="" /><div><strong>' +
+              esc(c.marca + " " + c.modelo) +
+              "</strong>$" +
+              esc(c.precio) +
+              " USD / día · " +
+              esc(labelCatCar(c.categoria)) +
+              "</div>";
+          } else {
+            title.textContent = "Reservar propiedad";
+            sum.innerHTML =
+              '<img src="' +
+              esc(h.img) +
+              '" alt="" /><div><strong>' +
+              esc(h.nombre) +
+              "</strong>" +
+              esc(h.ubicacion) +
+              " · $" +
+              esc(h.precio) +
+              " USD / noche / persona</div>";
+          }
+
+          form.reset();
+          document.getElementById("reserva-tipo").value = tipo;
+          document.getElementById("reserva-item-id").value = itemId;
+          var pers = document.getElementById("reserva-personas");
+          if (pers) pers.value = "2";
+
+          var today = new Date();
+          var y = today.getFullYear();
+          var m = pad2(today.getMonth() + 1);
+          var d = pad2(today.getDate());
+          var startDefault = y + "-" + m + "-" + d;
+          var end = new Date(today);
+          end.setDate(end.getDate() + 3);
+          var ey = end.getFullYear();
+          var em = pad2(end.getMonth() + 1);
+          var ed = pad2(end.getDate());
+          var endDefault = ey + "-" + em + "-" + ed;
+
+          var est = document.getElementById("reserva-estimado");
+          if (est) est.hidden = false;
+
+          mountReservaCalendar(tipo, itemId, startDefault, endDefault);
+
+          modal.classList.add("is-open");
+          modal.setAttribute("aria-hidden", "false");
+          setTimeout(function () {
+            var first = document.getElementById("reserva-nombre");
+            if (first) first.focus();
+          }, 50);
+        }
+
+        function closeReservaModal() {
+          if (reservaCalendarHandle && reservaCalendarHandle.destroy) {
+            reservaCalendarHandle.destroy();
+            reservaCalendarHandle = null;
+          }
+          var modal = document.getElementById("modal-reserva");
+          if (!modal) return;
+          modal.classList.remove("is-open");
+          modal.setAttribute("aria-hidden", "true");
+        }
+
+        function localBlockedRangesForCasa(casaId) {
+          var out = [];
+          loadReservasStorage().forEach(function (r) {
+            if (r.tipo !== "casa" || r.itemId !== casaId) return;
+            if (r.estado === "Cancelada" || r.estado === "Completada") return;
+            if (r.fechaInicio && r.fechaFin) out.push({ start: r.fechaInicio, end: r.fechaFin });
+          });
+          return out;
+        }
+
+        function fetchMergedBlockedRangesForCasa(casaId) {
+          var localR = localBlockedRangesForCasa(casaId);
+          if (!window.RentalsCalendar || !RentalsCalendar.mergeHalfOpenRanges) {
+            return Promise.resolve(localR);
+          }
+          if (!window.RentalsSupabase || !RentalsSupabase.isConfigured() || !isUuid(casaId)) {
+            return Promise.resolve(RentalsCalendar.mergeHalfOpenRanges([localR]));
+          }
+          return Promise.all([
+            RentalsSupabase.rpcFechasBloqueadasCasa(casaId).catch(function () {
+              return [];
+            }),
+            RentalsSupabase.fetchAirbnbCalEdge(casaId).catch(function () {
+              return { ranges: [] };
+            }),
+          ]).then(function (pair) {
+            var dbR = Array.isArray(pair[0]) ? pair[0] : [];
+            var airR = pair[1] && pair[1].ranges ? pair[1].ranges : [];
+            return RentalsCalendar.mergeHalfOpenRanges([localR, dbR, airR]);
+          });
+        }
+
+        function mountReservaCalendar(tipo, itemId, startDefault, endDefault) {
+          var mount = document.getElementById("calendario-reserva-mount");
+          if (!mount || !window.RentalsCalendar || !RentalsCalendar.mount) {
+            return;
+          }
+          if (reservaCalendarHandle && reservaCalendarHandle.destroy) {
+            reservaCalendarHandle.destroy();
+            reservaCalendarHandle = null;
+          }
+          var errEl = document.getElementById("reserva-form-error");
+
+          function bindCalendar(blockedRanges) {
+            reservaCalendarHandle = RentalsCalendar.mount(mount, {
+              blockedRanges: blockedRanges || [],
+              monthsToShow: 1,
+              minDate: RentalsCalendar.ymdToday(),
+              onChange: function (fi, ff, errMsg) {
+                if (errEl) {
+                  errEl.classList.toggle("is-visible", !!errMsg);
+                  errEl.textContent = errMsg || "";
+                }
+                document.getElementById("reserva-fecha-inicio").value = fi || "";
+                document.getElementById("reserva-fecha-fin").value = ff || "";
+                updateReservaEstimado();
+              },
+            });
+            reservaCalendarHandle.setSelection(startDefault, endDefault);
+            document.getElementById("reserva-fecha-inicio").value = startDefault;
+            document.getElementById("reserva-fecha-fin").value = endDefault;
+            updateReservaEstimado();
+          }
+
+          if (tipo === "casa") {
+            mount.innerHTML = '<p class="admin-hint" style="margin:0">Cargando disponibilidad…</p>';
+            fetchMergedBlockedRangesForCasa(itemId).then(function (ranges) {
+              mount.innerHTML = "";
+              bindCalendar(ranges);
+            });
+          } else {
+            mount.innerHTML = "";
+            bindCalendar([]);
+          }
+        }
+
+        function updateReservaEstimado() {
+          var tipo = document.getElementById("reserva-tipo") && document.getElementById("reserva-tipo").value;
+          var itemId = document.getElementById("reserva-item-id") && document.getElementById("reserva-item-id").value;
+          var fi = document.getElementById("reserva-fecha-inicio") && document.getElementById("reserva-fecha-inicio").value;
+          var ff = document.getElementById("reserva-fecha-fin") && document.getElementById("reserva-fecha-fin").value;
+          var box = document.getElementById("reserva-estimado");
+          if (!box) return;
+          if (!tipo || !itemId || !fi || !ff) {
+            box.textContent = "";
+            box.hidden = true;
+            return;
+          }
+          var d0 = parseISODateLocal(fi);
+          var d1 = parseISODateLocal(ff);
+          if (!d0 || !d1 || d1 < d0) {
+            box.textContent = "Revisa las fechas: la salida debe ser el mismo día o después del ingreso.";
+            box.hidden = false;
+            return;
+          }
+          if (tipo === "carro") {
+            var c = CARROS.find(function (x) {
+              return x.id === itemId;
+            });
+            if (!c) return;
+            var dias = nightsBetween(fi, ff);
+            var sub = Math.round(c.precio * dias * 100) / 100;
+            box.innerHTML =
+              "Estancia: <strong>" +
+              dias +
+              (dias === 1 ? " día</strong>" : " días</strong>") +
+              " · Total aprox.: <strong>$" +
+              esc(sub) +
+              " USD</strong> (precio por día × días).";
+            box.hidden = false;
+          } else {
+            var h = CASAS.find(function (x) {
+              return x.id === itemId;
+            });
+            if (!h) return;
+            var noches = nightsBetween(fi, ff);
+            var pers = parseInt(document.getElementById("reserva-personas") && document.getElementById("reserva-personas").value, 10) || 2;
+            var sub2 = Math.round(h.precio * noches * pers * 100) / 100;
+            box.innerHTML =
+              "Estancia: <strong>" +
+              noches +
+              (noches === 1 ? " noche</strong>" : " noches</strong>") +
+              " · " +
+              pers +
+              " pers. · Total aprox.: <strong>$" +
+              esc(sub2) +
+              " USD</strong>.";
+            box.hidden = false;
+          }
+        }
+
+        function buildWhatsAppMessage(payload) {
+          var lines = [];
+          lines.push("🔔 *Nueva solicitud de reserva — Golden Coast Villas*");
+          lines.push("");
+          lines.push("*Referencia:* " + payload.ref);
+          lines.push("*Tipo:* " + (payload.tipo === "carro" ? "Vehículo" : "Casa / apartamento"));
+          lines.push("*Servicio:* " + payload.itemLabel);
+          lines.push("");
+          lines.push("*Cliente:*");
+          lines.push("· Nombre: " + payload.nombre);
+          lines.push("· Teléfono: " + payload.telefono);
+          lines.push("· Correo: " + payload.correo);
+          lines.push("· ID / pasaporte: " + payload.documento);
+          lines.push("");
+          lines.push("*Fechas:* " + formatDateES(payload.fechaInicio) + " → " + formatDateES(payload.fechaFin));
+          if (payload.tipo === "casa") lines.push("*Personas:* " + payload.personas);
+          lines.push("*Total estimado:* ~$" + payload.estimado + " USD");
+          lines.push("");
+          lines.push("Por favor contacta al cliente para confirmar disponibilidad y cerrar el alquiler.");
+          return lines.join("\n");
+        }
+
+        function initMapCasasIfNeeded() {
+          if (typeof L === "undefined") return;
+          var el = document.getElementById("map-casas");
+          if (!el || mapCasasInstance) return;
+          mapCasasInstance = L.map("map-casas", { scrollWheelZoom: true }).setView([25.76, -80.195], 11);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          }).addTo(mapCasasInstance);
+          mapCasasMarkers = L.layerGroup().addTo(mapCasasInstance);
+          setTimeout(function () {
+            if (mapCasasInstance) mapCasasInstance.invalidateSize();
+          }, 200);
+        }
+
+        function refreshMapCasasIfNeeded() {
+          if (!mapCasasInstance || !mapCasasMarkers || typeof L === "undefined") return;
+          mapCasasMarkers.clearLayers();
+          var list = CASAS.filter(function (h) {
+            return h.disponible !== false && h.lat != null && h.lng != null;
+          });
+          var bounds = [];
+          list.forEach(function (h) {
+            var lat = Number(h.lat);
+            var lng = Number(h.lng);
+            if (isNaN(lat) || isNaN(lng)) return;
+            bounds.push([lat, lng]);
+            var m = L.marker([lat, lng]).bindPopup("<strong>" + esc(h.nombre) + "</strong><br />" + esc(h.ubicacion) + "<br />$" + esc(h.precio) + " / noche / p.");
+            mapCasasMarkers.addLayer(m);
+          });
+          if (bounds.length === 1) {
+            mapCasasInstance.setView(bounds[0], 13);
+          } else if (bounds.length > 1) {
+            mapCasasInstance.fitBounds(bounds, { padding: [36, 36], maxZoom: 13 });
+          }
+          setTimeout(function () {
+            if (mapCasasInstance) mapCasasInstance.invalidateSize();
+          }, 100);
+        }
+
+        document.getElementById("year").textContent = new Date().getFullYear();
+
+        refreshReservasAdminLists();
+
+        function setCatalogoOpen(open) {
+          var sub = document.getElementById("catalogo-submenu");
+          var tg = document.getElementById("catalogo-toggle");
+          if (sub) sub.classList.toggle("is-open", !!open);
+          if (tg) {
+            tg.classList.toggle("is-open", !!open);
+            tg.setAttribute("aria-expanded", open ? "true" : "false");
+          }
+        }
+
+        function setAdminTab(tab) {
+          document.querySelectorAll(".admin-sidebar [data-admin-tab]").forEach(function (b) {
+            b.classList.toggle("is-active", b.getAttribute("data-admin-tab") === tab);
+          });
+          var pa = document.getElementById("panel-activas");
+          var ph = document.getElementById("panel-historial");
+          var pm = document.getElementById("panel-admin-mapa");
+          var pc = document.getElementById("panel-admin-carros");
+          var ps = document.getElementById("panel-admin-casas");
+          if (pa) pa.hidden = tab !== "activas";
+          if (ph) ph.hidden = tab !== "historial";
+          if (pm) pm.hidden = tab !== "mapa";
+          if (pc) pc.hidden = tab !== "carros";
+          if (ps) ps.hidden = tab !== "casas";
+          if (tab === "carros" || tab === "casas") setCatalogoOpen(true);
+          if (tab === "mapa") {
+            initMapCasasIfNeeded();
+            refreshMapCasasIfNeeded();
+          }
+          refreshCatalogo();
+          refreshReservasAdminLists();
+        }
+
+        function resetCarroForm() {
+          var f = document.getElementById("form-carro");
+          if (f) f.reset();
+          var hid = document.getElementById("carro-edit-id");
+          if (hid) hid.value = "";
+          var cb = document.getElementById("carro-disponible");
+          if (cb) cb.checked = true;
+          var sub = document.getElementById("carro-submit");
+          if (sub) sub.textContent = "Guardar carro";
+          var title = document.getElementById("form-carro-title");
+          if (title) title.textContent = "Añadir carro";
+        }
+
+        function openCarroForm(editId) {
+          resetCarroForm();
+          var title = document.getElementById("form-carro-title");
+          var subBtn = document.getElementById("carro-submit");
+          if (editId) {
+            var c = CARROS.find(function (x) {
+              return x.id === editId;
+            });
+            if (!c) return;
+            if (title) title.textContent = "Actualizar carro";
+            if (subBtn) subBtn.textContent = "Guardar cambios";
+            document.getElementById("carro-edit-id").value = c.id;
+            document.getElementById("carro-marca").value = c.marca;
+            document.getElementById("carro-modelo").value = c.modelo;
+            document.getElementById("carro-cilindraje").value = c.cilindraje;
+            document.getElementById("carro-precio").value = c.precio;
+            document.getElementById("carro-categoria").value = c.categoria || "sedan";
+            document.getElementById("carro-transmision").value = c.transmision || "automatica";
+            document.getElementById("carro-img").value = c.img;
+            document.getElementById("carro-disponible").checked = c.disponible !== false;
+          }
+          showView("view-admin-form-carro");
+        }
+
+        function goAdminCarrosList() {
+          showView("view-admin-panel");
+          setAdminTab("carros");
+        }
+
+        function openCasaForm(editId) {
+          resetCasaForm();
+          var title = document.getElementById("form-casa-title");
+          var subBtn = document.getElementById("casa-submit");
+          if (editId) {
+            var h = CASAS.find(function (x) {
+              return x.id === editId;
+            });
+            if (!h) return;
+            if (title) title.textContent = "Actualizar casa";
+            if (subBtn) subBtn.textContent = "Guardar cambios";
+            document.getElementById("casa-edit-id").value = h.id;
+            document.getElementById("casa-nombre").value = h.nombre;
+            document.getElementById("casa-ubicacion").value = h.ubicacion;
+            document.getElementById("casa-precio").value = h.precio;
+            document.getElementById("casa-tipo-inm").value = h.tipo_inmueble || "casa";
+            document.getElementById("casa-cuartos").value = h.cuartos;
+            document.getElementById("casa-banos").value = h.banos;
+            document.getElementById("casa-lat").value = h.lat;
+            document.getElementById("casa-lng").value = h.lng;
+            document.getElementById("casa-img").value = h.img;
+            var icalEl = document.getElementById("casa-airbnb-ical");
+            if (icalEl) icalEl.value = h.airbnb_ical_url || "";
+            document.getElementById("casa-mascotas").checked = !!h.mascotas;
+            document.getElementById("casa-aire").checked = h.aire_acondicionado !== false;
+            document.getElementById("casa-parking").checked = h.estacionamiento !== false;
+            document.getElementById("casa-piscina").checked = !!h.piscina;
+            document.getElementById("casa-disponible").checked = h.disponible !== false;
+          } else {
+            if (title) title.textContent = "Añadir casa";
+            if (subBtn) subBtn.textContent = "Guardar casa";
+          }
+          showView("view-admin-form-casa");
+        }
+
+        function goAdminCasasList() {
+          showView("view-admin-panel");
+          setAdminTab("casas");
+        }
+
+        function resetCasaForm() {
+          var hid = document.getElementById("casa-edit-id");
+          var wasEdit = hid && hid.value;
+          var f = document.getElementById("form-casa");
+          if (f) f.reset();
+          if (hid) hid.value = "";
+          var cb = document.getElementById("casa-disponible");
+          if (cb) cb.checked = true;
+          var air = document.getElementById("casa-aire");
+          if (air) air.checked = true;
+          var pk = document.getElementById("casa-parking");
+          if (pk) pk.checked = true;
+          var cu = document.getElementById("casa-cuartos");
+          if (cu) cu.value = "3";
+          var ba = document.getElementById("casa-banos");
+          if (ba) ba.value = "2";
+          var icalInp = document.getElementById("casa-airbnb-ical");
+          if (icalInp) icalInp.value = "";
+          if (!wasEdit) {
+            var lat = document.getElementById("casa-lat");
+            var lng = document.getElementById("casa-lng");
+            if (lat) lat.value = String(DEFAULT_LAT);
+            if (lng) lng.value = String(DEFAULT_LNG);
+          }
+          var sub = document.getElementById("casa-submit");
+          if (sub) sub.textContent = "Guardar casa";
+          var title = document.getElementById("form-casa-title");
+          if (title) title.textContent = "Añadir casa";
+        }
+
+        document.querySelectorAll(".admin-sidebar [data-admin-tab]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            setAdminTab(btn.getAttribute("data-admin-tab"));
+          });
+        });
+
+        var catalogoToggle = document.getElementById("catalogo-toggle");
+        if (catalogoToggle) {
+          catalogoToggle.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var sub = document.getElementById("catalogo-submenu");
+            setCatalogoOpen(!sub.classList.contains("is-open"));
+          });
+        }
+
+        document.getElementById("btn-add-carro").addEventListener("click", function () {
+          openCarroForm(null);
+        });
+        document.getElementById("btn-add-casa").addEventListener("click", function () {
+          openCasaForm(null);
+        });
+        document.getElementById("btn-back-form-carro").addEventListener("click", function () {
+          goAdminCarrosList();
+        });
+        document.getElementById("btn-back-form-casa").addEventListener("click", function () {
+          goAdminCasasList();
+        });
+
+        document.getElementById("panel-admin-carros").addEventListener("click", function (e) {
+          var k = e.target.closest("[data-kebab-carro]");
+          if (k) {
+            var tr = k.closest("tr");
+            var menu = tr && tr.querySelector(".row-menu");
+            var was = menu && menu.classList.contains("is-open");
+            closeAllRowMenus();
+            if (menu && !was) menu.classList.add("is-open");
+            return;
+          }
+          var ed = e.target.closest("[data-edit-carro]");
+          if (ed) {
+            e.preventDefault();
+            closeAllRowMenus();
+            openCarroForm(ed.getAttribute("data-edit-carro"));
+            return;
+          }
+          var del = e.target.closest("[data-del-carro]");
+          if (del) {
+            var did = del.getAttribute("data-del-carro");
+            if (!confirm("¿Eliminar este carro del catálogo?")) return;
+            closeAllRowMenus();
+            CARROS = CARROS.filter(function (x) {
+              return x.id !== did;
+            });
+            persistCarros();
+            refreshCatalogo();
+          }
+        });
+
+        document.getElementById("panel-admin-casas").addEventListener("click", function (e) {
+          var k = e.target.closest("[data-kebab-casa]");
+          if (k) {
+            var tr = k.closest("tr");
+            var menu = tr && tr.querySelector(".row-menu");
+            var was = menu && menu.classList.contains("is-open");
+            closeAllRowMenus();
+            if (menu && !was) menu.classList.add("is-open");
+            return;
+          }
+          var ed = e.target.closest("[data-edit-casa]");
+          if (ed) {
+            e.preventDefault();
+            closeAllRowMenus();
+            openCasaForm(ed.getAttribute("data-edit-casa"));
+            return;
+          }
+          var del = e.target.closest("[data-del-casa]");
+          if (del) {
+            var did = del.getAttribute("data-del-casa");
+            if (!confirm("¿Eliminar esta casa del catálogo?")) return;
+            closeAllRowMenus();
+            CASAS = CASAS.filter(function (x) {
+              return x.id !== did;
+            });
+            persistCasas();
+            refreshCatalogo();
+          }
+        });
+
+        document.addEventListener("click", function (e) {
+          if (e.target.closest(".row-actions")) return;
+          closeAllRowMenus();
+        });
+
+        document.getElementById("admin-carros-page-size").addEventListener("change", function () {
+          adminPageSizeCarros = parseInt(this.value, 10) || 5;
+          adminPageCarros = 1;
+          renderAdminCarros();
+        });
+        document.getElementById("admin-casas-page-size").addEventListener("change", function () {
+          adminPageSizeCasas = parseInt(this.value, 10) || 5;
+          adminPageCasas = 1;
+          renderAdminCasas();
+        });
+        document.getElementById("admin-carros-prev").addEventListener("click", function () {
+          if (adminPageCarros > 1) {
+            adminPageCarros--;
+            renderAdminCarros();
+          }
+        });
+        document.getElementById("admin-carros-next").addEventListener("click", function () {
+          adminPageCarros++;
+          renderAdminCarros();
+        });
+        document.getElementById("admin-casas-prev").addEventListener("click", function () {
+          if (adminPageCasas > 1) {
+            adminPageCasas--;
+            renderAdminCasas();
+          }
+        });
+        document.getElementById("admin-casas-next").addEventListener("click", function () {
+          adminPageCasas++;
+          renderAdminCasas();
+        });
+
+        document.getElementById("form-carro").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var editId = document.getElementById("carro-edit-id").value;
+          var precio = parseFloat(document.getElementById("carro-precio").value);
+          var obj = {
+            marca: document.getElementById("carro-marca").value.trim(),
+            modelo: document.getElementById("carro-modelo").value.trim(),
+            cilindraje: document.getElementById("carro-cilindraje").value.trim(),
+            precio: precio,
+            img: document.getElementById("carro-img").value.trim(),
+            disponible: document.getElementById("carro-disponible").checked,
+            categoria: document.getElementById("carro-categoria").value,
+            transmision: document.getElementById("carro-transmision").value,
+          };
+          if (!obj.marca || !obj.modelo || !obj.cilindraje || !obj.img || isNaN(obj.precio) || obj.precio < 0) return;
+          if (editId) {
+            var idx = CARROS.findIndex(function (x) {
+              return x.id === editId;
+            });
+            if (idx >= 0) {
+              obj.id = editId;
+              CARROS[idx] = obj;
+            }
+          } else {
+            obj.id = newId("carro");
+            CARROS.push(obj);
+          }
+          persistCarros();
+          resetCarroForm();
+          goAdminCarrosList();
+        });
+
+        document.getElementById("form-casa").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var editId = document.getElementById("casa-edit-id").value;
+          var precio = parseFloat(document.getElementById("casa-precio").value);
+          var lat = parseFloat(document.getElementById("casa-lat").value);
+          var lng = parseFloat(document.getElementById("casa-lng").value);
+          var cuartos = parseInt(document.getElementById("casa-cuartos").value, 10);
+          var banos = parseInt(document.getElementById("casa-banos").value, 10);
+          var obj = {
+            nombre: document.getElementById("casa-nombre").value.trim(),
+            ubicacion: document.getElementById("casa-ubicacion").value.trim(),
+            precio: precio,
+            img: document.getElementById("casa-img").value.trim(),
+            disponible: document.getElementById("casa-disponible").checked,
+            tipo_inmueble: document.getElementById("casa-tipo-inm").value,
+            cuartos: cuartos,
+            banos: banos,
+            mascotas: document.getElementById("casa-mascotas").checked,
+            aire_acondicionado: document.getElementById("casa-aire").checked,
+            estacionamiento: document.getElementById("casa-parking").checked,
+            piscina: document.getElementById("casa-piscina").checked,
+            lat: lat,
+            lng: lng,
+            airbnb_ical_url: (document.getElementById("casa-airbnb-ical") && document.getElementById("casa-airbnb-ical").value.trim()) || "",
+          };
+          if (!obj.nombre || !obj.ubicacion || !obj.img || isNaN(obj.precio) || obj.precio < 0 || isNaN(cuartos) || isNaN(banos) || isNaN(lat) || isNaN(lng)) return;
+          if (editId) {
+            var idx = CASAS.findIndex(function (x) {
+              return x.id === editId;
+            });
+            if (idx >= 0) {
+              obj.id = editId;
+              CASAS[idx] = obj;
+            }
+          } else {
+            obj.id = newId("casa");
+            CASAS.push(obj);
+          }
+          persistCasas();
+          resetCasaForm();
+          goAdminCasasList();
+        });
+
+        var formReserva = document.getElementById("form-reserva");
+        if (formReserva) {
+          formReserva.addEventListener("submit", function (e) {
+            e.preventDefault();
+            var tipo = document.getElementById("reserva-tipo").value;
+            var itemId = document.getElementById("reserva-item-id").value;
+            var nombre = document.getElementById("reserva-nombre").value.trim();
+            var telefono = document.getElementById("reserva-telefono").value.trim();
+            var correo = document.getElementById("reserva-correo").value.trim();
+            var documento = document.getElementById("reserva-doc").value.trim();
+            var fi = document.getElementById("reserva-fecha-inicio").value;
+            var ff = document.getElementById("reserva-fecha-fin").value;
+            var errEl = document.getElementById("reserva-form-error");
+            if (errEl) {
+              errEl.textContent = "";
+              errEl.classList.remove("is-visible");
+            }
+            if (!nombre || !telefono || !correo || !documento) {
+              if (errEl) {
+                errEl.textContent = "Completa nombre, teléfono, correo e identificación.";
+                errEl.classList.add("is-visible");
+              }
+              return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+              if (errEl) {
+                errEl.textContent = "Introduce un correo electrónico válido.";
+                errEl.classList.add("is-visible");
+              }
+              return;
+            }
+            var d0 = parseISODateLocal(fi);
+            var d1 = parseISODateLocal(ff);
+            if (!fi || !ff || !d0 || !d1 || d1 < d0) {
+              if (errEl) {
+                errEl.textContent = "Elige fechas válidas: la salida debe ser igual o posterior al ingreso.";
+                errEl.classList.add("is-visible");
+              }
+              return;
+            }
+            var itemLabel = "";
+            var estimado = 0;
+            var detalle = "";
+            var personas = 2;
+            if (tipo === "carro") {
+              var c = CARROS.find(function (x) {
+                return x.id === itemId;
+              });
+              if (!c) return;
+              var dias = nightsBetween(fi, ff);
+              estimado = Math.round(c.precio * dias * 100) / 100;
+              itemLabel = c.marca + " " + c.modelo;
+              detalle = itemLabel + " — " + dias + (dias === 1 ? " día" : " días") + " · " + formatDateES(fi) + " – " + formatDateES(ff);
+            } else if (tipo === "casa") {
+              var h = CASAS.find(function (x) {
+                return x.id === itemId;
+              });
+              if (!h) return;
+              personas = parseInt(document.getElementById("reserva-personas").value, 10) || 2;
+              var noches = nightsBetween(fi, ff);
+              estimado = Math.round(h.precio * noches * personas * 100) / 100;
+              itemLabel = h.nombre;
+              detalle =
+                h.nombre +
+                " — " +
+                noches +
+                (noches === 1 ? " noche" : " noches") +
+                " · " +
+                personas +
+                " pers. · " +
+                formatDateES(fi) +
+                " – " +
+                formatDateES(ff);
+            } else {
+              return;
+            }
+
+            function pushLocalAndWhatsApp(refVal, supaId, totalVal) {
+              var est = totalVal != null && !isNaN(Number(totalVal)) ? Number(totalVal) : estimado;
+              var record = {
+                ref: refVal,
+                tipo: tipo,
+                itemId: itemId,
+                itemLabel: itemLabel,
+                nombre: nombre,
+                clienteNombre: nombre,
+                telefono: telefono,
+                correo: correo,
+                documento: documento,
+                fechaInicio: fi,
+                fechaFin: ff,
+                personas: tipo === "casa" ? personas : null,
+                estimado: est,
+                detalle: detalle,
+                estado: "Pendiente contacto",
+                creado: new Date().toISOString(),
+              };
+              if (supaId) record.supabaseReservaId = supaId;
+              var all = loadReservasStorage();
+              all.push(record);
+              saveReservasStorage(all);
+              refreshReservasAdminLists();
+              var payload = {
+                ref: refVal,
+                tipo: tipo,
+                itemLabel: itemLabel,
+                nombre: nombre,
+                telefono: telefono,
+                correo: correo,
+                documento: documento,
+                fechaInicio: fi,
+                fechaFin: ff,
+                personas: tipo === "casa" ? personas : "",
+                estimado: est.toFixed(2),
+              };
+              var text = buildWhatsAppMessage(payload);
+              var url = "https://wa.me/" + adminWhatsappDigits() + "?text=" + encodeURIComponent(text);
+              window.open(url, "_blank", "noopener,noreferrer");
+              closeReservaModal();
+            }
+
+            var useSupabaseRpc = window.RentalsSupabase && RentalsSupabase.isConfigured() && isUuid(itemId);
+            if (useSupabaseRpc) {
+              var rpcBody =
+                tipo === "carro"
+                  ? {
+                      p_nombre: nombre,
+                      p_telefono: telefono,
+                      p_correo: correo,
+                      p_pasaporte: documento,
+                      p_carro_id: itemId,
+                      p_fecha_inicio: fi,
+                      p_fecha_fin: ff,
+                    }
+                  : {
+                      p_nombre: nombre,
+                      p_telefono: telefono,
+                      p_correo: correo,
+                      p_pasaporte: documento,
+                      p_casa_id: itemId,
+                      p_fecha_inicio: fi,
+                      p_fecha_fin: ff,
+                      p_personas: personas,
+                    };
+              var rpcFn = tipo === "carro" ? RentalsSupabase.rpcCrearReservaCarro : RentalsSupabase.rpcCrearReservaCasa;
+              rpcFn(rpcBody)
+                .then(function (data) {
+                  if (!data || data.ok === false) {
+                    throw new Error("No se pudo completar la reserva.");
+                  }
+                  var refVal = data.ref || newReservaRef();
+                  var sid = data.reserva_id || null;
+                  pushLocalAndWhatsApp(refVal, sid, data.total);
+                })
+                .catch(function (err) {
+                  if (errEl) {
+                    errEl.textContent =
+                      (err && err.message) ||
+                      "No se pudo guardar en Supabase. Revisa la consola o ejecuta el SQL 003 en el proyecto.";
+                    errEl.classList.add("is-visible");
+                  }
+                });
+            } else {
+              pushLocalAndWhatsApp(newReservaRef(), null, null);
+            }
+          });
+
+          var rp = document.getElementById("reserva-personas");
+          if (rp) rp.addEventListener("change", updateReservaEstimado);
+        }
+
+        var modalReservaClose = document.getElementById("modal-reserva-close");
+        if (modalReservaClose) modalReservaClose.addEventListener("click", closeReservaModal);
+        var modalReserva = document.getElementById("modal-reserva");
+        if (modalReserva) {
+          modalReserva.addEventListener("click", function (e) {
+            if (e.target === modalReserva) closeReservaModal();
+          });
+        }
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") closeReservaModal();
+        });
+
+        function updateRemoteCatalogHints() {
+          var show = !!REMOTE_CATALOG;
+          var btnCar = document.getElementById("btn-add-carro");
+          var btnCasa = document.getElementById("btn-add-casa");
+          if (btnCar) {
+            btnCar.disabled = show;
+            btnCar.title = show ? "Catálogo conectado a Supabase (edita en el panel de Supabase)" : "";
+          }
+          if (btnCasa) {
+            btnCasa.disabled = show;
+            btnCasa.title = show ? "Catálogo conectado a Supabase (edita en el panel de Supabase)" : "";
+          }
+          ["panel-admin-carros", "panel-admin-casas"].forEach(function (id) {
+            var p = document.getElementById(id);
+            if (!p) return;
+            var b = p.querySelector(".remote-catalog-banner");
+            if (show && !b) {
+              var div = document.createElement("p");
+              div.className = "admin-hint remote-catalog-banner";
+              div.style.borderLeft = "3px solid var(--accent)";
+              div.style.paddingLeft = "0.75rem";
+              div.textContent =
+                "Catálogo cargado desde Supabase (solo lectura aquí). Para cambiar vehículos o casas, usa Table Editor en Supabase o deja vacíos supabaseUrl/supabaseAnonKey en rentals-config.js para modo solo local.";
+              var h1 = p.querySelector("h1");
+              if (h1 && h1.nextSibling) p.insertBefore(div, h1.nextSibling);
+              else p.appendChild(div);
+            }
+            if (!show && b) b.remove();
+          });
+        }
+
+        function tryLoadRemoteCatalog(done) {
+          if (!window.RentalsSupabase || !RentalsSupabase.isConfigured()) {
+            updateRemoteCatalogHints();
+            if (done) done();
+            return;
+          }
+          RentalsSupabase.fetchCatalog()
+            .then(function (data) {
+              var cr = (data.carros || []).map(rowDbToCarro);
+              var ca = (data.casas || []).map(rowDbToCasa);
+              if (cr.length) {
+                CARROS = cr;
+                REMOTE_CATALOG = true;
+              }
+              if (ca.length) {
+                CASAS = ca;
+                REMOTE_CATALOG = true;
+              }
+              updateRemoteCatalogHints();
+              if (done) done();
+            })
+            .catch(function () {
+              updateRemoteCatalogHints();
+              if (done) done();
+            });
+        }
+
+        tryLoadRemoteCatalog(function () {
+          refreshCatalogo();
+        });
+
+        if (window.location.protocol === "file:") {
+          var fw = document.getElementById("file-protocol-warning");
+          if (fw) fw.classList.add("is-visible");
+        }
+
+        var togglePass = document.getElementById("toggle-admin-pass");
+        if (togglePass) {
+          togglePass.addEventListener("click", function () {
+            var inp = document.getElementById("admin-pass");
+            if (!inp) return;
+            var show = inp.type === "password";
+            inp.type = show ? "text" : "password";
+            togglePass.setAttribute("aria-pressed", show ? "true" : "false");
+            togglePass.setAttribute("aria-label", show ? "Ocultar contraseña" : "Mostrar contraseña");
+            togglePass.setAttribute("title", show ? "Ocultar contraseña" : "Mostrar contraseña");
+          });
+        }
+
+        function bindFilterBtn(id, fn) {
+          var b = document.getElementById(id);
+          if (b) b.addEventListener("click", fn);
+        }
+
+        bindFilterBtn("f-car-apply", function () {
+          refreshCatalogo();
+        });
+        bindFilterBtn("f-car-reset", function () {
+          var ids = ["f-car-marca", "f-car-pmin", "f-car-pmax"];
+          ids.forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.value = "";
+          });
+          var c = document.getElementById("f-car-categoria");
+          var t = document.getElementById("f-car-trans");
+          if (c) c.value = "";
+          if (t) t.value = "";
+          refreshCatalogo();
+        });
+        bindFilterBtn("f-casa-apply", function () {
+          refreshCatalogo();
+        });
+        bindFilterBtn("f-casa-reset", function () {
+          var ids = ["f-casa-q", "f-casa-tipo", "f-casa-cuartos", "f-casa-banos", "f-casa-mascotas", "f-casa-aire", "f-casa-parking", "f-casa-piscina"];
+          ids.forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.value = "";
+          });
+          refreshCatalogo();
+        });
+
+        var adminSearchEl = document.getElementById("admin-casas-search");
+        if (adminSearchEl) {
+          adminSearchEl.addEventListener("input", function () {
+            adminCasaSearch = adminSearchEl.value;
+            adminPageCasas = 1;
+            renderAdminCasas();
+          });
+        }
+
+        var adminCarSearchEl = document.getElementById("admin-carros-search");
+        if (adminCarSearchEl) {
+          adminCarSearchEl.addEventListener("input", function () {
+            adminCarSearch = adminCarSearchEl.value;
+            adminPageCarros = 1;
+            renderAdminCarros();
+          });
+        }
+
+        function navTo(name) {
+          showView("view-" + name);
+          document.getElementById("servicios-dropdown").classList.remove("is-open");
+          $("#servicios-toggle").setAttribute("aria-expanded", "false");
+          setTimeout(function () {
+            refreshCatalogo();
+          }, 100);
+        }
+
+        document.body.addEventListener("click", function (e) {
+          var t = e.target.closest("[data-nav]");
+          if (t && t.dataset.nav) {
+            e.preventDefault();
+            navTo(t.dataset.nav);
+          }
+        });
+
+        var dd = $("#servicios-dropdown");
+        var ddBtn = $("#servicios-toggle");
+        ddBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var open = !dd.classList.contains("is-open");
+          dd.classList.toggle("is-open", open);
+          ddBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+        document.addEventListener("click", function () {
+          dd.classList.remove("is-open");
+          ddBtn.setAttribute("aria-expanded", "false");
+        });
+
+        $("#admin-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var user = $("#admin-user").value.trim();
+          var pass = $("#admin-pass").value;
+          var email = $("#admin-email").value.trim();
+          var err = $("#login-error");
+          if (!user || !pass || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            err.classList.add("is-visible");
+            return;
+          }
+          err.classList.remove("is-visible");
+          navTo("admin-panel");
+          setAdminTab("activas");
+        });
+
+        $("#admin-logout").addEventListener("click", function () {
+          navTo("admin-login");
+          $("#admin-form").reset();
+          resetCarroForm();
+          resetCasaForm();
+        });
+
+        resetCasaForm();
+
+        showView("view-inicio");
+      })();
+    </script>
   </body>
 </html>
