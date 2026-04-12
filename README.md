@@ -2,17 +2,25 @@
 
 Sitio estático para alquiler de **casas y carros** en Florida: una sola app en `frontend/index.html` (catálogo, reservas, WhatsApp al admin, mapa, calendario con bloqueos y opción Supabase).
 
-## GitHub Pages
+## GitHub Pages (recomendado: GitHub Actions)
 
-Pages sirve la **raíz del repositorio**. La web vive en **`frontend/`**, por eso en la raíz hay un `index.html` que **redirige** a `frontend/index.html`.
+Si en Pages eliges **“Deploy from branch”** con carpeta **`/docs`**, GitHub **solo sube lo que hay dentro de `docs/`**. La carpeta `frontend/` **no se publica** y a menudo solo ves el **README**.
 
-1. Repo → **Settings** → **Pages**
-2. **Build and deployment**: Source **Deploy from a branch**
-3. Branch **main**, carpeta **/ (root)**, Save
+### Opción A — GitHub Actions (recomendada)
 
-La URL será `https://<usuario>.github.io/Rentals/` y acabará en `.../Rentals/frontend/index.html`. Los enlaces del sitio son relativos, así que funcionan bajo esa ruta.
+1. **Settings** → **Pages** → **Build and deployment** → elige **GitHub Actions** (no “Deploy from branch”).
+2. Haz **push** a `main` (o ejecuta el workflow **Deploy GitHub Pages** a mano en la pestaña **Actions**).
+3. El workflow **`.github/workflows/deploy-pages.yml`** sube el contenido de **`frontend/`** como **raíz del sitio**: la app queda en `https://<usuario>.github.io/Rentals/` sin `/frontend/` en la URL.
 
-Archivo **`.nojekyll`** en la raíz evita que Jekyll procese el sitio y rompa rutas.
+La primera vez, GitHub puede pedir aprobar permisos del workflow; acéptalos si aparece el aviso.
+
+### Opción B — Solo rama, carpeta raíz `/`
+
+1. **Settings** → **Pages** → Source **Deploy from a branch**.
+2. Branch **`main`**, carpeta **`/ (root)`** — **no** uses `/docs` a menos que copies ahí todo el sitio.
+3. En la raíz del repo hay un `index.html` que redirige a `frontend/index.html`.
+
+Archivo **`.nojekyll`** en la raíz evita que Jekyll altere archivos estáticos.
 
 ## Desarrollo local
 
