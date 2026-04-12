@@ -2030,6 +2030,7 @@
           <div class="logout-row">
             <button type="button" id="admin-logout">Cerrar sesión</button>
           </div>
+          <p id="admin-reservas-sync-hint" class="admin-hint" hidden></p>
           <div id="panel-activas">
             <h1>Reservas activas</h1>
             <ul class="reserva-list" id="list-activas"></ul>
@@ -2339,6 +2340,7 @@
           supabaseUrl: "",
           supabaseAnonKey: "",
           adminWhatsappDigits: "573508321565",
+          adminSyncSecret: "",
         },
         window.RENTALS_CONFIG || {}
       );
@@ -2352,6 +2354,9 @@
         var STORAGE_CASAS = "rentals_miami_casas_v2";
         var STORAGE_CASAS_LEGACY = "rentals_miami_casas_v1";
         var STORAGE_RESERVAS = "rentals_miami_reservas_v1";
+
+        /** Reservas leídas de Supabase (panel admin), se fusionan con localStorage */
+        var __remoteAdminReservas = [];
 
         /** Catálogo cargado desde Supabase (solo lectura en esta web) */
         var REMOTE_CATALOG = false;
@@ -2695,15 +2700,101 @@
           } catch (e) {}
         }
 
+        function mapDbEstadoToUi(est) {
+          var s = String(est || "").toLowerCase();
+          if (s === "finalizada") return "Completada";
+          if (s === "cancelada") return "Cancelada";
+          if (s === "pendiente_contacto") return "Pendiente contacto";
+          if (s === "activa") return "Activa";
+          return est || "Pendiente contacto";
+        }
+
+        function normalizeSupaRowToRecord(row) {
+          if (!row || !row.id) return null;
+          var refM = /Ref:\s*(RM-[A-Z0-9]+)/i.exec(row.notas || "");
+          var ref = refM
+            ? refM[1]
+            : "RM-" +
+              String(row.id)
+                .replace(/-/g, "")
+                .substring(0, 8)
+                .toUpperCase();
+          var tipo = row.casa_id ? "casa" : "carro";
+          var itemId = row.casa_id || row.carro_id || "";
+          var carLabel = ((row.car_marca || "") + " " + (row.car_modelo || "")).trim();
+          var itemLabel = tipo === "casa" ? row.casa_nombre || "Propiedad" : carLabel || "Vehículo";
+          var fi = row.fecha_inicio;
+          var ff = row.fecha_fin;
+          var personas = row.personas != null ? row.personas : 2;
+          var noches = nightsBetween(fi, ff);
+          var detalle =
+            tipo === "casa"
+              ? itemLabel +
+                " — " +
+                noches +
+                (noches === 1 ? " noche" : " noches") +
+                " · " +
+                personas +
+                " pers. · " +
+                formatDateES(fi) +
+                " – " +
+                formatDateES(ff)
+              : itemLabel +
+                " — " +
+                noches +
+                (noches === 1 ? " día" : " días") +
+                " · " +
+                formatDateES(fi) +
+                " – " +
+                formatDateES(ff);
+          return {
+            ref: ref,
+            supabaseReservaId: row.id,
+            tipo: tipo,
+            itemId: itemId,
+            itemLabel: itemLabel,
+            nombre: row.cliente_nombre,
+            clienteNombre: row.cliente_nombre,
+            telefono: row.telefono,
+            correo: row.correo,
+            fechaInicio: fi,
+            fechaFin: ff,
+            personas: tipo === "casa" ? personas : null,
+            estimado: Number(row.total),
+            detalle: detalle,
+            estado: mapDbEstadoToUi(row.estado),
+            creado: row.created_at || new Date().toISOString(),
+            fromRemote: true,
+          };
+        }
+
+        function mergedReservasRaw() {
+          var local = loadReservasStorage();
+          var remote = __remoteAdminReservas || [];
+          var bySupa = {};
+          var byRef = {};
+          remote.forEach(function (r) {
+            if (r.supabaseReservaId) bySupa[String(r.supabaseReservaId)] = true;
+            if (r.ref) byRef[String(r.ref)] = true;
+          });
+          var out = remote.slice();
+          local.forEach(function (l) {
+            if (l.supabaseReservaId && bySupa[String(l.supabaseReservaId)]) return;
+            if (l.ref && byRef[String(l.ref)]) return;
+            out.push(l);
+          });
+          return out;
+        }
+
         function reservasActivasList() {
-          return loadReservasStorage().filter(function (r) {
+          return mergedReservasRaw().filter(function (r) {
             var e = r.estado || "";
             return e !== "Completada" && e !== "Cancelada";
           });
         }
 
         function reservasHistorialList() {
-          return loadReservasStorage().filter(function (r) {
+          return mergedReservasRaw().filter(function (r) {
             var e = r.estado || "";
             return e === "Completada" || e === "Cancelada";
           });
@@ -3209,6 +3300,53 @@
           fillReservas(document.getElementById("list-historial"), hist);
         }
 
+        function updateAdminReservasSyncHint() {
+          var el = document.getElementById("admin-reservas-sync-hint");
+          if (!el) return;
+          var cfgOk = !!(window.RentalsSupabase && RentalsSupabase.isConfigured());
+          var sec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
+          if (!cfgOk) {
+            el.hidden = false;
+            el.textContent =
+              "Sin URL y clave anon de Supabase no se cargan catálogo, calendario (Airbnb) ni reservas remotas. En GitHub Pages: Settings → Secrets → Actions, define SUPABASE_URL y SUPABASE_ANON_KEY, y vuelve a ejecutar el workflow de Pages (véase README).";
+            return;
+          }
+          if (!sec) {
+            el.hidden = false;
+            el.textContent =
+              "Opcional: para ver en este panel las reservas guardadas en Supabase desde otros dispositivos, ejecuta backend/sql/005_admin_list_reservas.sql, pon el mismo secreto en adminSyncSecret (y en GitHub Secret ADMIN_SYNC_SECRET al desplegar).";
+            return;
+          }
+          el.hidden = true;
+        }
+
+        function tryFetchRemoteReservasForAdmin(done) {
+          var c = window.RENTALS_CONFIG || {};
+          var secret = String(c.adminSyncSecret || "").trim();
+          if (!window.RentalsSupabase || !RentalsSupabase.isConfigured() || !secret) {
+            __remoteAdminReservas = [];
+            updateAdminReservasSyncHint();
+            if (done) done();
+            return;
+          }
+          RentalsSupabase.rpcListReservasAdmin(secret)
+            .then(function (data) {
+              if (!data || data.ok === false) {
+                __remoteAdminReservas = [];
+                return;
+              }
+              var items = Array.isArray(data.items) ? data.items : [];
+              __remoteAdminReservas = items.map(normalizeSupaRowToRecord).filter(Boolean);
+            })
+            .catch(function () {
+              __remoteAdminReservas = [];
+            })
+            .finally(function () {
+              updateAdminReservasSyncHint();
+              if (done) done();
+            });
+        }
+
         function openReservaModal(tipo, itemId) {
           var modal = document.getElementById("modal-reserva");
           var form = document.getElementById("form-reserva");
@@ -3502,6 +3640,7 @@
         document.getElementById("year").textContent = new Date().getFullYear();
 
         refreshReservasAdminLists();
+        updateAdminReservasSyncHint();
 
         function setCatalogoOpen(open) {
           var sub = document.getElementById("catalogo-submenu");
@@ -4090,6 +4229,7 @@
 
         tryLoadRemoteCatalog(function () {
           refreshCatalogo();
+          updateAdminReservasSyncHint();
         });
 
         if (window.location.protocol === "file:") {
@@ -4164,6 +4304,11 @@
           showView("view-" + name);
           document.getElementById("servicios-dropdown").classList.remove("is-open");
           $("#servicios-toggle").setAttribute("aria-expanded", "false");
+          if (name === "admin-panel") {
+            tryFetchRemoteReservasForAdmin(function () {
+              refreshReservasAdminLists();
+            });
+          }
           setTimeout(function () {
             refreshCatalogo();
           }, 100);

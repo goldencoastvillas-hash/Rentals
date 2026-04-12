@@ -11,4 +11,6 @@ window.RENTALS_CONFIG = {
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   // Solo dígitos, sin + ni espacios (ej. +57 350 8321565)
   adminWhatsappDigits: "573508321565",
+  // Mismo texto que v_expected en backend/sql/005_admin_list_reservas.sql (tras cambiarlo allí)
+  adminSyncSecret: "GCV-ADMIN-SYNC-KEY-CHANGEME",
 };

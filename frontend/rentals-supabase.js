@@ -84,6 +84,17 @@
     });
   }
 
+  /** Panel admin: lista reservas en BD (requiere SQL 005 y adminSyncSecret igual al de la función). */
+  function rpcListReservasAdmin(apiKey) {
+    if (!isConfigured()) return Promise.reject(new Error("Supabase no configurado"));
+    var b = baseUrl();
+    return fetchJson(b + "/rest/v1/rpc/web_list_reservas_admin", {
+      method: "POST",
+      headers: anonHeaders(),
+      body: JSON.stringify({ p_api_key: apiKey }),
+    });
+  }
+
   /** Requiere Edge Function casa-airbnb-cal desplegada; si falla, devuelve { ranges: [] } */
   function fetchAirbnbCalEdge(casaId) {
     var b = baseUrl();
@@ -102,6 +113,7 @@
     rpcCrearReservaCarro: rpcCrearReservaCarro,
     rpcCrearReservaCasa: rpcCrearReservaCasa,
     rpcFechasBloqueadasCasa: rpcFechasBloqueadasCasa,
+    rpcListReservasAdmin: rpcListReservasAdmin,
     fetchAirbnbCalEdge: fetchAirbnbCalEdge,
   };
 })(typeof window !== "undefined" ? window : globalThis);

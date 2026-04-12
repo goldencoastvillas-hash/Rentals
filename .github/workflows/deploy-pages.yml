@@ -27,6 +27,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Escribir rentals-config.js (evita 404 y conecta Supabase en Pages)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ADMIN_WHATSAPP_DIGITS: ${{ secrets.ADMIN_WHATSAPP_DIGITS }}
+          ADMIN_SYNC_SECRET: ${{ secrets.ADMIN_SYNC_SECRET }}
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          const wa = (process.env.ADMIN_WHATSAPP_DIGITS || "573508321565").replace(/\D/g, "") || "573508321565";
+          const cfg = {
+            supabaseUrl: process.env.SUPABASE_URL || "",
+            supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "",
+            adminWhatsappDigits: wa,
+            adminSyncSecret: process.env.ADMIN_SYNC_SECRET || "",
+          };
+          const hdr =
+            "/** Generado en GitHub Actions desde Repository secrets (no commitear claves en el repo). */\n";
+          fs.writeFileSync(
+            "frontend/rentals-config.js",
+            hdr + "window.RENTALS_CONFIG = " + JSON.stringify(cfg, null, 2) + ";\n"
+          );
+          NODE
+
       - name: Configure Pages
         uses: actions/configure-pages@v4
 

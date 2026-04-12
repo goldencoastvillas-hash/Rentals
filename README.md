@@ -14,6 +14,23 @@ Si en Pages eliges **“Deploy from branch”** con carpeta **`/docs`**, GitHub 
 
 La primera vez, GitHub puede pedir aprobar permisos del workflow; acéptalos si aparece el aviso.
 
+### Secrets de Actions (Supabase en Pages)
+
+Sin esto, en el sitio publicado falla `rentals-config.js` vacío: no hay catálogo remoto, calendario Airbnb ni reservas enlazadas a la base.
+
+En el repo: **Settings → Secrets and variables → Actions → New repository secret**, crea:
+
+| Secret | Contenido |
+|--------|-------------|
+| `SUPABASE_URL` | Project URL (Settings → API) |
+| `SUPABASE_ANON_KEY` | Clave **anon / public** (JWT o publishable) |
+| `ADMIN_WHATSAPP_DIGITS` | Solo dígitos con código de país (ej. `573508321565`) |
+| `ADMIN_SYNC_SECRET` | Mismo texto que `v_expected` en `backend/sql/005_admin_list_reservas.sql` (tras cambiarlo en el SQL y ejecutarlo en Supabase) |
+
+Luego **Actions → Deploy GitHub Pages → Run workflow** (o un push a `main`). El workflow **sobrescribe** `frontend/rentals-config.js` en el artefacto con esos valores.
+
+**Reservas en el panel admin desde otros dispositivos:** el listado mezcla `localStorage` con la API solo si ejecutaste **`005_admin_list_reservas.sql`** en Supabase y la clave coincide con `ADMIN_SYNC_SECRET` / `adminSyncSecret`.
+
 ### Opción B — Solo rama, carpeta raíz `/`
 
 1. **Settings** → **Pages** → Source **Deploy from a branch**.
@@ -37,4 +54,6 @@ Scripts SQL en `backend/sql/` (orden sugerido: `000` … `004`). Función Edge o
 
 ## Configuración sensible
 
-No subas claves al repo. Copia `frontend/rentals-config.example.js` a `frontend/rentals-config.js` (este archivo está en `.gitignore`) y rellena URL y anon key de Supabase y el WhatsApp del administrador.
+En el repo hay un **`frontend/rentals-config.js`** plantilla (sin secretos reales) para que no falle la carga en GitHub Pages. Para **desarrollo local**, edita ese archivo con tu URL y clave **anon** de Supabase (nunca la *service role*). Opcional: `adminSyncSecret` igual que en `005_admin_list_reservas.sql`.
+
+No hagas commit de claves personales: si rellenas `rentals-config.js` en local, revisa el diff antes de `git push` o usa un secreto distinto solo en tu máquina.
