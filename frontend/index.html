@@ -352,6 +352,196 @@
         color: var(--muted);
       }
 
+      /* ——— Página Nosotros (contenido largo) ——— */
+      .page-inner.about-page {
+        max-width: 820px;
+      }
+
+      .about-hero {
+        text-align: center;
+        padding: 0.5rem 0 1.75rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 2rem;
+      }
+
+      .about-hero .about-kicker {
+        margin: 0 0 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .about-hero h1 {
+        margin: 0 0 0.75rem;
+        font-size: clamp(1.65rem, 4vw, 2.15rem);
+        line-height: 1.2;
+      }
+
+      .about-hero .about-lead {
+        margin: 0 auto;
+        max-width: 38rem;
+        font-size: 1.08rem;
+        color: var(--text);
+        line-height: 1.65;
+      }
+
+      .about-slogan {
+        margin: 2rem 0 2.25rem;
+        padding: 1.1rem 1.35rem;
+        text-align: center;
+        font-family: var(--font-serif);
+        font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+        font-weight: 600;
+        font-style: italic;
+        color: var(--accent-deep);
+        background: linear-gradient(135deg, rgba(201, 162, 39, 0.14) 0%, rgba(0, 109, 119, 0.1) 100%);
+        border: 1px solid rgba(201, 162, 39, 0.35);
+        border-radius: var(--radius);
+      }
+
+      .about-block {
+        margin-bottom: 2rem;
+      }
+
+      .about-block h2 {
+        margin: 0 0 0.85rem;
+        font-size: 1.2rem;
+        font-family: var(--font-serif);
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+      }
+
+      .about-block p {
+        margin: 0 0 0.85rem;
+        line-height: 1.7;
+        color: var(--muted);
+      }
+
+      .about-block p:last-child {
+        margin-bottom: 0;
+      }
+
+      .about-pill-list {
+        list-style: none;
+        margin: 0.75rem 0 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .about-pill-list li {
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--accent-deep);
+      }
+
+      .about-check-list {
+        margin: 0.75rem 0 0;
+        padding-left: 1.15rem;
+        color: var(--muted);
+        line-height: 1.75;
+      }
+
+      .about-check-list li {
+        margin-bottom: 0.35rem;
+      }
+
+      .about-cta-box {
+        margin-top: 1.25rem;
+        padding: 1.15rem 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        border-left: 4px solid var(--accent);
+      }
+
+      .about-cta-box p {
+        margin: 0 0 0.75rem;
+        color: var(--text);
+      }
+
+      .about-cta-box a {
+        display: inline-block;
+        margin-top: 0.25rem;
+        font-weight: 600;
+      }
+
+      .about-services-grid {
+        display: grid;
+        gap: 0.65rem;
+        margin-top: 0.85rem;
+      }
+
+      .about-service-item {
+        display: flex;
+        gap: 0.65rem;
+        align-items: flex-start;
+        padding: 0.65rem 0.85rem;
+        background: var(--surface2);
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 0.95rem;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .about-service-item span:first-child {
+        flex-shrink: 0;
+        font-size: 1.15rem;
+        line-height: 1.2;
+      }
+
+      .about-split {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      @media (min-width: 720px) {
+        .about-split {
+          grid-template-columns: 1fr 1fr;
+          gap: 1.75rem;
+        }
+      }
+
+      .about-card {
+        padding: 1.25rem 1.35rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+
+      .about-card h2 {
+        margin-top: 0;
+      }
+
+      .about-diff {
+        margin-top: 0.5rem;
+        padding: 1rem 1.1rem;
+        background: rgba(0, 109, 119, 0.06);
+        border-radius: 10px;
+        border: 1px solid rgba(0, 109, 119, 0.2);
+      }
+
+      .about-diff p {
+        margin: 0;
+        color: var(--text);
+      }
+
+      .about-diff strong {
+        color: var(--accent-deep);
+      }
+
       /* ——— Footer ——— */
       .site-footer {
         margin-top: auto;
@@ -1534,8 +1724,8 @@
       <div class="about-snippet">
         <h2>Nosotros</h2>
         <p>
-          Somos un equipo local dedicado a conectar viajeros y residentes con propiedades y vehículos de calidad en Miami y alrededores.
-          <a href="#" data-nav="nosotros">Conoce más sobre Golden Coast Villas</a>
+          En Golden Coast Villas Miami el lujo es una experiencia: villas exclusivas, carros de lujo y un equipo que piensa cada detalle antes de tu llegada.
+          <a href="#" data-nav="nosotros">Conoce nuestra historia y servicios</a>
         </p>
       </div>
 
@@ -1551,17 +1741,118 @@
 
     <!-- Vista: Nosotros (empresa) -->
     <section id="view-nosotros" class="view" aria-label="Nosotros">
-      <div class="page-inner">
-        <h1>Nosotros</h1>
-        <p>
-          <strong>Golden Coast Villas Rentals</strong> nació con la idea de simplificar el alquiler de viviendas y vehículos en una de las ciudades más dinámicas de Estados Unidos.
-          Trabajamos con propietarios verificados y mantenemos un catálogo actualizado para que encuentres la opción que mejor se adapte a tu estancia o tu movilidad.
-        </p>
-        <p>
-          Nuestro equipo conoce el mercado local: desde barrios residenciales hasta rutas costeras. Estamos para orientarte en disponibilidad, precios y condiciones de cada reserva.
-        </p>
-        <p>
-          Valores: transparencia en precios, respuesta ágil y atención personalizada. Si tienes dudas, contáctanos por teléfono o correo; estaremos encantados de ayudarte.
+      <div class="page-inner about-page">
+        <header class="about-hero">
+          <p class="about-kicker">🌴 Nosotros</p>
+          <h1>Golden Coast Villas Miami</h1>
+          <p class="about-lead">
+            Creemos que el lujo no es solo un lugar… es una <strong>experiencia</strong>. Somos una marca enfocada en ofrecer
+            <strong>propiedades exclusivas en Miami</strong>, diseñadas para quienes buscan algo más que hospedarse: buscan
+            <strong>disfrutar, celebrar y crear momentos inolvidables</strong>. Cada una de nuestras villas ha sido seleccionada
+            cuidadosamente para garantizar comodidad, privacidad y un estándar alto de calidad.
+          </p>
+        </header>
+
+        <p class="about-slogan">Cupos limitados. Experiencias ilimitadas. 🌴✨</p>
+
+        <article class="about-block">
+          <h2>✨ ¿Quiénes somos?</h2>
+          <p>
+            Somos un equipo apasionado por el <strong>turismo de lujo</strong>, la hospitalidad y el detalle. Nos especializamos en
+            conectar a nuestros huéspedes con espacios únicos, ideales para viajes en grupo, vacaciones premium o celebraciones
+            especiales.
+          </p>
+          <p>Más que alquileres, ofrecemos <strong>experiencias completas</strong>, pensadas para que no tengas que preocuparte por nada.</p>
+        </article>
+
+        <article class="about-block">
+          <h2>🚀 ¿Qué buscamos?</h2>
+          <p>Nuestra misión es clara: <strong>elevar la forma en la que las personas viven sus viajes</strong>.</p>
+          <p>Queremos que cada estadía sea:</p>
+          <ul class="about-pill-list">
+            <li>Exclusiva</li>
+            <li>Cómoda</li>
+            <li>Memorable</li>
+          </ul>
+          <p style="margin-top: 1rem">Y sobre todo, que sientas que elegiste <strong>el lugar correcto</strong> desde el primer momento.</p>
+        </article>
+
+        <article class="about-block">
+          <h2>🤝 Vive la experiencia Golden Coast</h2>
+          <p>
+            Si estás buscando una villa para tu próximo viaje o quieres conocer más sobre nuestras propiedades, estamos aquí para
+            ayudarte.
+          </p>
+          <p>
+            Puedes <strong>agendar una asesoría personalizada</strong> con nuestro equipo, donde te guiaremos para encontrar la opción
+            perfecta según tus necesidades.
+          </p>
+          <div class="about-cta-box">
+            <p>👉 <strong>Agenda con nosotros</strong> y descubre tu próxima experiencia en Miami.</p>
+            <a href="mailto:info@goldencoastvillas.com?subject=Asesor%C3%ADa%20Golden%20Coast%20Villas">Escribir a info@goldencoastvillas.com</a>
+            ·
+            <a href="tel:+13055550100">+1 (305) 555-0100</a>
+          </div>
+        </article>
+
+        <article class="about-block">
+          <h2>🚀 Mucho más que una villa</h2>
+          <p>Nuestros servicios no terminan con tu hospedaje.</p>
+          <p>
+            En Golden Coast Villas Miami hemos creado un <strong>ecosistema</strong> pensado para elevar toda tu experiencia en Estados
+            Unidos:
+          </p>
+          <div class="about-services-grid">
+            <div class="about-service-item">
+              <span aria-hidden="true">🚘</span>
+              <span><strong>Alquiler de carros de lujo</strong> para que te muevas con estilo.</span>
+            </div>
+            <div class="about-service-item">
+              <span aria-hidden="true">🧑‍✈️</span>
+              <span><strong>Servicio de conductor privado</strong> para mayor comodidad y seguridad.</span>
+            </div>
+            <div class="about-service-item">
+              <span aria-hidden="true">🛂</span>
+              <span
+                ><strong>Asesoría en trámites migratorios</strong>, ideal si estás considerando extender tu estadía o establecerte en
+                EE.&nbsp;UU.</span
+              >
+            </div>
+          </div>
+          <p style="margin-top: 1rem">
+            Nuestro objetivo es que vivas Miami <strong>sin límites</strong>, con todo resuelto desde el primer momento.
+          </p>
+        </article>
+
+        <div class="about-split">
+          <article class="about-card" aria-labelledby="about-para-quien">
+            <h2 id="about-para-quien">💎 Para quién es esto</h2>
+            <p style="margin-bottom: 0.5rem">Esto es para ti si:</p>
+            <ul class="about-check-list">
+              <li>Viajas en grupo y quieres <strong>privacidad + exclusividad</strong>.</li>
+              <li>Buscas una <strong>experiencia diferente</strong>, no un hotel común.</li>
+              <li>Quieres <strong>comodidad, lujo y cero complicaciones</strong>.</li>
+              <li>Estás explorando <strong>oportunidades en EE.&nbsp;UU.</strong></li>
+            </ul>
+          </article>
+          <article class="about-card" aria-labelledby="about-diferencial">
+            <h2 id="about-diferencial">⚠️ Nuestro diferencial</h2>
+            <div class="about-diff">
+              <p>
+                La mayoría llega a Miami <strong>improvisando</strong>… pierde tiempo, dinero y vive una experiencia promedio.
+              </p>
+            </div>
+            <p style="margin-top: 1rem">
+              <strong>Con nosotros, todo está diseñado antes de tu llegada.</strong><br />
+              Tú solo llegas a disfrutar.
+            </p>
+          </article>
+        </div>
+
+        <p style="margin-top: 2.5rem; text-align: center; color: var(--muted); font-size: 0.95rem">
+          ¿Listo para reservar? Explora
+          <a href="#" data-nav="servicios-carros">carros</a> y
+          <a href="#" data-nav="servicios-casas">casas</a>, o vuelve al <a href="#" data-nav="inicio">inicio</a>.
         </p>
       </div>
     </section>
