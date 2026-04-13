@@ -2357,6 +2357,8 @@
 
         /** Reservas leídas de Supabase (panel admin), se fusionan con localStorage */
         var __remoteAdminReservas = [];
+        /** forbidden | network | rpc_error | "" */
+        var __adminReservasLastError = "";
 
         /** Catálogo cargado desde Supabase (solo lectura en esta web) */
         var REMOTE_CATALOG = false;
@@ -3317,6 +3319,18 @@
               "Opcional: para ver en este panel las reservas guardadas en Supabase desde otros dispositivos, ejecuta backend/sql/005_admin_list_reservas.sql, pon el mismo secreto en adminSyncSecret (y en GitHub Secret ADMIN_SYNC_SECRET al desplegar).";
             return;
           }
+          if (__adminReservasLastError === "forbidden") {
+            el.hidden = false;
+            el.textContent =
+              "No se cargaron reservas desde Supabase: adminSyncSecret no coincide con v_expected en la función web_list_reservas_admin (revisa backend/sql/005 y rentals-config.js).";
+            return;
+          }
+          if (__adminReservasLastError === "network" || __adminReservasLastError === "rpc_error") {
+            el.hidden = false;
+            el.textContent =
+              "No se pudo obtener la lista de reservas desde Supabase (red o función RPC). Verifica que ejecutaste backend/sql/005_admin_list_reservas.sql en el proyecto.";
+            return;
+          }
           el.hidden = true;
         }
 
@@ -3325,14 +3339,17 @@
           var secret = String(c.adminSyncSecret || "").trim();
           if (!window.RentalsSupabase || !RentalsSupabase.isConfigured() || !secret) {
             __remoteAdminReservas = [];
+            __adminReservasLastError = "";
             updateAdminReservasSyncHint();
             if (done) done();
             return;
           }
+          __adminReservasLastError = "";
           RentalsSupabase.rpcListReservasAdmin(secret)
             .then(function (data) {
               if (!data || data.ok === false) {
                 __remoteAdminReservas = [];
+                __adminReservasLastError = (data && data.error) || "rpc_error";
                 return;
               }
               var items = Array.isArray(data.items) ? data.items : [];
@@ -3340,6 +3357,7 @@
             })
             .catch(function () {
               __remoteAdminReservas = [];
+              __adminReservasLastError = "network";
             })
             .finally(function () {
               updateAdminReservasSyncHint();
@@ -3982,6 +4000,25 @@
             CASAS.push(obj);
           }
           persistCasas();
+          var syncSec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
+          if (
+            REMOTE_CATALOG &&
+            isUuid(obj.id) &&
+            syncSec &&
+            window.RentalsSupabase &&
+            RentalsSupabase.isConfigured() &&
+            RentalsSupabase.rpcAdminUpdateCasaAirbnbIcal
+          ) {
+            RentalsSupabase.rpcAdminUpdateCasaAirbnbIcal(syncSec, obj.id, obj.airbnb_ical_url || "")
+              .then(function (d) {
+                if (!d || d.ok === false) {
+                  console.warn("[Rentals] airbnb_ical_url no guardado en Supabase:", (d && d.error) || d);
+                }
+              })
+              .catch(function (e) {
+                console.warn("[Rentals] airbnb_ical_url sync:", e && e.message);
+              });
+          }
           resetCasaForm();
           goAdminCasasList();
         });
@@ -4191,7 +4228,7 @@
               div.style.borderLeft = "3px solid var(--accent)";
               div.style.paddingLeft = "0.75rem";
               div.textContent =
-                "Catálogo cargado desde Supabase (solo lectura aquí). Para cambiar vehículos o casas, usa Table Editor en Supabase o deja vacíos supabaseUrl/supabaseAnonKey en rentals-config.js para modo solo local.";
+                "Catálogo cargado desde Supabase (solo lectura aquí salvo el enlace iCal de Airbnb: al guardar una casa se envía a Supabase si configuraste adminSyncSecret y ejecutaste backend/sql/006_admin_update_casa_airbnb_ical.sql). Para el resto de campos usa Table Editor o modo solo local (sin URL Supabase en rentals-config.js).";
               var h1 = p.querySelector("h1");
               if (h1 && h1.nextSibling) p.insertBefore(div, h1.nextSibling);
               else p.appendChild(div);

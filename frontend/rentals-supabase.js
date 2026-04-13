@@ -95,6 +95,21 @@
     });
   }
 
+  /** Catálogo remoto: guardar URL iCal Airbnb en la fila de la casa (SQL 006, mismo secreto que 005). */
+  function rpcAdminUpdateCasaAirbnbIcal(apiKey, casaId, icalUrl) {
+    if (!isConfigured()) return Promise.reject(new Error("Supabase no configurado"));
+    var b = baseUrl();
+    return fetchJson(b + "/rest/v1/rpc/web_admin_update_casa_airbnb_ical", {
+      method: "POST",
+      headers: anonHeaders(),
+      body: JSON.stringify({
+        p_api_key: apiKey,
+        p_casa_id: casaId,
+        p_ical_url: icalUrl == null ? "" : String(icalUrl),
+      }),
+    });
+  }
+
   /** Requiere Edge Function casa-airbnb-cal desplegada; si falla, devuelve { ranges: [] } */
   function fetchAirbnbCalEdge(casaId) {
     var b = baseUrl();
@@ -114,6 +129,7 @@
     rpcCrearReservaCasa: rpcCrearReservaCasa,
     rpcFechasBloqueadasCasa: rpcFechasBloqueadasCasa,
     rpcListReservasAdmin: rpcListReservasAdmin,
+    rpcAdminUpdateCasaAirbnbIcal: rpcAdminUpdateCasaAirbnbIcal,
     fetchAirbnbCalEdge: fetchAirbnbCalEdge,
   };
 })(typeof window !== "undefined" ? window : globalThis);
