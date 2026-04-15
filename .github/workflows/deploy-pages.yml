@@ -33,6 +33,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           ADMIN_WHATSAPP_DIGITS: ${{ secrets.ADMIN_WHATSAPP_DIGITS }}
           ADMIN_SYNC_SECRET: ${{ secrets.ADMIN_SYNC_SECRET }}
+          AIRBNB_URL: ${{ secrets.AIRBNB_URL }}
         run: |
           node <<'NODE'
           const fs = require("fs");
@@ -42,6 +43,7 @@ jobs:
             supabaseAnonKey: (process.env.SUPABASE_ANON_KEY || "").trim(),
             adminWhatsappDigits: wa,
             adminSyncSecret: (process.env.ADMIN_SYNC_SECRET || "").trim(),
+            airbnbUrl: (process.env.AIRBNB_URL || "").trim(),
           };
           const hdr =
             "/** Generado en GitHub Actions desde Repository secrets (no commitear claves en el repo). */\n";

@@ -11,4 +11,5 @@ window.RENTALS_CONFIG = {
   supabaseAnonKey: "",
   adminWhatsappDigits: "573508321565",
   adminSyncSecret: "",
+  airbnbUrl: "",
 };
