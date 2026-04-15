@@ -1,7 +1,26 @@
--- Lista de reservas para el panel admin (anon + clave compartida en RPC).
--- 1) Cambia el literal en v_expected por el mismo valor que pondrás en
---    GitHub Secret ADMIN_SYNC_SECRET y en adminSyncSecret de rentals-config.js
--- 2) Ejecuta en el SQL Editor de Supabase.
+-- =============================================================================
+-- Lista de reservas en el panel admin (obligatorio si quieres ver reservas de Supabase).
+-- Sin ejecutar este script y sin el secreto, el panel solo muestra reservas del navegador.
+--
+-- Pasos (elige UN texto secreto y úsalo en los tres sitios):
+--
+--   A) Abre este archivo y en la línea de v_expected (más abajo) sustituye
+--      GCV-ADMIN-SYNC-KEY-CHANGEME por tu secreto, por ejemplo:
+--      v_expected constant text := 'mi-clave-larga-y-secreta-2026';
+--
+--   B) Copia TODO el contenido de este archivo y pégalo en Supabase:
+--      Dashboard → SQL → New query → Run (debe decir success).
+--
+--   C) Mismo texto en la web:
+--      • GitHub Pages: repo → Settings → Secrets and variables → Actions →
+--        New repository secret → Name: ADMIN_SYNC_SECRET  Value: (el mismo texto)
+--        Luego ejecuta de nuevo el workflow “Deploy GitHub Pages”.
+--      • Pruebas en tu PC: en frontend/rentals-config.js pon
+--        adminSyncSecret: "el mismo texto"
+--
+--   D) Si usas 006_admin_update_casa_airbnb_ical.sql, el v_expected de esa función
+--      debe ser EXACTAMENTE el mismo texto que aquí.
+-- =============================================================================
 
 begin;
 

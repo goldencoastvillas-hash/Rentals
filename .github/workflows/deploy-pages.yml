@@ -38,10 +38,10 @@ jobs:
           const fs = require("fs");
           const wa = (process.env.ADMIN_WHATSAPP_DIGITS || "573508321565").replace(/\D/g, "") || "573508321565";
           const cfg = {
-            supabaseUrl: process.env.SUPABASE_URL || "",
-            supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "",
+            supabaseUrl: (process.env.SUPABASE_URL || "").trim(),
+            supabaseAnonKey: (process.env.SUPABASE_ANON_KEY || "").trim(),
             adminWhatsappDigits: wa,
-            adminSyncSecret: process.env.ADMIN_SYNC_SECRET || "",
+            adminSyncSecret: (process.env.ADMIN_SYNC_SECRET || "").trim(),
           };
           const hdr =
             "/** Generado en GitHub Actions desde Repository secrets (no commitear claves en el repo). */\n";

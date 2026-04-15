@@ -1,0 +1,13 @@
+{
+  "name": "rentals-backend-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "upload:media": "node scripts/upload-media.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.0",
+    "dotenv": "^16.6.1"
+  }
+}
+

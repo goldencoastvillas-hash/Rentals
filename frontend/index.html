@@ -767,6 +767,14 @@
 
       .logout-row {
         margin-bottom: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .admin-reservas-refresh {
+        margin-left: auto;
       }
 
       .logout-row button {
@@ -782,6 +790,109 @@
       .logout-row button:hover {
         color: var(--text);
         border-color: var(--accent);
+      }
+
+      /* ---- Galería (multi-foto) ---- */
+      .media-gallery {
+        position: relative;
+        width: 100%;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: #0b1220;
+        border: 1px solid var(--border);
+      }
+
+      .media-gallery--card {
+        aspect-ratio: 16 / 10;
+      }
+
+      .media-gallery--modal {
+        aspect-ratio: 16 / 9;
+      }
+
+      .media-gallery-track {
+        height: 100%;
+        display: flex;
+        transform: translateX(0);
+        transition: transform 240ms ease;
+        will-change: transform;
+        touch-action: pan-y;
+      }
+
+      .media-gallery-slide {
+        min-width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      .media-gallery-slide img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .media-gallery-nav {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.35rem;
+        pointer-events: none;
+      }
+
+      .media-gallery-nav button {
+        pointer-events: auto;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.35rem;
+        line-height: 1;
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        transition: opacity 180ms ease, transform 180ms ease;
+        transform: translateY(2px);
+      }
+
+      .media-gallery:hover .media-gallery-nav button,
+      .media-gallery:focus-within .media-gallery-nav button {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 640px) {
+        .media-gallery-nav button {
+          opacity: 1;
+        }
+      }
+
+      .media-gallery-dots {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0.45rem;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        pointer-events: none;
+      }
+
+      .media-gallery-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(0, 0, 0, 0.15);
+      }
+
+      .media-gallery-dot.is-active {
+        background: rgba(255, 255, 255, 0.9);
       }
 
       .admin-sidebar h2 + button {
@@ -1341,12 +1452,10 @@
         border: 1px solid var(--border);
       }
 
-      .modal-reserva-summary img {
-        width: 96px;
-        height: 72px;
-        object-fit: cover;
-        border-radius: 8px;
+      .modal-reserva-summary .media-gallery {
+        width: 160px;
         flex-shrink: 0;
+        border-radius: 10px;
       }
 
       .modal-reserva-summary div {
@@ -2029,6 +2138,9 @@
         <div class="admin-main">
           <div class="logout-row">
             <button type="button" id="admin-logout">Cerrar sesión</button>
+            <button type="button" id="admin-reservas-refresh" class="admin-reservas-refresh" hidden>
+              Actualizar reservas desde Supabase
+            </button>
           </div>
           <p id="admin-reservas-sync-hint" class="admin-hint" hidden></p>
           <div id="panel-activas">
@@ -2048,7 +2160,9 @@
           </div>
           <div id="panel-admin-carros" hidden>
             <h1>Catálogo — Carros</h1>
-            <p class="admin-hint">Los cambios se guardan en este navegador. Usa <strong>Añadir carro</strong> para abrir el formulario.</p>
+            <p class="admin-hint" id="admin-hint-carros">
+              Usa <strong>Añadir carro</strong> para abrir el formulario.
+            </p>
             <div class="admin-search-row">
               <label for="admin-carros-search" class="visually-hidden">Buscar carros</label>
               <input
@@ -2092,7 +2206,9 @@
           </div>
           <div id="panel-admin-casas" hidden>
             <h1>Catálogo — Casas</h1>
-            <p class="admin-hint">Los cambios se guardan en este navegador. Usa <strong>Añadir casa</strong> para abrir el formulario.</p>
+            <p class="admin-hint" id="admin-hint-casas">
+              Usa <strong>Añadir casa</strong> para abrir el formulario.
+            </p>
             <div class="admin-search-row">
               <label for="admin-casas-search" class="visually-hidden">Buscar casas por nombre o ubicación</label>
               <input
@@ -2183,6 +2299,20 @@
             <label for="carro-img">URL de foto</label>
             <input id="carro-img" type="url" required placeholder="https://..." />
           </div>
+          <div class="field" style="flex: 2 1 100%">
+            <label for="carro-imgs">Otras fotos (opcional)</label>
+            <textarea id="carro-imgs" rows="3" placeholder="Pega varias URLs (una por línea)"></textarea>
+            <p class="admin-hint" style="margin-top: 0.4rem; font-size: 0.8rem">
+              El cliente podrá deslizar izquierda/derecha para ver todas las fotos. La primera imagen será la principal.
+            </p>
+          </div>
+          <div class="field" style="flex: 2 1 100%">
+            <label for="carro-files">Subir fotos (opcional)</label>
+            <input id="carro-files" type="file" accept="image/*" multiple />
+            <p class="admin-hint" style="margin-top: 0.4rem; font-size: 0.8rem">
+              Si seleccionas archivos, se suben a Supabase Storage al guardar (requiere Edge Function <code>admin-media-upload</code>).
+            </p>
+          </div>
           <div class="field-check">
             <input id="carro-disponible" type="checkbox" checked />
             <label for="carro-disponible" style="padding: 0; margin: 0">Disponible</label>
@@ -2241,6 +2371,20 @@
           <div class="field" style="flex: 2 1 240px">
             <label for="casa-img">URL de foto</label>
             <input id="casa-img" type="url" required placeholder="https://..." />
+          </div>
+          <div class="field" style="flex: 2 1 100%">
+            <label for="casa-imgs">Otras fotos (opcional)</label>
+            <textarea id="casa-imgs" rows="3" placeholder="Pega varias URLs (una por línea)"></textarea>
+            <p class="admin-hint" style="margin-top: 0.4rem; font-size: 0.8rem">
+              El cliente podrá deslizar izquierda/derecha para ver todas las fotos. La primera imagen será la principal.
+            </p>
+          </div>
+          <div class="field" style="flex: 2 1 100%">
+            <label for="casa-files">Subir fotos (opcional)</label>
+            <input id="casa-files" type="file" accept="image/*" multiple />
+            <p class="admin-hint" style="margin-top: 0.4rem; font-size: 0.8rem">
+              Si seleccionas archivos, se suben a Supabase Storage al guardar (requiere Edge Function <code>admin-media-upload</code>).
+            </p>
           </div>
           <div class="field" style="flex: 2 1 100%">
             <label for="casa-airbnb-ical">URL iCal de exportación de Airbnb (opcional)</label>
@@ -2416,15 +2560,171 @@
           } catch (e) {}
         }
 
+        function uniqUrls(list) {
+          var out = [];
+          var seen = {};
+          (list || []).forEach(function (u) {
+            var s = String(u || "").trim();
+            if (!s) return;
+            if (!/^https?:\/\//i.test(s)) return;
+            if (seen[s]) return;
+            seen[s] = true;
+            out.push(s);
+          });
+          return out;
+        }
+
+        function parseUrlsMultiline(text) {
+          if (!text) return [];
+          return uniqUrls(
+            String(text)
+              .split(/\r?\n|,/g)
+              .map(function (x) {
+                return x.trim();
+              })
+          );
+        }
+
+        function normalizeImgsField(img, imgs) {
+          var arr = [];
+          if (Array.isArray(imgs)) arr = imgs.slice();
+          else if (typeof imgs === "string") arr = parseUrlsMultiline(imgs);
+          if (!arr.length && img) arr = uniqUrls([img]);
+          return arr;
+        }
+
+        function firstImgOf(x) {
+          if (!x) return "";
+          var arr = Array.isArray(x.imgs) ? x.imgs : [];
+          if (arr.length) return arr[0];
+          return x.img || "";
+        }
+
+        function mountGallery(root, imgs, alt, variant) {
+          if (!root) return;
+          var list = uniqUrls(imgs);
+          var a = String(alt || "");
+          if (!list.length) {
+            root.innerHTML = "";
+            return;
+          }
+          var idx = 0;
+          root.className = "media-gallery " + (variant === "modal" ? "media-gallery--modal" : "media-gallery--card");
+          root.setAttribute("tabindex", "0");
+
+          var track = document.createElement("div");
+          track.className = "media-gallery-track";
+          list.forEach(function (url) {
+            var s = document.createElement("div");
+            s.className = "media-gallery-slide";
+            var im = document.createElement("img");
+            im.loading = "lazy";
+            im.alt = a;
+            im.src = url;
+            s.appendChild(im);
+            track.appendChild(s);
+          });
+
+          var nav = document.createElement("div");
+          nav.className = "media-gallery-nav";
+          var prev = document.createElement("button");
+          prev.type = "button";
+          prev.setAttribute("aria-label", "Foto anterior");
+          prev.textContent = "‹";
+          var next = document.createElement("button");
+          next.type = "button";
+          next.setAttribute("aria-label", "Siguiente foto");
+          next.textContent = "›";
+          nav.appendChild(prev);
+          nav.appendChild(next);
+
+          var dots = document.createElement("div");
+          dots.className = "media-gallery-dots";
+          list.forEach(function (_, i) {
+            var d = document.createElement("span");
+            d.className = "media-gallery-dot" + (i === 0 ? " is-active" : "");
+            dots.appendChild(d);
+          });
+
+          function setIndex(n, fromUser) {
+            var len = list.length;
+            if (!len) return;
+            idx = (n % len + len) % len;
+            track.style.transition = fromUser === false ? "none" : "transform 240ms ease";
+            track.style.transform = "translateX(" + -idx * 100 + "%)";
+            Array.prototype.forEach.call(dots.children, function (ch, j) {
+              ch.classList.toggle("is-active", j === idx);
+            });
+          }
+
+          prev.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setIndex(idx - 1);
+          });
+          next.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setIndex(idx + 1);
+          });
+
+          // Swipe (touch/mouse) con Pointer Events
+          var startX = 0;
+          var dragging = false;
+          var lastDX = 0;
+
+          function onDown(ev) {
+            if (list.length <= 1) return;
+            dragging = true;
+            lastDX = 0;
+            startX = ev.clientX;
+            try {
+              track.setPointerCapture(ev.pointerId);
+            } catch (e) {}
+            track.style.transition = "none";
+          }
+          function onMove(ev) {
+            if (!dragging) return;
+            var dx = ev.clientX - startX;
+            lastDX = dx;
+            track.style.transform = "translateX(calc(" + -idx * 100 + "% + " + dx + "px))";
+          }
+          function onUp(ev) {
+            if (!dragging) return;
+            dragging = false;
+            try {
+              track.releasePointerCapture(ev.pointerId);
+            } catch (e) {}
+            var w = root.getBoundingClientRect().width || 1;
+            var threshold = Math.min(90, w * 0.18);
+            if (lastDX > threshold) setIndex(idx - 1);
+            else if (lastDX < -threshold) setIndex(idx + 1);
+            else setIndex(idx);
+          }
+
+          track.addEventListener("pointerdown", onDown);
+          track.addEventListener("pointermove", onMove);
+          track.addEventListener("pointerup", onUp);
+          track.addEventListener("pointercancel", onUp);
+
+          root.innerHTML = "";
+          root.appendChild(track);
+          if (list.length > 1) {
+            root.appendChild(nav);
+            root.appendChild(dots);
+          }
+          setIndex(0, false);
+        }
+
         function normalizeCarro(c) {
           var cat = c.categoria || "sedan";
+          var imgs = normalizeImgsField(c.img, c.imgs);
           return {
             id: c.id,
             marca: c.marca,
             modelo: c.modelo,
             cilindraje: c.cilindraje,
             precio: Number(c.precio),
-            img: c.img,
+            imgs: imgs,
+            img: imgs[0] || c.img,
             disponible: c.disponible !== false,
             categoria: cat,
             transmision: c.transmision || "automatica",
@@ -2432,12 +2732,14 @@
         }
 
         function normalizeCasa(h) {
+          var imgs = normalizeImgsField(h.img, h.imgs);
           return {
             id: h.id,
             nombre: h.nombre,
             ubicacion: h.ubicacion,
             precio: Number(h.precio),
-            img: h.img,
+            imgs: imgs,
+            img: imgs[0] || h.img,
             disponible: h.disponible !== false,
             tipo_inmueble: h.tipo_inmueble || "casa",
             cuartos: h.cuartos != null ? Number(h.cuartos) : 3,
@@ -2460,6 +2762,7 @@
             cilindraje: row.cilindraje,
             precio: row.precio_por_dia,
             img: row.foto_url,
+            imgs: row.fotos_urls,
             disponible: row.disponible,
             categoria: row.categoria,
             transmision: row.transmision,
@@ -2473,6 +2776,7 @@
             ubicacion: row.ubicacion,
             precio: row.precio_noche_persona,
             img: row.foto_url,
+            imgs: row.fotos_urls,
             disponible: row.disponible,
             tipo_inmueble: row.tipo_inmueble,
             cuartos: row.cuartos,
@@ -2712,12 +3016,15 @@
         }
 
         function normalizeSupaRowToRecord(row) {
-          if (!row || !row.id) return null;
+          if (!row || typeof row !== "object") return null;
+          var idRaw = row.id != null ? row.id : row.reserva_id;
+          if (idRaw == null || String(idRaw).trim() === "") return null;
+          var idStr = String(idRaw).trim();
           var refM = /Ref:\s*(RM-[A-Z0-9]+)/i.exec(row.notas || "");
           var ref = refM
             ? refM[1]
             : "RM-" +
-              String(row.id)
+              idStr
                 .replace(/-/g, "")
                 .substring(0, 8)
                 .toUpperCase();
@@ -2751,7 +3058,7 @@
                 formatDateES(ff);
           return {
             ref: ref,
-            supabaseReservaId: row.id,
+            supabaseReservaId: idStr,
             tipo: tipo,
             itemId: itemId,
             itemLabel: itemLabel,
@@ -2990,12 +3297,9 @@
           var article = document.createElement("article");
           article.className = "card is-clickable";
           article.setAttribute("data-carro-id", c.id);
+          var alt = c.marca + " " + c.modelo;
           article.innerHTML =
-            '<img src="' +
-            esc(c.img) +
-            '" alt="' +
-            esc(c.marca + " " + c.modelo) +
-            '" loading="lazy" />' +
+            '<div class="media-gallery js-card-gallery" aria-label="Galería de fotos"></div>' +
             '<div class="card-body"><h3>' +
             esc(c.marca + " " + c.modelo) +
             "</h3>" +
@@ -3019,6 +3323,8 @@
             '<button type="button" class="btn-reservar" data-reservar-carro="' +
             esc(c.id) +
             '">Reservar</button></div></div>';
+          var gal = article.querySelector(".js-card-gallery");
+          mountGallery(gal, c.imgs && c.imgs.length ? c.imgs : [c.img], alt, "card");
           article.addEventListener("click", function (e) {
             if (e.target.closest && e.target.closest("[data-reservar-carro]")) return;
             openReservaModal("carro", c.id);
@@ -3054,11 +3360,7 @@
           article.className = "card is-clickable";
           article.setAttribute("data-casa-id", h.id);
           article.innerHTML =
-            '<img src="' +
-            esc(h.img) +
-            '" alt="' +
-            esc(h.nombre) +
-            '" loading="lazy" />' +
+            '<div class="media-gallery js-card-gallery" aria-label="Galería de fotos"></div>' +
             '<div class="card-body"><h3>' +
             esc(h.nombre) +
             "</h3>" +
@@ -3075,6 +3377,8 @@
             '<button type="button" class="btn-reservar" data-reservar-casa="' +
             esc(h.id) +
             '">Reservar</button></div></div>';
+          var gal = article.querySelector(".js-card-gallery");
+          mountGallery(gal, h.imgs && h.imgs.length ? h.imgs : [h.img], h.nombre, "card");
           article.addEventListener("click", function (e) {
             if (e.target.closest && e.target.closest("[data-reservar-casa]")) return;
             openReservaModal("casa", h.id);
@@ -3107,7 +3411,7 @@
             var disp = c.disponible !== false ? "Disponible" : "No disponible";
             tr.innerHTML =
               '<td><img class="thumb" src="' +
-              esc(c.img) +
+              esc(firstImgOf(c)) +
               '" alt="" /></td>' +
               "<td><strong>" +
               esc(c.marca + " " + c.modelo) +
@@ -3181,7 +3485,7 @@
             var disp = h.disponible !== false ? "Disponible" : "No disponible";
             tr.innerHTML =
               '<td><img class="thumb" src="' +
-              esc(h.img) +
+              esc(firstImgOf(h)) +
               '" alt="" /></td>' +
               "<td><strong>" +
               esc(h.nombre) +
@@ -3305,8 +3609,10 @@
         function updateAdminReservasSyncHint() {
           var el = document.getElementById("admin-reservas-sync-hint");
           if (!el) return;
+          var btn = document.getElementById("admin-reservas-refresh");
           var cfgOk = !!(window.RentalsSupabase && RentalsSupabase.isConfigured());
           var sec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
+          if (btn) btn.hidden = !(cfgOk && sec);
           if (!cfgOk) {
             el.hidden = false;
             el.textContent =
@@ -3316,7 +3622,7 @@
           if (!sec) {
             el.hidden = false;
             el.textContent =
-              "Opcional: para ver en este panel las reservas guardadas en Supabase desde otros dispositivos, ejecuta backend/sql/005_admin_list_reservas.sql, pon el mismo secreto en adminSyncSecret (y en GitHub Secret ADMIN_SYNC_SECRET al desplegar).";
+              "Sin adminSyncSecret no se cargan las reservas desde Supabase (solo verás las de este navegador). Ejecuta backend/sql/005_admin_list_reservas.sql, usa el mismo texto en v_expected y en GitHub Secret ADMIN_SYNC_SECRET (o en rentals-config.js en local).";
             return;
           }
           if (__adminReservasLastError === "forbidden") {
@@ -3331,6 +3637,13 @@
               "No se pudo obtener la lista de reservas desde Supabase (red o función RPC). Verifica que ejecutaste backend/sql/005_admin_list_reservas.sql en el proyecto.";
             return;
           }
+          if (__adminReservasLastError) {
+            var errFull = String(__adminReservasLastError);
+            el.hidden = false;
+            el.textContent =
+              "No se pudieron cargar las reservas: " + errFull.slice(0, 280) + (errFull.length > 280 ? "…" : "");
+            return;
+          }
           el.hidden = true;
         }
 
@@ -3341,6 +3654,7 @@
             __remoteAdminReservas = [];
             __adminReservasLastError = "";
             updateAdminReservasSyncHint();
+            refreshReservasAdminLists();
             if (done) done();
             return;
           }
@@ -3355,12 +3669,13 @@
               var items = Array.isArray(data.items) ? data.items : [];
               __remoteAdminReservas = items.map(normalizeSupaRowToRecord).filter(Boolean);
             })
-            .catch(function () {
+            .catch(function (err) {
               __remoteAdminReservas = [];
-              __adminReservasLastError = "network";
+              __adminReservasLastError = (err && err.message) || "network";
             })
             .finally(function () {
               updateAdminReservasSyncHint();
+              refreshReservasAdminLists();
               if (done) done();
             });
         }
@@ -3397,27 +3712,25 @@
           if (tipo === "carro") {
             title.textContent = "Reservar vehículo";
             sum.innerHTML =
-              '<img src="' +
-              esc(c.img) +
-              '" alt="" /><div><strong>' +
+              '<div class="media-gallery js-modal-gallery" aria-label="Galería de fotos"></div><div><strong>' +
               esc(c.marca + " " + c.modelo) +
               "</strong>$" +
               esc(c.precio) +
               " USD / día · " +
               esc(labelCatCar(c.categoria)) +
               "</div>";
+            mountGallery(sum.querySelector(".js-modal-gallery"), c.imgs && c.imgs.length ? c.imgs : [c.img], c.marca + " " + c.modelo, "modal");
           } else {
             title.textContent = "Reservar propiedad";
             sum.innerHTML =
-              '<img src="' +
-              esc(h.img) +
-              '" alt="" /><div><strong>' +
+              '<div class="media-gallery js-modal-gallery" aria-label="Galería de fotos"></div><div><strong>' +
               esc(h.nombre) +
               "</strong>" +
               esc(h.ubicacion) +
               " · $" +
               esc(h.precio) +
               " USD / noche / persona</div>";
+            mountGallery(sum.querySelector(".js-modal-gallery"), h.imgs && h.imgs.length ? h.imgs : [h.img], h.nombre, "modal");
           }
 
           form.reset();
@@ -3698,6 +4011,8 @@
           if (f) f.reset();
           var hid = document.getElementById("carro-edit-id");
           if (hid) hid.value = "";
+          var ci = document.getElementById("carro-imgs");
+          if (ci) ci.value = "";
           var cb = document.getElementById("carro-disponible");
           if (cb) cb.checked = true;
           var sub = document.getElementById("carro-submit");
@@ -3725,6 +4040,8 @@
             document.getElementById("carro-categoria").value = c.categoria || "sedan";
             document.getElementById("carro-transmision").value = c.transmision || "automatica";
             document.getElementById("carro-img").value = c.img;
+            var ci = document.getElementById("carro-imgs");
+            if (ci) ci.value = (c.imgs && c.imgs.length ? c.imgs.slice(1) : []).join("\n");
             document.getElementById("carro-disponible").checked = c.disponible !== false;
           }
           showView("view-admin-form-carro");
@@ -3756,6 +4073,8 @@
             document.getElementById("casa-lat").value = h.lat;
             document.getElementById("casa-lng").value = h.lng;
             document.getElementById("casa-img").value = h.img;
+            var hi = document.getElementById("casa-imgs");
+            if (hi) hi.value = (h.imgs && h.imgs.length ? h.imgs.slice(1) : []).join("\n");
             var icalEl = document.getElementById("casa-airbnb-ical");
             if (icalEl) icalEl.value = h.airbnb_ical_url || "";
             document.getElementById("casa-mascotas").checked = !!h.mascotas;
@@ -3781,6 +4100,8 @@
           var f = document.getElementById("form-casa");
           if (f) f.reset();
           if (hid) hid.value = "";
+          var hi = document.getElementById("casa-imgs");
+          if (hi) hi.value = "";
           var cb = document.getElementById("casa-disponible");
           if (cb) cb.checked = true;
           var air = document.getElementById("casa-aire");
@@ -3855,11 +4176,29 @@
             var did = del.getAttribute("data-del-carro");
             if (!confirm("¿Eliminar este carro del catálogo?")) return;
             closeAllRowMenus();
-            CARROS = CARROS.filter(function (x) {
-              return x.id !== did;
-            });
-            persistCarros();
-            refreshCatalogo();
+            var syncSec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
+            if (REMOTE_CATALOG && window.RentalsSupabase && RentalsSupabase.rpcAdminDeleteCarro && syncSec && isUuid(did)) {
+              RentalsSupabase.rpcAdminDeleteCarro(syncSec, did)
+                .then(function (r) {
+                  if (!r || r.ok === false) throw new Error((r && r.error) || "No se pudo eliminar.");
+                  return RentalsSupabase.fetchCatalog();
+                })
+                .then(function (data) {
+                  CARROS = (data.carros || []).map(rowDbToCarro);
+                  CASAS = (data.casas || []).map(rowDbToCasa);
+                  refreshCatalogo();
+                  renderAdminCarros();
+                })
+                .catch(function (err) {
+                  alert((err && err.message) || "No se pudo eliminar el carro.");
+                });
+            } else {
+              CARROS = CARROS.filter(function (x) {
+                return x.id !== did;
+              });
+              persistCarros();
+              refreshCatalogo();
+            }
           }
         });
 
@@ -3885,11 +4224,29 @@
             var did = del.getAttribute("data-del-casa");
             if (!confirm("¿Eliminar esta casa del catálogo?")) return;
             closeAllRowMenus();
-            CASAS = CASAS.filter(function (x) {
-              return x.id !== did;
-            });
-            persistCasas();
-            refreshCatalogo();
+            var syncSec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
+            if (REMOTE_CATALOG && window.RentalsSupabase && RentalsSupabase.rpcAdminDeleteCasa && syncSec && isUuid(did)) {
+              RentalsSupabase.rpcAdminDeleteCasa(syncSec, did)
+                .then(function (r) {
+                  if (!r || r.ok === false) throw new Error((r && r.error) || "No se pudo eliminar.");
+                  return RentalsSupabase.fetchCatalog();
+                })
+                .then(function (data) {
+                  CARROS = (data.carros || []).map(rowDbToCarro);
+                  CASAS = (data.casas || []).map(rowDbToCasa);
+                  refreshCatalogo();
+                  renderAdminCasas();
+                })
+                .catch(function (err) {
+                  alert((err && err.message) || "No se pudo eliminar la casa.");
+                });
+            } else {
+              CASAS = CASAS.filter(function (x) {
+                return x.id !== did;
+              });
+              persistCasas();
+              refreshCatalogo();
+            }
           }
         });
 
@@ -3933,28 +4290,81 @@
           e.preventDefault();
           var editId = document.getElementById("carro-edit-id").value;
           var precio = parseFloat(document.getElementById("carro-precio").value);
+          var extraImgs = parseUrlsMultiline(document.getElementById("carro-imgs") && document.getElementById("carro-imgs").value);
+          var fileEl = document.getElementById("carro-files");
+          var fileList = fileEl && fileEl.files ? Array.prototype.slice.call(fileEl.files) : [];
           var obj = {
             marca: document.getElementById("carro-marca").value.trim(),
             modelo: document.getElementById("carro-modelo").value.trim(),
             cilindraje: document.getElementById("carro-cilindraje").value.trim(),
             precio: precio,
             img: document.getElementById("carro-img").value.trim(),
+            imgs: [],
             disponible: document.getElementById("carro-disponible").checked,
             categoria: document.getElementById("carro-categoria").value,
             transmision: document.getElementById("carro-transmision").value,
           };
+          obj.imgs = uniqUrls([obj.img].concat(extraImgs || []));
+          obj.img = obj.imgs[0] || obj.img;
           if (!obj.marca || !obj.modelo || !obj.cilindraje || !obj.img || isNaN(obj.precio) || obj.precio < 0) return;
+          var syncSec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
+          // CRUD real en Supabase cuando hay catálogo remoto
+          if (REMOTE_CATALOG) {
+            if (!syncSec || !window.RentalsSupabase || !RentalsSupabase.isConfigured() || !RentalsSupabase.rpcAdminUpsertCarro) {
+              alert("Falta configurar adminSyncSecret o las funciones admin en Supabase (SQL 010).");
+              return;
+            }
+            RentalsSupabase.rpcAdminUpsertCarro(syncSec, {
+              p_id: editId && isUuid(editId) ? editId : null,
+              p_marca: obj.marca,
+              p_modelo: obj.modelo,
+              p_cilindraje: obj.cilindraje,
+              p_precio_por_dia: obj.precio,
+              p_foto_url: obj.img,
+              p_fotos_urls: obj.imgs || [],
+              p_disponible: !!obj.disponible,
+              p_categoria: obj.categoria,
+              p_transmision: obj.transmision,
+            })
+              .then(function (r) {
+                if (!r || r.ok === false) throw new Error((r && r.error) || "No se pudo guardar.");
+                var newIdVal = r.id || editId;
+                if (fileList.length && RentalsSupabase.uploadAdminMedia && isUuid(newIdVal)) {
+                  return RentalsSupabase.uploadAdminMedia("carro", newIdVal, syncSec, fileList, "replace").catch(function () {
+                    return null;
+                  });
+                }
+                return null;
+              })
+              .then(function () {
+                return RentalsSupabase.fetchCatalog();
+              })
+              .then(function (data) {
+                CARROS = (data.carros || []).map(rowDbToCarro);
+                CASAS = (data.casas || []).map(rowDbToCasa);
+                refreshCatalogo();
+                renderAdminCarros();
+                resetCarroForm();
+                goAdminCarrosList();
+              })
+              .catch(function (err) {
+                alert((err && err.message) || "No se pudo guardar el carro.");
+              });
+            return;
+          }
+
+          // Fallback local si no hay Supabase
           if (editId) {
             var idx = CARROS.findIndex(function (x) {
               return x.id === editId;
             });
             if (idx >= 0) {
               obj.id = editId;
-              CARROS[idx] = obj;
+              CARROS[idx] = normalizeCarro(obj);
             }
           } else {
             obj.id = newId("carro");
-            CARROS.push(obj);
+            CARROS.push(normalizeCarro(obj));
           }
           persistCarros();
           resetCarroForm();
@@ -3969,11 +4379,15 @@
           var lng = parseFloat(document.getElementById("casa-lng").value);
           var cuartos = parseInt(document.getElementById("casa-cuartos").value, 10);
           var banos = parseInt(document.getElementById("casa-banos").value, 10);
+          var extraImgs = parseUrlsMultiline(document.getElementById("casa-imgs") && document.getElementById("casa-imgs").value);
+          var fileEl = document.getElementById("casa-files");
+          var fileList = fileEl && fileEl.files ? Array.prototype.slice.call(fileEl.files) : [];
           var obj = {
             nombre: document.getElementById("casa-nombre").value.trim(),
             ubicacion: document.getElementById("casa-ubicacion").value.trim(),
             precio: precio,
             img: document.getElementById("casa-img").value.trim(),
+            imgs: [],
             disponible: document.getElementById("casa-disponible").checked,
             tipo_inmueble: document.getElementById("casa-tipo-inm").value,
             cuartos: cuartos,
@@ -3986,39 +4400,82 @@
             lng: lng,
             airbnb_ical_url: (document.getElementById("casa-airbnb-ical") && document.getElementById("casa-airbnb-ical").value.trim()) || "",
           };
+          obj.imgs = uniqUrls([obj.img].concat(extraImgs || []));
+          obj.img = obj.imgs[0] || obj.img;
           if (!obj.nombre || !obj.ubicacion || !obj.img || isNaN(obj.precio) || obj.precio < 0 || isNaN(cuartos) || isNaN(banos) || isNaN(lat) || isNaN(lng)) return;
+          var syncSec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
+          // CRUD real en Supabase cuando hay catálogo remoto
+          if (REMOTE_CATALOG) {
+            if (!syncSec || !window.RentalsSupabase || !RentalsSupabase.isConfigured() || !RentalsSupabase.rpcAdminUpsertCasa) {
+              alert("Falta configurar adminSyncSecret o las funciones admin en Supabase (SQL 010).");
+              return;
+            }
+            RentalsSupabase.rpcAdminUpsertCasa(syncSec, {
+              p_id: editId && isUuid(editId) ? editId : null,
+              p_nombre: obj.nombre,
+              p_ubicacion: obj.ubicacion,
+              p_precio_noche_persona: obj.precio,
+              p_foto_url: obj.img,
+              p_fotos_urls: obj.imgs || [],
+              p_disponible: !!obj.disponible,
+              p_tipo_inmueble: obj.tipo_inmueble,
+              p_cuartos: obj.cuartos,
+              p_banos: obj.banos,
+              p_mascotas: !!obj.mascotas,
+              p_aire_acondicionado: !!obj.aire_acondicionado,
+              p_estacionamiento: !!obj.estacionamiento,
+              p_piscina: !!obj.piscina,
+              p_lat: obj.lat,
+              p_lng: obj.lng,
+              p_airbnb_ical_url: obj.airbnb_ical_url || "",
+            })
+              .then(function (r) {
+                if (!r || r.ok === false) throw new Error((r && r.error) || "No se pudo guardar.");
+                var newIdVal = r.id || editId;
+                var p = Promise.resolve();
+                if (RentalsSupabase.rpcAdminUpdateCasaAirbnbIcal && isUuid(newIdVal)) {
+                  p = RentalsSupabase.rpcAdminUpdateCasaAirbnbIcal(syncSec, newIdVal, obj.airbnb_ical_url || "").catch(function () {});
+                }
+                if (fileList.length && RentalsSupabase.uploadAdminMedia && isUuid(newIdVal)) {
+                  p = p.then(function () {
+                    return RentalsSupabase.uploadAdminMedia("casa", newIdVal, syncSec, fileList, "replace").catch(function () {
+                      return null;
+                    });
+                  });
+                }
+                return p;
+              })
+              .then(function () {
+                return RentalsSupabase.fetchCatalog();
+              })
+              .then(function (data) {
+                CARROS = (data.carros || []).map(rowDbToCarro);
+                CASAS = (data.casas || []).map(rowDbToCasa);
+                refreshCatalogo();
+                renderAdminCasas();
+                resetCasaForm();
+                goAdminCasasList();
+              })
+              .catch(function (err) {
+                alert((err && err.message) || "No se pudo guardar la casa.");
+              });
+            return;
+          }
+
+          // Fallback local si no hay Supabase
           if (editId) {
             var idx = CASAS.findIndex(function (x) {
               return x.id === editId;
             });
             if (idx >= 0) {
               obj.id = editId;
-              CASAS[idx] = obj;
+              CASAS[idx] = normalizeCasa(obj);
             }
           } else {
             obj.id = newId("casa");
-            CASAS.push(obj);
+            CASAS.push(normalizeCasa(obj));
           }
           persistCasas();
-          var syncSec = String((window.RENTALS_CONFIG && window.RENTALS_CONFIG.adminSyncSecret) || "").trim();
-          if (
-            REMOTE_CATALOG &&
-            isUuid(obj.id) &&
-            syncSec &&
-            window.RentalsSupabase &&
-            RentalsSupabase.isConfigured() &&
-            RentalsSupabase.rpcAdminUpdateCasaAirbnbIcal
-          ) {
-            RentalsSupabase.rpcAdminUpdateCasaAirbnbIcal(syncSec, obj.id, obj.airbnb_ical_url || "")
-              .then(function (d) {
-                if (!d || d.ok === false) {
-                  console.warn("[Rentals] airbnb_ical_url no guardado en Supabase:", (d && d.error) || d);
-                }
-              })
-              .catch(function (e) {
-                console.warn("[Rentals] airbnb_ical_url sync:", e && e.message);
-              });
-          }
           resetCasaForm();
           goAdminCasasList();
         });
@@ -4228,7 +4685,7 @@
               div.style.borderLeft = "3px solid var(--accent)";
               div.style.paddingLeft = "0.75rem";
               div.textContent =
-                "Catálogo cargado desde Supabase (solo lectura aquí salvo el enlace iCal de Airbnb: al guardar una casa se envía a Supabase si configuraste adminSyncSecret y ejecutaste backend/sql/006_admin_update_casa_airbnb_ical.sql). Para el resto de campos usa Table Editor o modo solo local (sin URL Supabase en rentals-config.js).";
+                "Catálogo cargado desde Supabase (solo lectura aquí salvo: enlace iCal de Airbnb y galerías de fotos. Al guardar una casa/carro se envían iCal y fotos si configuraste adminSyncSecret y ejecutaste backend/sql/006_admin_update_casa_airbnb_ical.sql + 007 + 008). Para el resto de campos usa Table Editor o modo solo local (sin URL Supabase en rentals-config.js).";
               var h1 = p.querySelector("h1");
               if (h1 && h1.nextSibling) p.insertBefore(div, h1.nextSibling);
               else p.appendChild(div);
@@ -4247,15 +4704,14 @@
             .then(function (data) {
               var cr = (data.carros || []).map(rowDbToCarro);
               var ca = (data.casas || []).map(rowDbToCasa);
-              if (cr.length) {
-                CARROS = cr;
-                REMOTE_CATALOG = true;
-              }
-              if (ca.length) {
-                CASAS = ca;
-                REMOTE_CATALOG = true;
-              }
+              CARROS = cr;
+              CASAS = ca;
+              REMOTE_CATALOG = true;
               updateRemoteCatalogHints();
+              var hc = document.getElementById("admin-hint-carros");
+              var hs = document.getElementById("admin-hint-casas");
+              if (hc) hc.textContent = "Creación/edición/eliminación se guardan en Supabase.";
+              if (hs) hs.textContent = "Creación/edición/eliminación se guardan en Supabase.";
               if (done) done();
             })
             .catch(function () {
@@ -4338,13 +4794,14 @@
         }
 
         function navTo(name) {
+          if (name === "admin-panel" || name === "admin-form-carro" || name === "admin-form-casa") {
+            if (!requireAdminOrRedirect()) return;
+          }
           showView("view-" + name);
           document.getElementById("servicios-dropdown").classList.remove("is-open");
           $("#servicios-toggle").setAttribute("aria-expanded", "false");
           if (name === "admin-panel") {
-            tryFetchRemoteReservasForAdmin(function () {
-              refreshReservasAdminLists();
-            });
+            tryFetchRemoteReservasForAdmin(null);
           }
           setTimeout(function () {
             refreshCatalogo();
@@ -4372,27 +4829,137 @@
           ddBtn.setAttribute("aria-expanded", "false");
         });
 
+        var adminLoginErrorDefault =
+          "Completa usuario, contraseña y un correo válido (ej. admin@rentals.com). No pongas la clave en el campo de correo.";
+
+        var STORAGE_ADMIN_SESSION = "rentals_admin_session_v1";
+
+        function setAdminSession(on) {
+          try {
+            if (!on) {
+              localStorage.removeItem(STORAGE_ADMIN_SESSION);
+              return;
+            }
+            localStorage.setItem(
+              STORAGE_ADMIN_SESSION,
+              JSON.stringify({
+                ok: true,
+                at: Date.now(),
+              })
+            );
+          } catch (e) {}
+        }
+
+        function hasAdminSession() {
+          try {
+            var raw = localStorage.getItem(STORAGE_ADMIN_SESSION);
+            if (!raw) return false;
+            var s = JSON.parse(raw);
+            if (!s || s.ok !== true) return false;
+            var at = Number(s.at) || 0;
+            // 12 horas
+            if (!at || Date.now() - at > 12 * 60 * 60 * 1000) return false;
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+
+        function requireAdminOrRedirect() {
+          if (hasAdminSession()) return true;
+          navTo("admin-login");
+          return false;
+        }
+
         $("#admin-form").addEventListener("submit", function (e) {
           e.preventDefault();
-          var user = $("#admin-user").value.trim();
-          var pass = $("#admin-pass").value;
-          var email = $("#admin-email").value.trim();
+          var userEl = $("#admin-user");
+          var passEl = $("#admin-pass");
+          var emailEl = $("#admin-email");
+          var user = userEl ? userEl.value.trim() : "";
+          var pass = passEl ? String(passEl.value).trim() : "";
+          var email = emailEl ? emailEl.value.trim() : "";
           var err = $("#login-error");
-          if (!user || !pass || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          var msg = "";
+          var focusEl = null;
+
+          if (!user) {
+            msg = "Introduce el nombre de usuario.";
+            focusEl = userEl;
+          } else if (user.length < 2) {
+            msg = "El usuario debe tener al menos 2 caracteres.";
+            focusEl = userEl;
+          } else if (!pass) {
+            msg = "Introduce la contraseña.";
+            focusEl = passEl;
+          } else if (pass.length < 4) {
+            msg = "La contraseña debe tener al menos 4 caracteres.";
+            focusEl = passEl;
+          } else if (!email) {
+            msg = "Introduce el correo electrónico.";
+            focusEl = emailEl;
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            msg = "El correo electrónico no tiene un formato válido.";
+            focusEl = emailEl;
+          }
+
+          if (msg) {
+            err.textContent = msg;
+            err.classList.add("is-visible");
+            if (focusEl && typeof focusEl.focus === "function") focusEl.focus();
+            return;
+          }
+
+          // Validación real contra Supabase (SQL 009). Si Supabase no está configurado, no permitimos entrar.
+          if (!window.RentalsSupabase || !RentalsSupabase.isConfigured() || !RentalsSupabase.rpcAdminLogin) {
+            err.textContent = "Configura Supabase (SUPABASE_URL y SUPABASE_ANON_KEY) para habilitar el login de administradores.";
             err.classList.add("is-visible");
             return;
           }
+
+          err.textContent = "";
           err.classList.remove("is-visible");
-          navTo("admin-panel");
-          setAdminTab("activas");
+
+          RentalsSupabase.rpcAdminLogin({
+            p_username: user,
+            p_email: email,
+            p_password: pass,
+          })
+            .then(function (resp) {
+              if (!resp || resp.ok !== true) {
+                err.textContent = "Credenciales incorrectas. Revisa usuario, correo y contraseña.";
+                err.classList.add("is-visible");
+                return;
+              }
+              setAdminSession(true);
+              navTo("admin-panel");
+              setAdminTab("activas");
+            })
+            .catch(function (e) {
+              err.textContent = (e && e.message) || "No se pudo validar el login en Supabase.";
+              err.classList.add("is-visible");
+            });
         });
 
         $("#admin-logout").addEventListener("click", function () {
+          setAdminSession(false);
           navTo("admin-login");
           $("#admin-form").reset();
+          var le = $("#login-error");
+          if (le) {
+            le.textContent = adminLoginErrorDefault;
+            le.classList.remove("is-visible");
+          }
           resetCarroForm();
           resetCasaForm();
         });
+
+        var adminReservasRefreshBtn = document.getElementById("admin-reservas-refresh");
+        if (adminReservasRefreshBtn) {
+          adminReservasRefreshBtn.addEventListener("click", function () {
+            tryFetchRemoteReservasForAdmin(null);
+          });
+        }
 
         resetCasaForm();
 

@@ -1,5 +1,6 @@
 -- Guardar airbnb_ical_url en Supabase desde el panel admin (catálogo remoto).
--- Usa el MISMO literal v_expected que en 005_admin_list_reservas.sql (adminSyncSecret).
+-- Opcional: solo si quieres que el enlace iCal de Airbnb se guarde al pulsar Guardar casa.
+-- El literal v_expected DEBE ser el MISMO que en 005_admin_list_reservas.sql (misma línea que adminSyncSecret).
 -- Ejecutar en el SQL Editor después de 004 y 005.
 
 begin;
