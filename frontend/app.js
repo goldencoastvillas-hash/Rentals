@@ -75,9 +75,11 @@ function init() {
   const year = $("#year");
   if (year) year.textContent = String(new Date().getFullYear());
 
-  import("./admin-auth.js").then((m) => m.initAdminAuth()).catch(() => {});
-  import("./admin.js").then((m) => m.initAdmin()).catch(() => {});
-  import("./client.js").then((m) => m.initClient()).catch(() => {});
+  // Cache-bust para GitHub Pages (evita que el navegador use módulos viejos)
+  const __v = "2026-04-16-1";
+  import(`./admin-auth.js?v=${__v}`).then((m) => m.initAdminAuth()).catch(() => {});
+  import(`./admin.js?v=${__v}`).then((m) => m.initAdmin()).catch(() => {});
+  import(`./client.js?v=${__v}`).then((m) => m.initClient()).catch(() => {});
 
   window.addEventListener("hashchange", () => setActiveView(routeFromHash()));
   setActiveView(routeFromHash());
