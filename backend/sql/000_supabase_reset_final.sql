@@ -161,6 +161,9 @@ create table public.casas (
   fotos_urls jsonb not null default '[]'::jsonb
 );
 
+-- Si RLS está activo por defecto en tu proyecto, lo desactivamos para este MVP sin Auth.
+alter table public.casas disable row level security;
+
 alter table public.casas
   add constraint casas_tipo_inmueble_chk
   check (tipo_inmueble in ('casa', 'apartamento', 'cabaña'));
@@ -181,6 +184,8 @@ create table public.carros (
   atributos jsonb not null default '{}'::jsonb,
   fotos_urls jsonb not null default '[]'::jsonb
 );
+
+alter table public.carros disable row level security;
 
 -- Reservas
 create table public.reservas (
@@ -209,6 +214,8 @@ create table public.reservas (
   total numeric(12,2) not null default 0,
   notas text
 );
+
+alter table public.reservas disable row level security;
 
 alter table public.reservas
   add constraint reservas_tipo_chk check (tipo in ('casa','carro'));
