@@ -97,8 +97,6 @@ function renderAdminShell(root) {
         <div class="admin-toolbar">
           <div class="left">
             <span class="pill" id="admin-kind-pill">Catálogo</span>
-            <button type="button" class="nav-btn" id="admin-kind-casas">Casas</button>
-            <button type="button" class="nav-btn" id="admin-kind-carros">Carros</button>
           </div>
           <div class="right">
             <label style="margin:0">
@@ -629,25 +627,37 @@ async function runAdmin(root) {
     editing: null,
   };
 
-  $("#admin-kind-casas").addEventListener("click", async () => {
-    state.mode = "catalogo";
-    state.kind = "casas";
-    state.page = 1;
-    state.editing = null;
-    $("#admin-kind-pill").textContent = "Catálogo · Casas";
-    $("#admin-form-wrap").style.display = "none";
-    await refresh(state);
-  });
+  function setActiveTop(tab) {
+    const btnCasas = document.getElementById("admin-nav-casas");
+    const btnCarros = document.getElementById("admin-nav-carros");
+    const btnReservas = document.getElementById("admin-nav-reservas");
+    const btnMapa = document.getElementById("admin-nav-mapa");
+    const all = [
+      ["casas", btnCasas],
+      ["carros", btnCarros],
+      ["reservas", btnReservas],
+      ["mapa", btnMapa],
+    ];
+    all.forEach(([k, el]) => {
+      if (!el) return;
+      el.classList.toggle("nav-btn--accent", k === tab);
+    });
+  }
 
-  $("#admin-kind-carros").addEventListener("click", async () => {
+  async function showCatalog(kind) {
     state.mode = "catalogo";
-    state.kind = "carros";
+    state.kind = kind;
     state.page = 1;
     state.editing = null;
-    $("#admin-kind-pill").textContent = "Catálogo · Carros";
-    $("#admin-form-wrap").style.display = "none";
+    $("#admin-kind-pill").textContent = kind === "casas" ? "Catálogo · Casas" : "Catálogo · Carros";
+    const formWrap = $("#admin-form-wrap");
+    if (formWrap) {
+      formWrap.style.display = "none";
+      formWrap.innerHTML = "";
+    }
+    setActiveTop(kind);
     await refresh(state);
-  });
+  }
 
   $("#admin-search").addEventListener("input", (e) => {
     state.query = e.target.value || "";
@@ -676,24 +686,26 @@ async function runAdmin(root) {
     openForm(state);
   });
 
-  $("#admin-kind-pill").textContent = "Catálogo · Casas";
-  await refresh(state);
+  // Default: Casas
+  await showCatalog("casas");
 
   // Navegación superior dentro del panel
   $("#admin-nav-casas")?.addEventListener("click", async () => {
-    $("#admin-kind-casas")?.click();
+    await showCatalog("casas");
   });
 
   $("#admin-nav-carros")?.addEventListener("click", async () => {
-    $("#admin-kind-carros")?.click();
+    await showCatalog("carros");
   });
 
   $("#admin-nav-reservas")?.addEventListener("click", async () => {
+    setActiveTop("reservas");
     await renderReservas(root);
   });
 
   $("#admin-nav-mapa")?.addEventListener("click", async () => {
     state.mode = "mapa";
+    setActiveTop("mapa");
     await renderMapaAdmin(root, state);
   });
 }
