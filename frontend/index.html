@@ -425,6 +425,52 @@
         gap: 1rem;
       }
 
+      .home-featured {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .featured-card {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 0;
+        overflow: hidden;
+      }
+
+      .featured-media {
+        height: 320px;
+        background: var(--surface2);
+      }
+
+      .featured-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .featured-side {
+        padding: 1rem 1.05rem;
+        border-left: 1px solid rgba(0, 109, 119, 0.12);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      .featured-side h3 {
+        margin: 0 0 0.35rem;
+      }
+
+      .dev-note {
+        margin-top: 1.25rem;
+        background: rgba(0, 109, 119, 0.05);
+        border: 1px solid rgba(0, 109, 119, 0.12);
+        border-radius: 16px;
+        padding: 1rem 1.05rem;
+      }
+
       .cards-col {
         display: grid;
         grid-template-columns: 1fr;
@@ -655,6 +701,16 @@
         }
         .map-box {
           height: 420px;
+        }
+        .featured-card {
+          grid-template-columns: 1fr;
+        }
+        .featured-side {
+          border-left: none;
+          border-top: 1px solid rgba(0, 109, 119, 0.12);
+        }
+        .featured-media {
+          height: 240px;
         }
       }
 
@@ -913,19 +969,43 @@
         </div>
 
         <h2 class="section-title">Destacados</h2>
-        <div class="grid-2" id="home-featured">
-          <div class="card">
-            <div class="card-inner">
-              <h3>Casas</h3>
-              <p class="muted">Cargando…</p>
+        <div class="home-featured" id="home-featured">
+          <div class="card featured-card">
+            <div class="featured-media"></div>
+            <div class="featured-side">
+              <div>
+                <h3>Carro destacado</h3>
+                <p class="muted">Cargando…</p>
+              </div>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
+                <button type="button" class="nav-btn nav-btn--accent" data-nav="carros">Ver carros</button>
+              </div>
             </div>
           </div>
-          <div class="card">
-            <div class="card-inner">
-              <h3>Carros</h3>
-              <p class="muted">Cargando…</p>
+          <div class="card featured-card">
+            <div class="featured-media"></div>
+            <div class="featured-side">
+              <div>
+                <h3>Casa destacada</h3>
+                <p class="muted">Cargando…</p>
+              </div>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
+                <button type="button" class="nav-btn nav-btn--accent" data-nav="casas">Ver casas</button>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div class="dev-note">
+          <strong>Estado del desarrollo</strong>
+          <p class="muted" style="margin:0.35rem 0 0">
+            Catálogo (casas y carros), reservas y panel admin en construcción continua. Para soporte o información:
+            <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a> ·
+            <a href="https://wa.me/573508321565" target="_blank" rel="noreferrer">WhatsApp +57 350 8321565</a>.
+          </p>
+          <p class="muted" style="margin:0.65rem 0 0">
+            Nos reservamos todos los derechos © <span id="year"></span> Golden Coast Villas Rentals.
+          </p>
         </div>
       </div>
     </section>
@@ -980,9 +1060,9 @@
           </p>
           <div class="about-cta-box">
             <p>👉 <strong>Agenda con nosotros</strong> y descubre tu próxima experiencia en Miami.</p>
-            <a href="mailto:info@goldencoastvillas.com?subject=Asesor%C3%ADa%20Golden%20Coast%20Villas">Escribir a info@goldencoastvillas.com</a>
+            <a href="mailto:goldencoastvillas@gmail.com?subject=Asesor%C3%ADa%20Golden%20Coast%20Villas">Escribir a goldencoastvillas@gmail.com</a>
             ·
-            <a href="tel:+13055550100">+1 (305) 555-0100</a>
+            <a href="https://wa.me/573508321565" target="_blank" rel="noreferrer">WhatsApp +57 350 8321565</a>
           </div>
         </article>
 
@@ -1038,8 +1118,8 @@
 
         <footer class="site-footer">
           <p><strong>Contacto</strong></p>
-          <p>Teléfonos: <a href="tel:+13055550100">+1 (305) 555-0100</a> · <a href="tel:+13055550101">+1 (305) 555-0101</a></p>
-          <p>Correo: <a href="mailto:info@goldencoastvillas.com">info@goldencoastvillas.com</a></p>
+          <p>WhatsApp: <a href="https://wa.me/573508321565" target="_blank" rel="noreferrer">+57 350 8321565</a></p>
+          <p>Correo: <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a></p>
           <p class="legal">Nos reservamos todos los derechos © <span id="year"></span> Golden Coast Villas Rentals.</p>
         </footer>
       </div>

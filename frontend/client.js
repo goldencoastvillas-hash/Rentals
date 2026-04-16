@@ -497,30 +497,48 @@ async function renderHomeFeatured() {
     const [casas, carros] = await Promise.all([fetchCasas(), fetchCarros()]);
     const c1 = casas.slice(0, 1)[0];
     const c2 = carros.slice(0, 1)[0];
+    const carroImg = c2 ? firstPhoto(c2) : "";
+    const casaImg = c1 ? firstPhoto(c1) : "";
+    const carroPrecio = c2 ? `$${Number(c2.precio_dia || 0).toLocaleString()} / día` : "";
+    const casaPrecio = c1 ? `$${Number(c1.precio_noche || 0).toLocaleString()} / noche` : "";
     wrap.innerHTML = `
-      <div class="card">
-        <div class="card-inner">
-          <h3>Casa destacada</h3>
-          <div class="muted">${c1 ? escapeHtml(c1.nombre) : "Aún no hay casas publicadas"}</div>
-          <div style="margin-top:0.75rem">
-            <button type="button" class="nav-btn nav-btn--accent" data-nav="casas">Ver casas</button>
+      <div class="card featured-card" data-nav="carros" style="cursor:pointer">
+        <div class="featured-media">${carroImg ? `<img alt="" src="${escapeHtml(carroImg)}" />` : ""}</div>
+        <div class="featured-side">
+          <div>
+            <h3>${c2 ? escapeHtml(c2.marca) : "Carros"}</h3>
+            <div class="muted">${c2 ? escapeHtml((c2.tipo || "") + " · " + (c2.cilindraje || "")) : "Aún no hay carros publicados"}</div>
+          </div>
+          <div class="price-row">
+            <div class="price">${escapeHtml(c2 ? carroPrecio : "")}</div>
+            <span class="pill">${c2 ? (Array.isArray(c2.fotos_urls) ? c2.fotos_urls.length : 0) : 0} fotos</span>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-inner">
-          <h3>Carro destacado</h3>
-          <div class="muted">${c2 ? escapeHtml(c2.marca) : "Aún no hay carros publicados"}</div>
-          <div style="margin-top:0.75rem">
-            <button type="button" class="nav-btn nav-btn--accent" data-nav="carros">Ver carros</button>
+      <div class="card featured-card" data-nav="casas" style="cursor:pointer">
+        <div class="featured-media">${casaImg ? `<img alt="" src="${escapeHtml(casaImg)}" />` : ""}</div>
+        <div class="featured-side">
+          <div>
+            <h3>${c1 ? escapeHtml(c1.nombre) : "Casas"}</h3>
+            <div class="muted">${c1 ? escapeHtml((c1.tipo_inmueble || "") + " · " + (c1.habitaciones ?? 0) + " hab · " + (c1.banos ?? 0) + " baños") : "Aún no hay casas publicadas"}</div>
+          </div>
+          <div class="price-row">
+            <div class="price">${escapeHtml(c1 ? casaPrecio : "")}</div>
+            <span class="pill">${c1 ? (Array.isArray(c1.fotos_urls) ? c1.fotos_urls.length : 0) : 0} fotos</span>
           </div>
         </div>
       </div>
     `;
   } catch (_e) {
     wrap.innerHTML = `
-      <div class="card"><div class="card-inner muted">Configura Supabase para cargar destacados.</div></div>
-      <div class="card"><div class="card-inner muted">Configura Supabase para cargar destacados.</div></div>
+      <div class="card featured-card">
+        <div class="featured-media"></div>
+        <div class="featured-side"><div><h3>Carros</h3><p class="muted">Configura Supabase para cargar.</p></div></div>
+      </div>
+      <div class="card featured-card">
+        <div class="featured-media"></div>
+        <div class="featured-side"><div><h3>Casas</h3><p class="muted">Configura Supabase para cargar.</p></div></div>
+      </div>
     `;
   }
 }
