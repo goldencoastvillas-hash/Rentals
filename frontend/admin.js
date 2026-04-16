@@ -70,6 +70,7 @@ function buildMenu(actions) {
     item.textContent = a.label;
     item.addEventListener("click", (e) => {
       e.preventDefault();
+      e.stopPropagation();
       panel.classList.remove("is-open");
       a.onClick();
     });
@@ -78,6 +79,7 @@ function buildMenu(actions) {
 
   btn.addEventListener("click", (e) => {
     e.preventDefault();
+    e.stopPropagation();
     panel.classList.toggle("is-open");
   });
 
@@ -400,7 +402,9 @@ function renderTable(state, rows) {
       <td></td>
     `;
 
-    tr.addEventListener("click", () => {
+    tr.addEventListener("click", (e) => {
+      // Si el click viene del menú (⋯), no abrir preview de fotos
+      if (e.target && e.target.closest && e.target.closest(".menu")) return;
       const urls = Array.isArray(r.fotos_urls) ? r.fotos_urls : [];
       const html =
         urls.length === 0
