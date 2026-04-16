@@ -556,11 +556,17 @@ export async function initClient() {
   try {
     casasState.rows = await fetchCasas();
     renderCasas(casasState);
-  } catch (_e) {}
+  } catch (e) {
+    const list = document.getElementById("casas-list");
+    if (list) list.innerHTML = `<div class="card"><div class="card-inner muted">Error cargando casas: ${escapeHtml(e?.message || "sin detalle")}</div></div>`;
+  }
 
   try {
     carrosState.rows = await fetchCarros();
     renderCarros(carrosState);
-  } catch (_e) {}
+  } catch (e) {
+    const list = document.getElementById("carros-list");
+    if (list) list.innerHTML = `<div class="card"><div class="card-inner muted">Error cargando carros: ${escapeHtml(e?.message || "sin detalle")}</div></div>`;
+  }
 }
 

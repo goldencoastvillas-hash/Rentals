@@ -44,18 +44,30 @@ begin
 end $$;
 
 -- Public: policies
-drop policy if exists reservas_public_insert on public.reservas;
-drop policy if exists reservas_admin_read on public.reservas;
-drop policy if exists reservas_admin_write on public.reservas;
-drop policy if exists reservas_admin_delete on public.reservas;
+-- OJO: `drop policy ... on <tabla>` falla si la tabla no existe.
+do $$
+begin
+  if to_regclass('public.reservas') is not null then
+    execute 'drop policy if exists reservas_public_insert on public.reservas';
+    execute 'drop policy if exists reservas_admin_read on public.reservas';
+    execute 'drop policy if exists reservas_admin_write on public.reservas';
+    execute 'drop policy if exists reservas_admin_delete on public.reservas';
+  end if;
 
-drop policy if exists casas_public_read on public.casas;
-drop policy if exists casas_admin_write on public.casas;
+  if to_regclass('public.casas') is not null then
+    execute 'drop policy if exists casas_public_read on public.casas';
+    execute 'drop policy if exists casas_admin_write on public.casas';
+  end if;
 
-drop policy if exists carros_public_read on public.carros;
-drop policy if exists carros_admin_write on public.carros;
+  if to_regclass('public.carros') is not null then
+    execute 'drop policy if exists carros_public_read on public.carros';
+    execute 'drop policy if exists carros_admin_write on public.carros';
+  end if;
 
-drop policy if exists admins_read_own on public.admins;
+  if to_regclass('public.admins') is not null then
+    execute 'drop policy if exists admins_read_own on public.admins';
+  end if;
+end $$;
 
 -- Public: funciones
 drop function if exists public.web_admin_login(text, text, text);
@@ -222,6 +234,15 @@ create index reservas_estado_idx on public.reservas using btree (estado);
 create index reservas_desde_hasta_idx on public.reservas using btree (desde, hasta);
 create index reservas_casa_idx on public.reservas using btree (casa_id);
 create index reservas_carro_idx on public.reservas using btree (carro_id);
+
+-- Permisos para PostgREST (anon key / publishable).
+-- Sin esto, aunque existan datos, el frontend no puede hacer SELECT y parecerá “vacío”.
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on table public.casas to anon, authenticated;
+grant select, insert, update, delete on table public.carros to anon, authenticated;
+grant select, insert, update, delete on table public.reservas to anon, authenticated;
+grant select on table public.admins to anon, authenticated;
+grant usage, select on all sequences in schema public to anon, authenticated;
 
 -- Nota: sin Supabase Auth no podemos aplicar RLS por rol de usuario.
 -- Dejamos RLS deshabilitado en tablas public.* para permitir CRUD desde la web.
