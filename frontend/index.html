@@ -525,6 +525,50 @@
         font-size: 0.85rem;
       }
 
+      .amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.45rem;
+        margin-top: 0.45rem;
+      }
+
+      .amenity {
+        padding: 0.28rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 109, 119, 0.16);
+        background: rgba(0, 109, 119, 0.06);
+        color: var(--accent-deep);
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+
+      .amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem 1rem;
+        margin-top: 0.75rem;
+      }
+
+      .amenities-grid .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 14px;
+        background: rgba(0, 109, 119, 0.04);
+        border: 1px solid rgba(0, 109, 119, 0.1);
+      }
+
+      .amenities-grid .row strong {
+        font-size: 0.95rem;
+      }
+
+      .amenities-grid .row span {
+        font-weight: 900;
+        color: var(--accent-deep);
+      }
+
       .price-row {
         display: flex;
         align-items: baseline;
@@ -732,6 +776,9 @@
         .featured-media {
           height: 240px;
         }
+        .amenities-grid {
+          grid-template-columns: 1fr;
+        }
       }
 
       /* Nosotros (formato completo que te gustaba) */
@@ -858,6 +905,39 @@
         border-radius: 16px;
         background: var(--surface);
         border: 1px solid rgba(0, 109, 119, 0.14);
+      }
+
+      .password-wrap {
+        position: relative;
+      }
+
+      .password-wrap input {
+        padding-right: 2.9rem;
+      }
+
+      .toggle-pass {
+        position: absolute;
+        right: 0.45rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2.35rem;
+        height: 2.35rem;
+        padding: 0;
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        border-radius: 12px;
+        background: rgba(0, 109, 119, 0.06);
+        color: var(--accent-deep);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .toggle-pass:hover {
+        background: var(--teal-glow);
+        border-color: rgba(0, 109, 119, 0.25);
       }
       label {
         display: block;
@@ -1224,7 +1304,10 @@
             <label for="admin-email">Correo</label>
             <input id="admin-email" name="email" type="email" autocomplete="email" required placeholder="admin@rentals.com" />
             <label for="admin-pass">Contraseña</label>
-            <input id="admin-pass" name="pass" type="password" autocomplete="current-password" required placeholder="•••••••" />
+            <div class="password-wrap">
+              <input id="admin-pass" name="pass" type="password" autocomplete="current-password" required placeholder="•••••••" />
+              <button type="button" class="toggle-pass" id="admin-pass-toggle" aria-label="Mostrar u ocultar contraseña">👁</button>
+            </div>
             <button type="submit">Entrar</button>
           </form>
           <p class="muted" style="font-size: 0.9rem; margin: 0.75rem 0 0">

@@ -15,6 +15,13 @@ export function initAdminAuth() {
   const form = $("#admin-form");
   if (!form) return;
 
+  $("#admin-pass-toggle")?.addEventListener("click", () => {
+    const inp = $("#admin-pass");
+    if (!inp) return;
+    const isPass = inp.type === "password";
+    inp.type = isPass ? "text" : "password";
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     showError("");
@@ -39,7 +46,7 @@ export function initAdminAuth() {
     try {
       const resp = await rpcAdminLogin({ p_username: user, p_email: email, p_password: pass });
       if (!resp || resp.ok !== true) {
-        showError("Credenciales incorrectas.");
+        showError(resp?.error === "missing_fields" ? "Completa usuario, correo y contraseña." : "Credenciales incorrectas.");
         return;
       }
 
@@ -48,7 +55,11 @@ export function initAdminAuth() {
       if (window.RentalsApp?.go) window.RentalsApp.go("admin");
     } catch (err) {
       const msg = (err && (err.message || err.error_description)) || "No se pudo iniciar sesión.";
-      showError(msg);
+      if (String(msg || "").toLowerCase().includes("web_admin_login")) {
+        showError("Falta crear la función web_admin_login en Supabase. Ejecuta el SQL `backend/sql/000_supabase_reset_final.sql` y vuelve a intentar.");
+      } else {
+        showError(msg);
+      }
     }
   });
 }

@@ -38,6 +38,13 @@ function renderCasaCard(row) {
   const img = firstPhoto(row);
   const precio = `$${Number(row.precio_noche || 0).toLocaleString()} / noche`;
   const meta = `${row.tipo_inmueble || ""} · ${row.habitaciones ?? 0} hab · ${row.banos ?? 0} baños`;
+  const amen = [];
+  if (row.wifi) amen.push("Wifi");
+  if (row.parking) amen.push("Parking");
+  if (row.piscina) amen.push("Piscina");
+  if (row.aire) amen.push("Aire");
+  if (row.gym) amen.push("Gym");
+  if (row.mascotas) amen.push("Mascotas");
   const el = document.createElement("div");
   el.className = "item-card";
   el.innerHTML = `
@@ -45,6 +52,7 @@ function renderCasaCard(row) {
     <div class="item-meta">
       <h3>${escapeHtml(row.nombre || "Casa")}</h3>
       <div class="muted">${escapeHtml(meta)}</div>
+      ${amen.length ? `<div class="amenities">${amen.slice(0, 5).map((x) => `<span class="amenity">${escapeHtml(x)}</span>`).join("")}</div>` : ""}
       <div class="price-row">
         <div class="price">${escapeHtml(precio)}</div>
         <span class="pill">${Array.isArray(row.fotos_urls) ? row.fotos_urls.length : 0} fotos</span>
@@ -81,6 +89,15 @@ function renderCarroCard(row) {
 
 function openCasaDetail(row) {
   const urls = Array.isArray(row.fotos_urls) ? row.fotos_urls : [];
+  const offers = [
+    ["Wifi", !!row.wifi],
+    ["Estacionamiento", !!row.parking],
+    ["Piscina", !!row.piscina],
+    ["Patio", !!row.patio],
+    ["Aire acondicionado", !!row.aire],
+    ["Gym", !!row.gym],
+    ["Se permiten mascotas", !!row.mascotas],
+  ];
   const html = `
     <div style="padding:1rem 1.05rem">
       <h2 style="margin:0 0 0.5rem">${escapeHtml(row.nombre || "Casa")}</h2>
@@ -101,6 +118,19 @@ function openCasaDetail(row) {
             <div class="muted" style="margin-top:0.35rem">
               ${escapeHtml(row.habitaciones ?? 0)} hab · ${escapeHtml(row.banos ?? 0)} baños · Máx ${escapeHtml(row.max_huespedes ?? 1)} huéspedes
             </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="box-shadow:none; margin-top:0.85rem">
+        <div class="card-inner">
+          <strong>Lo que este lugar ofrece</strong>
+          <div class="amenities-grid">
+            ${offers
+              .map(
+                ([label, ok]) =>
+                  `<div class="row"><strong>${escapeHtml(label)}</strong><span>${ok ? "Sí" : "No"}</span></div>`
+              )
+              .join("")}
           </div>
         </div>
       </div>
@@ -360,6 +390,30 @@ function renderCasaFilters(state) {
         <option value="false">No</option>
       </select>
     </div>
+    <div>
+      <label>Piscina</label>
+      <select id="casas-piscina">
+        <option value="">Indiferente</option>
+        <option value="true">Sí</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+    <div>
+      <label>Aire acondicionado</label>
+      <select id="casas-aire">
+        <option value="">Indiferente</option>
+        <option value="true">Sí</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+    <div>
+      <label>Wifi</label>
+      <select id="casas-wifi">
+        <option value="">Indiferente</option>
+        <option value="true">Sí</option>
+        <option value="false">No</option>
+      </select>
+    </div>
   `;
 
   wrap.querySelectorAll("input,select").forEach((el) => {
@@ -369,6 +423,9 @@ function renderCasaFilters(state) {
       state.hab = Number($("#casas-hab").value || 0);
       state.precioMax = $("#casas-precio").value ? Number($("#casas-precio").value) : null;
       state.mascotas = $("#casas-mascotas").value;
+      state.piscina = $("#casas-piscina").value;
+      state.aire = $("#casas-aire").value;
+      state.wifi = $("#casas-wifi").value;
       renderCasas(state);
     });
   });
@@ -385,6 +442,12 @@ function casaMatches(state, r) {
   if (state.precioMax != null && Number(r.precio_noche || 0) > state.precioMax) return false;
   if (state.mascotas === "true" && r.mascotas !== true) return false;
   if (state.mascotas === "false" && r.mascotas !== false) return false;
+  if (state.piscina === "true" && r.piscina !== true) return false;
+  if (state.piscina === "false" && r.piscina !== false) return false;
+  if (state.aire === "true" && r.aire !== true) return false;
+  if (state.aire === "false" && r.aire !== false) return false;
+  if (state.wifi === "true" && r.wifi !== true) return false;
+  if (state.wifi === "false" && r.wifi !== false) return false;
   return true;
 }
 
