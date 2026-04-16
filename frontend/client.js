@@ -395,10 +395,13 @@ function ensureCasaMap() {
   const el = $("#casas-map");
   if (!el) return null;
   if (__casaMap) return __casaMap;
-  __casaMap = L.map(el, { zoomControl: true }).setView([25.7617, -80.1918], 11); // Miami
+  __casaMap = L.map(el, { zoomControl: true, preferCanvas: true }).setView([25.7617, -80.1918], 11); // Miami
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: "&copy; OpenStreetMap",
+    updateWhenIdle: true,
+    updateWhenZooming: false,
+    keepBuffer: 2,
   }).addTo(__casaMap);
   return __casaMap;
 }
@@ -568,5 +571,20 @@ export async function initClient() {
     const list = document.getElementById("carros-list");
     if (list) list.innerHTML = `<div class="card"><div class="card-inner muted">Error cargando carros: ${escapeHtml(e?.message || "sin detalle")}</div></div>`;
   }
+
+  // Al entrar a la vista de casas, Leaflet necesita recalcular tamaños para render rápido.
+  function maybeInvalidateMap() {
+    const route = (location.hash || "").replace(/^#/, "") || "home";
+    if (route !== "casas") return;
+    const map = ensureCasaMap();
+    if (!map) return;
+    setTimeout(() => {
+      try {
+        map.invalidateSize(true);
+      } catch (_e) {}
+    }, 50);
+  }
+  window.addEventListener("hashchange", maybeInvalidateMap);
+  maybeInvalidateMap();
 }
 

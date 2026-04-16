@@ -45,6 +45,20 @@
         min-height: 100vh;
       }
 
+      body.modal-open {
+        overflow: hidden;
+      }
+
+      body.modal-open .site-header,
+      body.modal-open .view {
+        pointer-events: none;
+        user-select: none;
+      }
+
+      body.modal-open #modal {
+        pointer-events: auto;
+      }
+
       h1,
       h2,
       .hero h1,
@@ -539,12 +553,17 @@
         background: var(--surface2);
       }
 
+      /* Leaflet: mantén el mapa siempre debajo del modal */
+      .leaflet-container {
+        z-index: 1;
+      }
+
       /* Modal */
       .modal {
         position: fixed;
         inset: 0;
         display: none;
-        z-index: 200;
+        z-index: 9999;
       }
 
       .modal.is-open {
@@ -569,6 +588,7 @@
         border: 1px solid rgba(0, 109, 119, 0.18);
         border-radius: 18px;
         box-shadow: 0 26px 80px rgba(0, 0, 0, 0.28);
+        z-index: 2;
       }
 
       .modal-close {

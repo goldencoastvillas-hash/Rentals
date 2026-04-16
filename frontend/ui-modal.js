@@ -7,6 +7,7 @@ export function openModal(html) {
   const body = $("#modal-body");
   if (!modal || !body) return;
   body.innerHTML = html || "";
+  document.body.classList.add("modal-open");
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
 }
@@ -18,6 +19,7 @@ export function closeModal() {
   body.innerHTML = "";
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
 }
 
 export function initModal() {
