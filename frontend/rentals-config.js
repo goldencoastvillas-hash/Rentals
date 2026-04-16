@@ -7,8 +7,8 @@
  * En local: rellena URL, anon key y opcional adminSyncSecret (mismo valor que en SQL 005).
  */
 window.RENTALS_CONFIG = {
-  supabaseUrl: "",
-  supabaseAnonKey: "",
+  supabaseUrl: "https://yxhogojcagmloetoivgv.supabase.co",
+  supabaseAnonKey: "sb_publishable_QfbTgDu7pnaqEV4GUCtaUg_RxqyagcX",
   adminWhatsappDigits: "573508321565",
   adminSyncSecret: "",
   airbnbUrl: "",
