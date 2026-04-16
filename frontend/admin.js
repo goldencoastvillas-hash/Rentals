@@ -180,6 +180,40 @@ function casaFormHtml(state) {
             </div>
 
             <div class="span-2">
+              <label>Amenidades</label>
+              <div style="display:flex; flex-wrap:wrap; gap:0.75rem; padding:0.65rem 0.75rem; border-radius:12px; border:1px solid rgba(0,109,119,0.2)">
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="wifi" ${v.wifi ? "checked" : ""} />
+                  Wifi
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="piscina" ${v.piscina ? "checked" : ""} />
+                  Piscina
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="aire" ${v.aire ? "checked" : ""} />
+                  Aire acondicionado
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="mascotas" ${v.mascotas ? "checked" : ""} />
+                  Acepta mascotas
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="patio" ${v.patio ? "checked" : ""} />
+                  Patio
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="gym" ${v.gym ? "checked" : ""} />
+                  Gym
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="parking" ${v.parking ? "checked" : ""} />
+                  Parking
+                </label>
+              </div>
+            </div>
+
+            <div class="span-2">
               <label>Fotos (subir desde dispositivo)</label>
               <input name="files" type="file" accept="image/*" multiple />
               <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
@@ -499,6 +533,7 @@ function openForm(state) {
     e.preventDefault();
 
     const fd = new FormData(form);
+    const fdBool = (name) => fd.get(name) === "on";
     const files = fd.getAll("files").filter((f) => f && f.name);
     const urlsExisting = parseUrlsTextarea(fd.get("fotos_urls"));
 
@@ -514,6 +549,13 @@ function openForm(state) {
           precio_noche: Number(fd.get("precio_noche") || 0),
           max_huespedes: Number(fd.get("max_huespedes") || 1),
           descripcion: String(fd.get("descripcion") || "").trim(),
+          wifi: fdBool("wifi"),
+          piscina: fdBool("piscina"),
+          aire: fdBool("aire"),
+          mascotas: fdBool("mascotas"),
+          patio: fdBool("patio"),
+          gym: fdBool("gym"),
+          parking: fdBool("parking"),
         };
 
         const saved = await upsertCasa(base);
