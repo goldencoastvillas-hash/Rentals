@@ -27,6 +27,11 @@ function uniqUrls(urls) {
   return out;
 }
 
+function firstPhoto(row) {
+  const u = Array.isArray(row?.fotos_urls) ? row.fotos_urls.find(Boolean) : "";
+  return u || "";
+}
+
 function nowSlug() {
   return new Date().toISOString().replace(/[:.]/g, "-");
 }
@@ -289,14 +294,26 @@ async function listRows(kind) {
 
 async function upsertCasa(row) {
   const client = getClient();
-  const { data, error } = await client.from("casas").upsert(row).select("*").single();
+  if (row && row.id) {
+    const { data, error } = await client.from("casas").update(row).eq("id", row.id).select("*").single();
+    if (error) throw error;
+    return data;
+  }
+  const { id, ...ins } = row || {};
+  const { data, error } = await client.from("casas").insert(ins).select("*").single();
   if (error) throw error;
   return data;
 }
 
 async function upsertCarro(row) {
   const client = getClient();
-  const { data, error } = await client.from("carros").upsert(row).select("*").single();
+  if (row && row.id) {
+    const { data, error } = await client.from("carros").update(row).eq("id", row.id).select("*").single();
+    if (error) throw error;
+    return data;
+  }
+  const { id, ...ins } = row || {};
+  const { data, error } = await client.from("carros").insert(ins).select("*").single();
   if (error) throw error;
   return data;
 }
@@ -340,9 +357,10 @@ function renderTable(state, rows) {
     return;
   }
 
-  const th = state.kind === "casas"
-    ? `<tr><th>Casa</th><th>Precio</th><th>Atributos</th><th style="text-align:right">Acciones</th></tr>`
-    : `<tr><th>Carro</th><th>Precio</th><th>Atributos</th><th style="text-align:right">Acciones</th></tr>`;
+  const th =
+    state.kind === "casas"
+      ? `<tr><th style="width:86px">Foto</th><th>Casa</th><th>Precio</th><th>Atributos</th><th style="text-align:right">Acciones</th></tr>`
+      : `<tr><th style="width:86px">Foto</th><th>Carro</th><th>Precio</th><th>Atributos</th><th style="text-align:right">Acciones</th></tr>`;
 
   const table = document.createElement("table");
   table.className = "admin-table";
@@ -354,6 +372,7 @@ function renderTable(state, rows) {
     tr.style.cursor = "pointer";
 
     const photosCount = Array.isArray(r.fotos_urls) ? r.fotos_urls.length : 0;
+    const img = firstPhoto(r);
 
     const attrs =
       state.kind === "casas"
@@ -366,6 +385,13 @@ function renderTable(state, rows) {
         : `$${Number(r.precio_dia || 0).toLocaleString()} / día`;
 
     tr.innerHTML = `
+      <td>
+        ${
+          img
+            ? `<img alt="" src="${escapeHtml(img)}" style="width:72px; height:54px; object-fit:cover; border-radius:12px; border:1px solid rgba(0,109,119,0.12)" />`
+            : `<div class="muted" style="font-size:0.85rem">—</div>`
+        }
+      </td>
       <td><strong>${escapeHtml(rowTitle(state.kind, r))}</strong><div class="muted" style="font-size:0.85rem">${escapeHtml(
         r.direccion || r.descripcion || ""
       )}</div></td>
@@ -591,6 +617,7 @@ async function runAdmin(root) {
 
   const state = {
     kind: "casas",
+    mode: "catalogo", // catalogo | mapa | reservas
     query: "",
     page: 1,
     pageSize: 10,
@@ -599,6 +626,7 @@ async function runAdmin(root) {
   };
 
   $("#admin-kind-casas").addEventListener("click", async () => {
+    state.mode = "catalogo";
     state.kind = "casas";
     state.page = 1;
     state.editing = null;
@@ -608,6 +636,7 @@ async function runAdmin(root) {
   });
 
   $("#admin-kind-carros").addEventListener("click", async () => {
+    state.mode = "catalogo";
     state.kind = "carros";
     state.page = 1;
     state.editing = null;
@@ -647,14 +676,86 @@ async function runAdmin(root) {
   await refresh(state);
 
   // Navegación superior dentro del panel
-  $("#admin-nav-catalogo")?.addEventListener("click", async () => {
-    $("#admin-kind-pill").textContent = state.kind === "casas" ? "Catálogo · Casas" : "Catálogo · Carros";
-    await refresh(state);
+  $("#admin-nav-casas")?.addEventListener("click", async () => {
+    $("#admin-kind-casas")?.click();
+  });
+
+  $("#admin-nav-carros")?.addEventListener("click", async () => {
+    $("#admin-kind-carros")?.click();
   });
 
   $("#admin-nav-reservas")?.addEventListener("click", async () => {
     await renderReservas(root);
   });
+
+  $("#admin-nav-mapa")?.addEventListener("click", async () => {
+    state.mode = "mapa";
+    await renderMapaAdmin(root, state);
+  });
+}
+
+let __adminMap = null;
+let __adminMarkers = [];
+
+function ensureAdminMap(el) {
+  if (!el) return null;
+  if (__adminMap) return __adminMap;
+  __adminMap = L.map(el, { zoomControl: true, preferCanvas: true }).setView([25.7617, -80.1918], 11);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap",
+    updateWhenIdle: true,
+    updateWhenZooming: false,
+    keepBuffer: 2,
+  }).addTo(__adminMap);
+  return __adminMap;
+}
+
+async function renderMapaAdmin(_root, state) {
+  const wrap = $("#admin-table-wrap");
+  if (!wrap) return;
+  $("#admin-kind-pill").textContent = "Mapa · Casas";
+
+  // UI mapa + lista rápida
+  wrap.innerHTML = `
+    <div class="card" style="box-shadow:none">
+      <div class="card-inner">
+        <div class="muted" style="margin-bottom:0.5rem">Click en un marcador para abrir “Editar” de esa casa.</div>
+        <div id="admin-map" class="map-box" style="height:520px"></div>
+      </div>
+    </div>
+  `;
+
+  const el = document.getElementById("admin-map");
+  const map = ensureAdminMap(el);
+  if (!map) return;
+
+  // cargar casas
+  state.kind = "casas";
+  state.allRows = await listRows("casas");
+  const casas = state.allRows || [];
+
+  __adminMarkers.forEach((m) => m.remove());
+  __adminMarkers = [];
+
+  casas.forEach((c) => {
+    if (typeof c.lat !== "number" || typeof c.lng !== "number") return;
+    const m = L.marker([c.lat, c.lng]).addTo(map);
+    m.bindPopup(`<strong>${escapeHtml(c.nombre || "Casa")}</strong>`);
+    m.on("click", () => {
+      state.editing = c;
+      state.mode = "catalogo";
+      $("#admin-kind-casas")?.click();
+      setTimeout(() => openForm(state), 0);
+    });
+    __adminMarkers.push(m);
+  });
+
+  setTimeout(() => {
+    try {
+      map.invalidateSize(true);
+    } catch (_e) {}
+  }, 50);
 }
 
 function monthKey(d) {

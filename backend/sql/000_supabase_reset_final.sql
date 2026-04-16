@@ -11,8 +11,8 @@
 
 begin;
 
--- Extensiones necesarias (gen_random_uuid, crypt)
-create extension if not exists pgcrypto;
+-- Evitamos depender de extensiones para el login.
+-- (md5() existe por defecto en Postgres/Supabase)
 
 -- =========================
 -- 1) BORRADO (RESET)
@@ -83,7 +83,7 @@ drop table if exists public.admins cascade;
 -- 2) CREACIÓN (FINAL)
 -- =========================
 
--- Admins (sin Supabase Auth): usuario + correo + password_hash (pgcrypto)
+-- Admins (sin Supabase Auth): usuario + correo + password_hash (md5)
 create table public.admins (
   id bigserial primary key,
   creado_en timestamptz not null default now(),
@@ -110,7 +110,7 @@ as $$
 declare
   v_ok boolean := false;
 begin
-  if coalesce(trim(p_username), '') = '' or coalesce(trim(p_email), '') = '' or coalesce(p_password, '') = '' then
+  if coalesce(trim(p_username), '') = '' or coalesce(trim(p_email), '') = '' or coalesce(trim(p_password), '') = '' then
     return jsonb_build_object('ok', false, 'error', 'missing_fields');
   end if;
 
@@ -119,7 +119,7 @@ begin
   where a.activo = true
     and lower(a.username) = lower(trim(p_username))
     and lower(a.email) = lower(trim(p_email))
-    and a.password_hash = crypt(p_password, a.password_hash)
+    and a.password_hash = md5(p_password)
   limit 1;
 
   return jsonb_build_object('ok', coalesce(v_ok, false));
@@ -286,7 +286,7 @@ using (bucket_id = 'catalog-media');
 
 -- Admin demo (como pediste)
 insert into public.admins (username, email, password_hash, activo)
-values ('Admin', 'admin@rentals.com', crypt('Admin123', gen_salt('bf')), true)
+values ('Admin', 'admin@rentals.com', md5('Admin123'), true)
 on conflict do nothing;
 
 -- Datos de prueba (2 casas, 2 carros)
