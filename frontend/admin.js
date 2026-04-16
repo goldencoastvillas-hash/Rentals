@@ -706,7 +706,7 @@ async function runAdmin(root) {
   $("#admin-nav-mapa")?.addEventListener("click", async () => {
     state.mode = "mapa";
     setActiveTop("mapa");
-    await renderMapaAdmin(root, state);
+    await renderMapaAdmin(root, state, { showCatalog });
   });
 }
 
@@ -727,7 +727,7 @@ function ensureAdminMap(el) {
   return __adminMap;
 }
 
-async function renderMapaAdmin(_root, state) {
+async function renderMapaAdmin(_root, state, { showCatalog } = {}) {
   const wrap = $("#admin-table-wrap");
   if (!wrap) return;
   $("#admin-kind-pill").textContent = "Mapa · Casas";
@@ -761,8 +761,15 @@ async function renderMapaAdmin(_root, state) {
     m.on("click", () => {
       state.editing = c;
       state.mode = "catalogo";
-      $("#admin-kind-casas")?.click();
-      setTimeout(() => openForm(state), 0);
+      if (typeof showCatalog === "function") {
+        showCatalog("casas").then(() => {
+          setTimeout(() => openForm(state), 0);
+        });
+      } else {
+        // Fallback defensivo (no debería ocurrir)
+        $("#admin-kind-pill").textContent = "Catálogo · Casas";
+        setTimeout(() => openForm(state), 0);
+      }
     });
     __adminMarkers.push(m);
   });
