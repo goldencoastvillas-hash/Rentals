@@ -37,10 +37,19 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require("fs");
+          const supaUrl = (process.env.SUPABASE_URL || "").trim();
+          const supaAnon = (process.env.SUPABASE_ANON_KEY || "").trim();
+
+          // Si no hay secrets, NO sobrescribir el config del repo.
+          if (!supaUrl || !supaAnon) {
+            console.log("[deploy-pages] SUPABASE_URL/ANON_KEY vacíos: manteniendo frontend/rentals-config.js del repo");
+            process.exit(0);
+          }
+
           const wa = (process.env.ADMIN_WHATSAPP_DIGITS || "573508321565").replace(/\D/g, "") || "573508321565";
           const cfg = {
-            supabaseUrl: (process.env.SUPABASE_URL || "").trim(),
-            supabaseAnonKey: (process.env.SUPABASE_ANON_KEY || "").trim(),
+            supabaseUrl: supaUrl,
+            supabaseAnonKey: supaAnon,
             adminWhatsappDigits: wa,
             adminSyncSecret: (process.env.ADMIN_SYNC_SECRET || "").trim(),
             airbnbUrl: (process.env.AIRBNB_URL || "").trim(),
