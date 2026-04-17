@@ -1,5 +1,15 @@
+import { normalizePhotoUrls } from "./url-media.js";
+
+function escAttr(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 export function mountGallery(urls) {
-  const safe = (urls || []).filter(Boolean);
+  const safe = normalizePhotoUrls(urls || []);
   const root = document.createElement("div");
   root.className = "gallery";
 
@@ -15,9 +25,18 @@ export function mountGallery(urls) {
   safe.forEach((u) => {
     const slide = document.createElement("div");
     slide.className = "gallery-slide";
-    slide.innerHTML = `<img alt="" src="${u}" loading="lazy" />`;
+    const src = escAttr(u);
+    slide.innerHTML = `<img alt="" src="${src}" loading="lazy" referrerpolicy="no-referrer" />`;
     track.appendChild(slide);
   });
+
+  const nav = document.createElement("div");
+  nav.className = "gallery-nav";
+  nav.innerHTML = `
+    <button type="button" class="gallery-nav-btn" aria-label="Anterior">‹</button>
+    <button type="button" class="gallery-nav-btn" aria-label="Siguiente">›</button>
+  `;
+  root.appendChild(nav);
 
   const dots = document.createElement("div");
   dots.className = "gallery-dots";
@@ -37,12 +56,24 @@ export function mountGallery(urls) {
     dots.appendChild(dot);
   });
 
+  nav.querySelectorAll("button")[0]?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIndex(idx - 1);
+  });
+  nav.querySelectorAll("button")[1]?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIndex(idx + 1);
+  });
+
   // Swipe (mouse/touch) con pointer events
   let startX = 0;
   let dragging = false;
   let startIdx = 0;
 
   root.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".gallery-nav-btn")) return;
     dragging = true;
     startX = e.clientX;
     startIdx = idx;

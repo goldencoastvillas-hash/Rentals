@@ -153,6 +153,9 @@ create table public.casas (
 
   wifi boolean not null default false,
   parking boolean not null default false,
+  lavanderia boolean not null default false,
+  bbq boolean not null default false,
+  disponible boolean not null default true,
   checkin text,
   checkout text,
 
@@ -180,6 +183,7 @@ create table public.carros (
   puestos int not null default 4,
   precio_dia numeric(12,2) not null default 0,
 
+  disponible boolean not null default true,
   descripcion text,
   atributos jsonb not null default '{}'::jsonb,
   fotos_urls jsonb not null default '[]'::jsonb
@@ -293,17 +297,17 @@ on conflict do nothing;
 insert into public.casas (
   tipo_inmueble, nombre, direccion, lat, lng,
   habitaciones, banos, max_huespedes, precio_noche,
-  piscina, patio, aire, gym, mascotas, wifi, parking,
+  piscina, patio, aire, gym, mascotas, wifi, parking, lavanderia, bbq, disponible,
   descripcion, fotos_urls
 )
 values
   (
     'casa',
-    'Villa Sunrise (Demo)',
+    'Luxury Villa Sunrise (Demo)',
     'Miami Beach, FL',
     25.7907, -80.1300,
     4, 3, 8, 520,
-    true, true, true, false, true, true, true,
+    true, true, true, false, true, true, true, true, true, true,
     'Villa demo para pruebas (elimínala luego desde Admin).',
     '["https://images.unsplash.com/photo-1505692952047-1a78307da8f2?auto=format&fit=crop&w=1600&q=80","https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=1600&q=80"]'::jsonb
   ),
@@ -313,7 +317,7 @@ values
     'Brickell, Miami, FL',
     25.7617, -80.1918,
     2, 2, 4, 260,
-    false, false, true, true, false, true, true,
+    false, false, true, true, false, true, true, false, false, true,
     'Apartamento demo para pruebas (elimínala luego desde Admin).',
     '["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=80","https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&w=1600&q=80"]'::jsonb
   );
@@ -340,6 +344,12 @@ values
     'Carro demo para pruebas (elimínalo luego desde Admin).',
     '["https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1600&q=80","https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1600&q=80"]'::jsonb
   );
+
+-- Migración suave (si ya tenías tablas sin estas columnas y no hiciste DROP completo)
+alter table public.casas add column if not exists lavanderia boolean not null default false;
+alter table public.casas add column if not exists bbq boolean not null default false;
+alter table public.casas add column if not exists disponible boolean not null default true;
+alter table public.carros add column if not exists disponible boolean not null default true;
 
 commit;
 

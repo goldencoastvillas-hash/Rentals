@@ -9,7 +9,7 @@
 window.RENTALS_CONFIG = {
   supabaseUrl: "https://yxhogojcagmloetoivgv.supabase.co",
   supabaseAnonKey: "sb_publishable_QfbTgDu7pnaqEV4GUCtaUg_RxqyagcX",
-  adminWhatsappDigits: "573508321565",
+  adminWhatsappDigits: "573026661995",
   adminSyncSecret: "",
   airbnbUrl: "",
 };

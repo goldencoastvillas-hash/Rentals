@@ -1,6 +1,8 @@
 import { getClient, adminWhatsappDigits } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { mountGallery } from "./ui-gallery.js";
+import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
+import { t } from "./i18n.js";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -17,7 +19,7 @@ function escapeHtml(s) {
 
 function firstPhoto(row) {
   const u = Array.isArray(row?.fotos_urls) ? row.fotos_urls.find(Boolean) : "";
-  return u || "";
+  return normalizePhotoUrl(u);
 }
 
 async function fetchCasas() {
@@ -45,10 +47,12 @@ function renderCasaCard(row) {
   if (row.aire) amen.push("Aire");
   if (row.gym) amen.push("Gym");
   if (row.mascotas) amen.push("Mascotas");
+  if (row.lavanderia) amen.push("Lavandería");
+  if (row.bbq) amen.push("BBQ");
   const el = document.createElement("div");
   el.className = "item-card";
   el.innerHTML = `
-    <img class="thumb" alt="" src="${escapeHtml(img)}" onerror="this.style.display='none'" />
+    <img class="thumb" alt="" referrerpolicy="no-referrer" src="${escapeHtml(img)}" onerror="this.style.display='none'" />
     <div class="item-meta">
       <h3>${escapeHtml(row.nombre || "Casa")}</h3>
       <div class="muted">${escapeHtml(meta)}</div>
@@ -72,7 +76,7 @@ function renderCarroCard(row) {
   el.style.cursor = "pointer";
   el.innerHTML = `
     <div style="height:220px; background: var(--surface2); overflow:hidden">
-      <img alt="" src="${escapeHtml(img)}" style="width:100%; height:220px; object-fit:cover; display:block" onerror="this.style.display='none'" />
+      <img alt="" referrerpolicy="no-referrer" src="${escapeHtml(img)}" style="width:100%; height:220px; object-fit:cover; display:block" onerror="this.style.display='none'" />
     </div>
     <div class="card-inner">
       <h3>${escapeHtml(row.marca || "Carro")}</h3>
@@ -97,6 +101,8 @@ function openCasaDetail(row) {
     ["Aire acondicionado", !!row.aire],
     ["Gym", !!row.gym],
     ["Se permiten mascotas", !!row.mascotas],
+    ["Lavandería", !!row.lavanderia],
+    ["BBQ / parrilla", !!row.bbq],
   ];
   const html = `
     <div style="padding:1rem 1.05rem">
@@ -556,62 +562,125 @@ function renderCarros(state) {
   rows.forEach((r) => list.appendChild(renderCarroCard(r)));
 }
 
-async function renderHomeFeatured() {
+function filterDisponible(rows) {
+  return (rows || []).filter((r) => r.disponible !== false);
+}
+
+function sortLuxuryFirst(rows) {
+  const copy = [...(rows || [])];
+  copy.sort((a, b) => {
+    const la = /luxury|lujo|luxe/i.test(String(a.nombre || "")) ? 0 : 1;
+    const lb = /luxury|lujo|luxe/i.test(String(b.nombre || "")) ? 0 : 1;
+    if (la !== lb) return la - lb;
+    return 0;
+  });
+  return copy;
+}
+
+function collectHomeCarouselUrls(pubCasas, pubCarros) {
+  const out = [];
+  sortLuxuryFirst(pubCasas).forEach((c) => {
+    (Array.isArray(c.fotos_urls) ? c.fotos_urls : []).forEach((u) => out.push(u));
+  });
+  (pubCarros || []).forEach((c) => {
+    (Array.isArray(c.fotos_urls) ? c.fotos_urls : []).forEach((u) => out.push(u));
+  });
+  const norm = normalizePhotoUrls(out);
+  const seen = new Set();
+  const uniq = [];
+  norm.forEach((u) => {
+    if (!u || seen.has(u)) return;
+    seen.add(u);
+    uniq.push(u);
+  });
+  return uniq.slice(0, 18);
+}
+
+async function renderHomePageBlocks() {
   const wrap = $("#home-featured");
-  if (!wrap) return;
+  const carouselMount = $("#home-luxury-carousel");
   try {
-    const [casas, carros] = await Promise.all([fetchCasas(), fetchCarros()]);
-    const c1 = casas.slice(0, 1)[0];
-    const c2 = carros.slice(0, 1)[0];
+    const [casasAll, carrosAll] = await Promise.all([fetchCasas(), fetchCarros()]);
+    const pubCasas = sortLuxuryFirst(filterDisponible(casasAll));
+    const pubCarros = filterDisponible(carrosAll);
+
+    const c1 = pubCasas[0];
+    const c2 = pubCarros[0];
     const carroImg = c2 ? firstPhoto(c2) : "";
     const casaImg = c1 ? firstPhoto(c1) : "";
-    const carroPrecio = c2 ? `$${Number(c2.precio_dia || 0).toLocaleString()} / día` : "";
-    const casaPrecio = c1 ? `$${Number(c1.precio_noche || 0).toLocaleString()} / noche` : "";
-    wrap.innerHTML = `
+    const carroPrecio = c2 ? `$${Number(c2.precio_dia || 0).toLocaleString()} ${t("featured.perDay")}` : "";
+    const casaPrecio = c1 ? `$${Number(c1.precio_noche || 0).toLocaleString()} ${t("featured.perNight")}` : "";
+    if (wrap) {
+      wrap.innerHTML = `
       <div class="card featured-card" data-nav="carros" style="cursor:pointer">
-        <div class="featured-media">${carroImg ? `<img alt="" src="${escapeHtml(carroImg)}" />` : ""}</div>
+        <div class="featured-media">${carroImg ? `<img alt="" referrerpolicy="no-referrer" src="${escapeHtml(carroImg)}" />` : ""}</div>
         <div class="featured-side">
           <div>
-            <h3>${c2 ? escapeHtml(c2.marca) : "Carros"}</h3>
-            <div class="muted">${c2 ? escapeHtml((c2.tipo || "") + " · " + (c2.cilindraje || "")) : "Aún no hay carros publicados"}</div>
+            <h3>${c2 ? escapeHtml(c2.marca) : t("featured.cars")}</h3>
+            <div class="muted">${c2 ? escapeHtml((c2.tipo || "") + " · " + (c2.cilindraje || "")) : t("featured.noCars")}</div>
           </div>
           <div class="price-row">
             <div class="price">${escapeHtml(c2 ? carroPrecio : "")}</div>
-            <span class="pill">${c2 ? (Array.isArray(c2.fotos_urls) ? c2.fotos_urls.length : 0) : 0} fotos</span>
+            <span class="pill">${c2 ? (Array.isArray(c2.fotos_urls) ? c2.fotos_urls.length : 0) : 0} ${t("featured.photos")}</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
+            <button type="button" class="nav-btn nav-btn--accent" data-nav="carros">${t("featured.viewCars")}</button>
           </div>
         </div>
       </div>
       <div class="card featured-card" data-nav="casas" style="cursor:pointer">
-        <div class="featured-media">${casaImg ? `<img alt="" src="${escapeHtml(casaImg)}" />` : ""}</div>
+        <div class="featured-media">${casaImg ? `<img alt="" referrerpolicy="no-referrer" src="${escapeHtml(casaImg)}" />` : ""}</div>
         <div class="featured-side">
           <div>
-            <h3>${c1 ? escapeHtml(c1.nombre) : "Casas"}</h3>
-            <div class="muted">${c1 ? escapeHtml((c1.tipo_inmueble || "") + " · " + (c1.habitaciones ?? 0) + " hab · " + (c1.banos ?? 0) + " baños") : "Aún no hay casas publicadas"}</div>
+            <h3>${c1 ? escapeHtml(c1.nombre) : t("featured.houses")}</h3>
+            <div class="muted">${c1 ? escapeHtml((c1.tipo_inmueble || "") + " · " + (c1.habitaciones ?? 0) + " hab · " + (c1.banos ?? 0) + " baños") : t("featured.noHouses")}</div>
           </div>
           <div class="price-row">
             <div class="price">${escapeHtml(c1 ? casaPrecio : "")}</div>
-            <span class="pill">${c1 ? (Array.isArray(c1.fotos_urls) ? c1.fotos_urls.length : 0) : 0} fotos</span>
+            <span class="pill">${c1 ? (Array.isArray(c1.fotos_urls) ? c1.fotos_urls.length : 0) : 0} ${t("featured.photos")}</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
+            <button type="button" class="nav-btn nav-btn--accent" data-nav="casas">${t("featured.viewHouses")}</button>
           </div>
         </div>
       </div>
     `;
+    }
+
+    if (carouselMount) {
+      carouselMount.innerHTML = "";
+      const slides = collectHomeCarouselUrls(pubCasas, pubCarros);
+      if (slides.length) {
+        carouselMount.appendChild(mountGallery(slides));
+      } else {
+        carouselMount.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("featured.carouselEmpty"))}</div></div>`;
+      }
+    }
   } catch (_e) {
-    wrap.innerHTML = `
+    if (wrap) {
+      wrap.innerHTML = `
       <div class="card featured-card">
         <div class="featured-media"></div>
-        <div class="featured-side"><div><h3>Carros</h3><p class="muted">Configura Supabase para cargar.</p></div></div>
+        <div class="featured-side"><div><h3>${t("featured.cars")}</h3><p class="muted">${t("featured.supabase")}</p></div></div>
       </div>
       <div class="card featured-card">
         <div class="featured-media"></div>
-        <div class="featured-side"><div><h3>Casas</h3><p class="muted">Configura Supabase para cargar.</p></div></div>
+        <div class="featured-side"><div><h3>${t("featured.houses")}</h3><p class="muted">${t("featured.supabase")}</p></div></div>
       </div>
     `;
+    }
+    if (carouselMount) {
+      carouselMount.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("featured.supabase"))}</div></div>`;
+    }
   }
 }
 
 export async function initClient() {
   initModal();
-  await renderHomeFeatured();
+  await renderHomePageBlocks();
+  window.addEventListener("rentals-lang-change", () => {
+    renderHomePageBlocks().catch(() => {});
+  });
 
   const casasState = { rows: [], q: "", tipo: "", hab: 0, precioMax: null, mascotas: "" };
   const carrosState = { rows: [], q: "", tipo: "", cil: "", puestos: 1 };
@@ -620,7 +689,8 @@ export async function initClient() {
   renderCarroFilters(carrosState);
 
   try {
-    casasState.rows = await fetchCasas();
+    const allCasas = await fetchCasas();
+    casasState.rows = filterDisponible(allCasas);
     renderCasas(casasState);
   } catch (e) {
     const list = document.getElementById("casas-list");
@@ -628,7 +698,8 @@ export async function initClient() {
   }
 
   try {
-    carrosState.rows = await fetchCarros();
+    const allCarros = await fetchCarros();
+    carrosState.rows = filterDisponible(allCarros);
     renderCarros(carrosState);
   } catch (e) {
     const list = document.getElementById("carros-list");

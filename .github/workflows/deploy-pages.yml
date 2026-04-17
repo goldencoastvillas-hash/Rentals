@@ -46,7 +46,7 @@ jobs:
             process.exit(0);
           }
 
-          const wa = (process.env.ADMIN_WHATSAPP_DIGITS || "573508321565").replace(/\D/g, "") || "573508321565";
+          const wa = (process.env.ADMIN_WHATSAPP_DIGITS || "573026661995").replace(/\D/g, "") || "573026661995";
           const cfg = {
             supabaseUrl: supaUrl,
             supabaseAnonKey: supaAnon,

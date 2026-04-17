@@ -1,5 +1,6 @@
 import { getClient } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
+import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -29,7 +30,7 @@ function uniqUrls(urls) {
 
 function firstPhoto(row) {
   const u = Array.isArray(row?.fotos_urls) ? row.fotos_urls.find(Boolean) : "";
-  return u || "";
+  return normalizePhotoUrl(u);
 }
 
 function nowSlug() {
@@ -159,6 +160,18 @@ function casaFormHtml(state) {
               <input name="direccion" value="${escapeHtml(v.direccion || "")}" placeholder="Dirección" />
             </div>
             <div>
+              <label>Latitud (mapa)</label>
+              <input name="lat" type="number" step="any" value="${v.lat != null && v.lat !== "" ? escapeHtml(v.lat) : ""}" placeholder="ej. 25.79" />
+            </div>
+            <div>
+              <label>Longitud (mapa)</label>
+              <input name="lng" type="number" step="any" value="${v.lng != null && v.lng !== "" ? escapeHtml(v.lng) : ""}" placeholder="ej. -80.13" />
+            </div>
+            <div class="span-2" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center">
+              <button type="button" class="nav-btn" id="admin-geocode">Buscar coordenadas (OpenStreetMap)</button>
+              <span class="muted" style="font-size:0.85rem">Aparece en el mapa de clientes y admin cuando hay lat/lng.</span>
+            </div>
+            <div>
               <label>Habitaciones</label>
               <input name="habitaciones" type="number" min="0" value="${escapeHtml(v.habitaciones ?? 0)}" />
             </div>
@@ -177,6 +190,13 @@ function casaFormHtml(state) {
             <div class="span-2">
               <label>Descripción</label>
               <input name="descripcion" value="${escapeHtml(v.descripcion || "")}" placeholder="Descripción corta" />
+            </div>
+
+            <div class="span-2">
+              <label style="display:flex; align-items:center; gap:0.5rem; margin:0; font-weight:700">
+                <input type="checkbox" name="disponible" ${v.disponible === false ? "" : "checked"} />
+                Disponible (visible para clientes)
+              </label>
             </div>
 
             <div class="span-2">
@@ -210,6 +230,14 @@ function casaFormHtml(state) {
                   <input type="checkbox" name="parking" ${v.parking ? "checked" : ""} />
                   Parking
                 </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="lavanderia" ${v.lavanderia ? "checked" : ""} />
+                  Lavandería
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
+                  <input type="checkbox" name="bbq" ${v.bbq ? "checked" : ""} />
+                  BBQ / parrilla
+                </label>
               </div>
             </div>
 
@@ -226,6 +254,9 @@ function casaFormHtml(state) {
               <textarea name="fotos_urls" rows="4" style="width:100%; padding:0.7rem 0.75rem; border-radius:12px; border:1px solid rgba(0,109,119,0.2)">${escapeHtml(
                 fotos
               )}</textarea>
+              <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
+                Imgur: usa enlace de imagen directa o página; intentamos convertir a <code>i.imgur.com/…jpg</code>.
+              </div>
             </div>
 
             <div class="span-2" style="display:flex; gap:0.5rem; justify-content:flex-end">
@@ -274,6 +305,13 @@ function carroFormHtml(state) {
             </div>
 
             <div class="span-2">
+              <label style="display:flex; align-items:center; gap:0.5rem; margin:0; font-weight:700">
+                <input type="checkbox" name="disponible" ${v.disponible === false ? "" : "checked"} />
+                Disponible (visible para clientes)
+              </label>
+            </div>
+
+            <div class="span-2">
               <label>Fotos (subir desde dispositivo)</label>
               <input name="files" type="file" accept="image/*" multiple />
               <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
@@ -286,6 +324,9 @@ function carroFormHtml(state) {
               <textarea name="fotos_urls" rows="4" style="width:100%; padding:0.7rem 0.75rem; border-radius:12px; border:1px solid rgba(0,109,119,0.2)">${escapeHtml(
                 fotos
               )}</textarea>
+              <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
+                Imgur: usa enlace de imagen directa o página; intentamos convertir a <code>i.imgur.com/…jpg</code>.
+              </div>
             </div>
 
             <div class="span-2" style="display:flex; gap:0.5rem; justify-content:flex-end">
@@ -300,12 +341,11 @@ function carroFormHtml(state) {
 }
 
 function parseUrlsTextarea(val) {
-  return uniqUrls(
-    String(val || "")
-      .split(/\r?\n/g)
-      .map((s) => s.trim())
-      .filter(Boolean)
-  );
+  const lines = String(val || "")
+    .split(/\r?\n/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return uniqUrls(normalizePhotoUrls(lines));
 }
 
 async function listRows(kind) {
@@ -408,10 +448,11 @@ function renderTable(state, rows) {
     const photosCount = Array.isArray(r.fotos_urls) ? r.fotos_urls.length : 0;
     const img = firstPhoto(r);
 
+    const disp = r.disponible === false ? " · no disp." : "";
     const attrs =
       state.kind === "casas"
-        ? `${escapeHtml(r.tipo_inmueble || "")} · ${escapeHtml(r.habitaciones ?? 0)} hab · ${escapeHtml(r.banos ?? 0)} baños · ${photosCount} fotos`
-        : `${escapeHtml(r.tipo || "")} · ${escapeHtml(r.puestos ?? 0)} puestos · ${photosCount} fotos`;
+        ? `${escapeHtml(r.tipo_inmueble || "")} · ${escapeHtml(r.habitaciones ?? 0)} hab · ${escapeHtml(r.banos ?? 0)} baños · ${photosCount} fotos${disp}`
+        : `${escapeHtml(r.tipo || "")} · ${escapeHtml(r.puestos ?? 0)} puestos · ${photosCount} fotos${disp}`;
 
     const price =
       state.kind === "casas"
@@ -422,7 +463,7 @@ function renderTable(state, rows) {
       <td>
         ${
           img
-            ? `<img alt="" src="${escapeHtml(img)}" style="width:72px; height:54px; object-fit:cover; border-radius:12px; border:1px solid rgba(0,109,119,0.12)" />`
+            ? `<img alt="" src="${escapeHtml(img)}" referrerpolicy="no-referrer" style="width:72px; height:54px; object-fit:cover; border-radius:12px; border:1px solid rgba(0,109,119,0.12)" />`
             : `<div class="muted" style="font-size:0.85rem">—</div>`
         }
       </td>
@@ -437,13 +478,13 @@ function renderTable(state, rows) {
     tr.addEventListener("click", (e) => {
       // Si el click viene del menú (⋯), no abrir preview de fotos
       if (e.target && e.target.closest && e.target.closest(".menu")) return;
-      const urls = Array.isArray(r.fotos_urls) ? r.fotos_urls : [];
+      const urls = normalizePhotoUrls(Array.isArray(r.fotos_urls) ? r.fotos_urls : []);
       const html =
         urls.length === 0
           ? `<div class="card"><div class="card-inner muted">Sin fotos.</div></div>`
           : `<div class="card"><div class="card-inner"><div class="grid-2">${urls
               .slice(0, 8)
-              .map((u) => `<div class="card" style="box-shadow:none"><img alt="" src="${escapeHtml(
+              .map((u) => `<div class="card" style="box-shadow:none"><img alt="" referrerpolicy="no-referrer" src="${escapeHtml(
                 u
               )}" style="width:100%; height:220px; object-fit:cover; display:block" /></div>`)
               .join("")}</div></div></div>`;
@@ -529,11 +570,43 @@ function openForm(state) {
   });
 
   const form = wrap.querySelector("form");
+
+  if (state.kind === "casas") {
+    $("#admin-geocode")?.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const addr = String(form.querySelector('[name="direccion"]')?.value || "").trim();
+      if (!addr) {
+        alert("Escribe una dirección para buscar coordenadas.");
+        return;
+      }
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(addr)}`;
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        if (!res.ok) throw new Error("HTTP");
+        const j = await res.json();
+        if (!j || !j[0]) throw new Error("empty");
+        const latIn = form.querySelector('[name="lat"]');
+        const lngIn = form.querySelector('[name="lng"]');
+        if (latIn) latIn.value = j[0].lat;
+        if (lngIn) lngIn.value = j[0].lon;
+      } catch (_e) {
+        alert("No se encontraron coordenadas. Ingresa latitud y longitud manualmente.");
+      }
+    });
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const fd = new FormData(form);
     const fdBool = (name) => fd.get(name) === "on";
+    const dispChecked = !!form.querySelector('input[name="disponible"]')?.checked;
+    const numOrNull = (name) => {
+      const s = String(fd.get(name) ?? "").trim();
+      if (s === "") return null;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    };
     const files = fd.getAll("files").filter((f) => f && f.name);
     const urlsExisting = parseUrlsTextarea(fd.get("fotos_urls"));
 
@@ -544,11 +617,14 @@ function openForm(state) {
           tipo_inmueble: String(fd.get("tipo_inmueble") || "casa"),
           nombre: String(fd.get("nombre") || "").trim(),
           direccion: String(fd.get("direccion") || "").trim(),
+          lat: numOrNull("lat"),
+          lng: numOrNull("lng"),
           habitaciones: Number(fd.get("habitaciones") || 0),
           banos: Number(fd.get("banos") || 0),
           precio_noche: Number(fd.get("precio_noche") || 0),
           max_huespedes: Number(fd.get("max_huespedes") || 1),
           descripcion: String(fd.get("descripcion") || "").trim(),
+          disponible: dispChecked,
           wifi: fdBool("wifi"),
           piscina: fdBool("piscina"),
           aire: fdBool("aire"),
@@ -556,6 +632,8 @@ function openForm(state) {
           patio: fdBool("patio"),
           gym: fdBool("gym"),
           parking: fdBool("parking"),
+          lavanderia: fdBool("lavanderia"),
+          bbq: fdBool("bbq"),
         };
 
         const saved = await upsertCasa(base);
@@ -576,6 +654,7 @@ function openForm(state) {
           puestos: Number(fd.get("puestos") || 4),
           precio_dia: Number(fd.get("precio_dia") || 0),
           descripcion: String(fd.get("descripcion") || "").trim(),
+          disponible: dispChecked,
         };
 
         const saved = await upsertCarro(base);

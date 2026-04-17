@@ -701,6 +701,58 @@
         background: #fff;
       }
 
+      .gallery-nav {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        pointer-events: none;
+        padding: 0 0.35rem;
+      }
+
+      .gallery-nav-btn {
+        pointer-events: auto;
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        font-size: 1.35rem;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(6px);
+      }
+
+      .gallery-nav-btn:hover {
+        background: rgba(0, 109, 119, 0.55);
+        border-color: rgba(255, 255, 255, 0.85);
+      }
+
+      .lang-group {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-right: 0.25rem;
+      }
+
+      .lang-group .nav-btn {
+        padding: 0.45rem 0.55rem;
+        min-width: 2.5rem;
+      }
+
+      .home-carousel-section {
+        margin-top: 1.25rem;
+      }
+
+      .home-carousel-mount .gallery-slide img {
+        height: 380px;
+      }
+
       /* Calendar (admin reservas) */
       .cal {
         border: 1px solid rgba(0, 109, 119, 0.14);
@@ -1013,11 +1065,15 @@
           <img class="brand-mark" src="assets/logo-golden-coast.png" width="260" height="72" alt="Golden Coast Villas — Rentals — Florida, USA" />
         </a>
         <nav class="nav-actions" aria-label="Principal">
-          <button type="button" class="nav-btn" data-nav="home">Inicio</button>
-          <button type="button" class="nav-btn" data-nav="nosotros">Nosotros</button>
-          <button type="button" class="nav-btn" data-nav="servicios">Servicios</button>
-          <a class="nav-btn nav-btn--gold" id="airbnb-link" href="#" target="_blank" rel="noreferrer">Airbnb</a>
-          <button type="button" class="nav-btn nav-btn--accent" data-nav="admin-login">Admin</button>
+          <div class="lang-group" aria-label="Idioma">
+            <button type="button" class="nav-btn" data-set-lang="es" data-i18n="lang.es">ES</button>
+            <button type="button" class="nav-btn" data-set-lang="en" data-i18n="lang.en">EN</button>
+          </div>
+          <button type="button" class="nav-btn" data-nav="home" data-i18n="nav.home">Inicio</button>
+          <button type="button" class="nav-btn" data-nav="nosotros" data-i18n="nav.about">Nosotros</button>
+          <button type="button" class="nav-btn" data-nav="servicios" data-i18n="nav.services">Servicios</button>
+          <a class="nav-btn nav-btn--gold" id="airbnb-link" href="#" target="_blank" rel="noreferrer" data-i18n="nav.airbnb">Airbnb</a>
+          <button type="button" class="nav-btn nav-btn--accent" data-nav="admin-login" data-i18n="nav.admin">Admin</button>
         </nav>
       </div>
     </header>
@@ -1033,34 +1089,34 @@
         <div class="hero">
           <div class="hero-grid">
             <div>
-              <p class="muted" style="margin: 0; font-weight: 800; color: var(--accent)">Golden Coast Villas Miami</p>
-              <h1>Villas exclusivas y carros de lujo en Miami</h1>
-              <p>
+              <p class="muted" style="margin: 0; font-weight: 800; color: var(--accent)" data-i18n="home.brand">Golden Coast Villas Miami</p>
+              <h1 data-i18n="home.hero.title">Villas exclusivas y carros de lujo en Miami</h1>
+              <p data-i18n="home.hero.lead">
                 En Golden Coast Villas Miami el lujo es una experiencia: propiedades premium, movilidad de alto nivel y un equipo que cuida
                 cada detalle antes de tu llegada.
               </p>
               <div class="hero-cta">
-                <a class="cta-pill" href="#" data-nav="servicios" role="button">Ver casas</a>
-                <a class="cta-pill cta-pill--gold" href="#" data-nav="servicios" role="button">Ver carros</a>
+                <a class="cta-pill" href="#" data-nav="servicios" role="button" data-i18n="home.hero.cta.casas">Ver casas</a>
+                <a class="cta-pill cta-pill--gold" href="#" data-nav="servicios" role="button" data-i18n="home.hero.cta.carros">Ver carros</a>
               </div>
             </div>
             <div class="card">
               <div class="card-inner">
-                <h3 style="margin: 0 0 0.35rem">Disponible hoy</h3>
-                <p class="muted" style="margin: 0 0 0.75rem">
+                <h3 style="margin: 0 0 0.35rem" data-i18n="home.avail.title">Disponible hoy</h3>
+                <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.avail.lead">
                   Explora nuestro catálogo. Reserva en línea y confirma por WhatsApp.
                 </p>
                 <div class="grid-2">
                   <div class="card" style="box-shadow: none">
                     <div class="card-inner">
-                      <strong>Casas</strong>
-                      <div class="muted" style="font-size: 0.9rem">Mapa + filtros tipo Airbnb</div>
+                      <strong data-i18n="home.avail.casas.title">Casas</strong>
+                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.casas.sub">Mapa + filtros tipo Airbnb</div>
                     </div>
                   </div>
                   <div class="card" style="box-shadow: none">
                     <div class="card-inner">
-                      <strong>Carros</strong>
-                      <div class="muted" style="font-size: 0.9rem">Marca, cilindraje, tipo, asientos</div>
+                      <strong data-i18n="home.avail.carros.title">Carros</strong>
+                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.carros.sub">Marca, cilindraje, tipo, asientos</div>
                     </div>
                   </div>
                 </div>
@@ -1069,7 +1125,13 @@
           </div>
         </div>
 
-        <h2 class="section-title">Destacados</h2>
+        <div class="home-carousel-section">
+          <h2 class="section-title" data-i18n="home.section.carousel">Galería</h2>
+          <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.carousel.hint">Desliza o usa las flechas · prioridad lujo</p>
+          <div id="home-luxury-carousel" class="home-carousel-mount"></div>
+        </div>
+
+        <h2 class="section-title" data-i18n="home.section.featured">Destacados</h2>
         <div class="home-featured" id="home-featured">
           <div class="card featured-card">
             <div class="featured-media"></div>
@@ -1098,14 +1160,17 @@
         </div>
 
         <div class="dev-note">
-          <strong>Estado del desarrollo</strong>
+          <strong data-i18n="home.dev.title">Estado del desarrollo</strong>
           <p class="muted" style="margin:0.35rem 0 0">
-            Catálogo (casas y carros), reservas y panel admin en construcción continua. Para soporte o información:
+            <span data-i18n="home.dev.lead"
+              >Catálogo (casas y carros), reservas y panel admin en construcción continua. Para soporte o información:</span
+            >
             <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a> ·
-            <a href="https://wa.me/573508321565" target="_blank" rel="noreferrer">WhatsApp +57 350 8321565</a>.
+            <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">WhatsApp +57 302 6691995</a>.
           </p>
           <p class="muted" style="margin:0.65rem 0 0">
-            Nos reservamos todos los derechos © <span id="year"></span> Golden Coast Villas Rentals.
+            <span data-i18n="home.dev.rights">Nos reservamos todos los derechos ©</span>
+            <span id="year"></span> Golden Coast Villas Rentals.
           </p>
         </div>
       </div>
@@ -1163,7 +1228,7 @@
             <p>👉 <strong>Agenda con nosotros</strong> y descubre tu próxima experiencia en Miami.</p>
             <a href="mailto:goldencoastvillas@gmail.com?subject=Asesor%C3%ADa%20Golden%20Coast%20Villas">Escribir a goldencoastvillas@gmail.com</a>
             ·
-            <a href="https://wa.me/573508321565" target="_blank" rel="noreferrer">WhatsApp +57 350 8321565</a>
+            <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">WhatsApp +57 302 6691995</a>
           </div>
         </article>
 
@@ -1219,7 +1284,7 @@
 
         <footer class="site-footer">
           <p><strong>Contacto</strong></p>
-          <p>WhatsApp: <a href="https://wa.me/573508321565" target="_blank" rel="noreferrer">+57 350 8321565</a></p>
+          <p>WhatsApp: <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">+57 302 6691995</a></p>
           <p>Correo: <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a></p>
           <p class="legal">Nos reservamos todos los derechos © <span id="year"></span> Golden Coast Villas Rentals.</p>
         </footer>
@@ -1350,8 +1415,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=4662ae3"></script>
-    <script type="module" src="app.js?v=4662ae3"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-16-2"></script>
+    <script type="module" src="app.js?v=2026-04-16-2"></script>
   </body>
 </html>
 

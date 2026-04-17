@@ -73,6 +73,6 @@ export async function rpcAdminLogin(params) {
 }
 
 export function adminWhatsappDigits() {
-  return String((cfg().adminWhatsappDigits || "573508321565").replace(/\D/g, "") || "573508321565");
+  return String((cfg().adminWhatsappDigits || "573026661995").replace(/\D/g, "") || "573026661995");
 }
 
