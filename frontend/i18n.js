@@ -1,5 +1,5 @@
-import { STRINGS } from "./i18n-strings.js";
-import { NOSOTROS_HTML } from "./i18n-nosotros.js";
+import { STRINGS } from "./i18n-strings.js?v=2026-04-16-4";
+import { NOSOTROS_HTML } from "./i18n-nosotros.js?v=2026-04-16-4";
 
 const STORAGE_KEY = "rentals_lang";
 
@@ -36,6 +36,15 @@ export function tTipo(tipo) {
   const k = `tipo.${String(tipo || "").toLowerCase()}`;
   const v = t(k);
   return v === k ? String(tipo || "") : v;
+}
+
+/** Traduce `tipo_inmueble` de la BD (casa / apartamento / cabaña). */
+export function tInmueble(tipo) {
+  const raw = String(tipo || "").trim().toLowerCase();
+  if (!raw) return "";
+  const k = `inmueble.${raw}`;
+  const v = t(k);
+  return v === k ? String(tipo || "").trim() : v;
 }
 
 function applyEl(el) {

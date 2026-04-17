@@ -2,7 +2,7 @@ import { getClient, adminWhatsappDigits } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { mountGallery } from "./ui-gallery.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t } from "./i18n.js";
+import { t, tInmueble } from "./i18n.js?v=2026-04-16-4";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -39,7 +39,7 @@ async function fetchCarros() {
 function renderCasaCard(row) {
   const img = firstPhoto(row);
   const precio = `$${Number(row.precio_noche || 0).toLocaleString()}${t("featured.perNight")}`;
-  const meta = `${row.tipo_inmueble || ""} · ${row.habitaciones ?? 0} ${t("common.hab")} · ${row.banos ?? 0} ${t("common.baths")}`;
+  const meta = `${tInmueble(row.tipo_inmueble)} · ${row.habitaciones ?? 0} ${t("common.hab")} · ${row.banos ?? 0} ${t("common.baths")}`;
   const amen = [];
   if (row.wifi) amen.push(t("amenity.wifi"));
   if (row.parking) amen.push(t("amenity.parking"));
@@ -107,7 +107,7 @@ function openCasaDetail(row) {
   const html = `
     <div style="padding:1rem 1.05rem">
       <h2 style="margin:0 0 0.5rem">${escapeHtml(row.nombre || t("detail.casaFallback"))}</h2>
-      <div class="muted" style="margin-bottom:0.75rem">${escapeHtml(row.tipo_inmueble || "")} · ${escapeHtml(
+      <div class="muted" style="margin-bottom:0.75rem">${escapeHtml(tInmueble(row.tipo_inmueble))} · ${escapeHtml(
         row.direccion || ""
       )}</div>
       <div id="detail-gallery"></div>
@@ -675,7 +675,7 @@ async function renderHomePageBlocks() {
         <div class="featured-side">
           <div>
             <h3>${c1 ? escapeHtml(c1.nombre) : t("featured.houses")}</h3>
-            <div class="muted">${c1 ? escapeHtml(`${c1.tipo_inmueble || ""} · ${c1.habitaciones ?? 0} ${t("common.hab")} · ${c1.banos ?? 0} ${t("common.baths")}`) : t("featured.noHouses")}</div>
+            <div class="muted">${c1 ? escapeHtml(`${tInmueble(c1.tipo_inmueble)} · ${c1.habitaciones ?? 0} ${t("common.hab")} · ${c1.banos ?? 0} ${t("common.baths")}`) : t("featured.noHouses")}</div>
           </div>
           <div class="price-row">
             <div class="price">${escapeHtml(c1 ? casaPrecio : "")}</div>
