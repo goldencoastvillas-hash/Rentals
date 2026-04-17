@@ -1,4 +1,5 @@
 import { isConfigured, rpcAdminLogin } from "./rentals-supabase.js";
+import { t } from "./i18n.js";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -31,22 +32,22 @@ export function initAdminAuth() {
     const pass = String($("#admin-pass")?.value || "").trim();
 
     if (!user || !email || !pass) {
-      showError("Completa usuario, correo y contraseña.");
+      showError(t("login.err.fill"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showError("El correo no tiene un formato válido.");
+      showError(t("login.err.email"));
       return;
     }
     if (!isConfigured()) {
-      showError("Configura SUPABASE_URL y SUPABASE_ANON_KEY para habilitar el login.");
+      showError(t("login.err.cfg"));
       return;
     }
 
     try {
       const resp = await rpcAdminLogin({ p_username: user, p_email: email, p_password: pass });
       if (!resp || resp.ok !== true) {
-        showError(resp?.error === "missing_fields" ? "Completa usuario, correo y contraseña." : "Credenciales incorrectas.");
+        showError(resp?.error === "missing_fields" ? t("login.err.fill") : t("login.err.bad"));
         return;
       }
 
@@ -54,9 +55,9 @@ export function initAdminAuth() {
 
       if (window.RentalsApp?.go) window.RentalsApp.go("admin");
     } catch (err) {
-      const msg = (err && (err.message || err.error_description)) || "No se pudo iniciar sesión.";
+      const msg = (err && (err.message || err.error_description)) || t("login.err.generic");
       if (String(msg || "").toLowerCase().includes("web_admin_login")) {
-        showError("Falta crear la función web_admin_login en Supabase. Ejecuta el SQL `backend/sql/000_supabase_reset_final.sql` y vuelve a intentar.");
+        showError(t("login.err.rpc"));
       } else {
         showError(msg);
       }

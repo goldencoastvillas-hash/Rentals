@@ -733,16 +733,43 @@
         border-color: rgba(255, 255, 255, 0.85);
       }
 
-      .lang-group {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        margin-right: 0.25rem;
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
-      .lang-group .nav-btn {
-        padding: 0.45rem 0.55rem;
-        min-width: 2.5rem;
+      .lang-select-wrap {
+        display: flex;
+        align-items: center;
+        margin-right: 0.35rem;
+      }
+
+      .lang-select {
+        appearance: auto;
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.45);
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        border-radius: 10px;
+        padding: 0.4rem 0.55rem;
+        cursor: pointer;
+        min-width: 7.5rem;
+      }
+
+      .lang-select:hover,
+      .lang-select:focus {
+        color: var(--text);
+        border-color: rgba(0, 109, 119, 0.35);
+        outline: none;
       }
 
       .home-carousel-section {
@@ -1065,10 +1092,13 @@
           <img class="brand-mark" src="assets/logo-golden-coast.png" width="260" height="72" alt="Golden Coast Villas — Rentals — Florida, USA" />
         </a>
         <nav class="nav-actions" aria-label="Principal">
-          <div class="lang-group" aria-label="Idioma">
-            <button type="button" class="nav-btn" data-set-lang="es" data-i18n="lang.es">ES</button>
-            <button type="button" class="nav-btn" data-set-lang="en" data-i18n="lang.en">EN</button>
-          </div>
+          <label class="lang-select-wrap">
+            <span class="visually-hidden" data-i18n="lang.label">Idioma</span>
+            <select id="lang-select" class="lang-select" title="Language">
+              <option value="es" data-i18n="lang.option.es">Español</option>
+              <option value="en" data-i18n="lang.option.en">English</option>
+            </select>
+          </label>
           <button type="button" class="nav-btn" data-nav="home" data-i18n="nav.home">Inicio</button>
           <button type="button" class="nav-btn" data-nav="nosotros" data-i18n="nav.about">Nosotros</button>
           <button type="button" class="nav-btn" data-nav="servicios" data-i18n="nav.services">Servicios</button>
@@ -1078,13 +1108,10 @@
       </div>
     </header>
 
-    <div id="file-protocol-warning" class="file-warning" role="alert">
-      Abriste la página como <strong>archivo local (file://)</strong>. Para evitar errores CORS, en la carpeta <code>frontend</code> ejecuta
-      <code>npm run dev</code> y entra a <strong>http://localhost:5173</strong>.
-    </div>
+    <div id="file-protocol-warning" class="file-warning" role="alert"></div>
 
     <!-- Inicio -->
-    <section id="view-home" class="view is-active" aria-label="Inicio">
+    <section id="view-home" class="view is-active" data-i18n-aria-label="nav.home" aria-label="Inicio">
       <div class="page-inner">
         <div class="hero">
           <div class="hero-grid">
@@ -1176,139 +1203,31 @@
       </div>
     </section>
 
-    <!-- Vista: Nosotros (empresa) — contenido completo preservado -->
-    <section id="view-nosotros" class="view" aria-label="Nosotros">
+    <!-- Vista: Nosotros (contenido por idioma en JS) -->
+    <section id="view-nosotros" class="view" data-i18n-aria-label="nav.about" aria-label="Nosotros">
       <div class="page-inner about-page">
-        <header class="about-hero">
-          <p class="about-kicker">🌴 Nosotros</p>
-          <h1>Golden Coast Villas Miami</h1>
-          <p class="about-lead">
-            Creemos que el lujo no es solo un lugar… es una <strong>experiencia</strong>. Somos una marca enfocada en ofrecer
-            <strong>propiedades exclusivas en Miami</strong>, diseñadas para quienes buscan algo más que hospedarse: buscan
-            <strong>disfrutar, celebrar y crear momentos inolvidables</strong>. Cada una de nuestras villas ha sido seleccionada
-            cuidadosamente para garantizar comodidad, privacidad y un estándar alto de calidad.
-          </p>
-        </header>
-
-        <p class="about-slogan">Cupos limitados. Experiencias ilimitadas. 🌴✨</p>
-
-        <article class="about-block">
-          <h2>✨ ¿Quiénes somos?</h2>
-          <p>
-            Somos un equipo apasionado por el <strong>turismo de lujo</strong>, la hospitalidad y el detalle. Nos especializamos en
-            conectar a nuestros huéspedes con espacios únicos, ideales para viajes en grupo, vacaciones premium o celebraciones
-            especiales.
-          </p>
-          <p>Más que alquileres, ofrecemos <strong>experiencias completas</strong>, pensadas para que no tengas que preocuparte por nada.</p>
-        </article>
-
-        <article class="about-block">
-          <h2>🚀 ¿Qué buscamos?</h2>
-          <p>Nuestra misión es clara: <strong>elevar la forma en la que las personas viven sus viajes</strong>.</p>
-          <p>Queremos que cada estadía sea:</p>
-          <ul class="about-pill-list">
-            <li>Exclusiva</li>
-            <li>Cómoda</li>
-            <li>Memorable</li>
-          </ul>
-          <p style="margin-top: 1rem">Y sobre todo, que sientas que elegiste <strong>el lugar correcto</strong> desde el primer momento.</p>
-        </article>
-
-        <article class="about-block">
-          <h2>🤝 Vive la experiencia Golden Coast</h2>
-          <p>
-            Si estás buscando una villa para tu próximo viaje o quieres conocer más sobre nuestras propiedades, estamos aquí para
-            ayudarte.
-          </p>
-          <p>
-            Puedes <strong>agendar una asesoría personalizada</strong> con nuestro equipo, donde te guiaremos para encontrar la opción
-            perfecta según tus necesidades.
-          </p>
-          <div class="about-cta-box">
-            <p>👉 <strong>Agenda con nosotros</strong> y descubre tu próxima experiencia en Miami.</p>
-            <a href="mailto:goldencoastvillas@gmail.com?subject=Asesor%C3%ADa%20Golden%20Coast%20Villas">Escribir a goldencoastvillas@gmail.com</a>
-            ·
-            <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">WhatsApp +57 302 6691995</a>
-          </div>
-        </article>
-
-        <article class="about-block">
-          <h2>🚀 Mucho más que una villa</h2>
-          <p>Nuestros servicios no terminan con tu hospedaje.</p>
-          <p>
-            En Golden Coast Villas Miami hemos creado un <strong>ecosistema</strong> pensado para elevar toda tu experiencia en Estados
-            Unidos:
-          </p>
-          <div class="about-services-grid">
-            <div class="about-service-item">
-              <span aria-hidden="true">🚘</span>
-              <span><strong>Alquiler de carros de lujo</strong> para que te muevas con estilo.</span>
-            </div>
-            <div class="about-service-item">
-              <span aria-hidden="true">🧑‍✈️</span>
-              <span><strong>Servicio de conductor privado</strong> para mayor comodidad y seguridad.</span>
-            </div>
-            <div class="about-service-item">
-              <span aria-hidden="true">🛂</span>
-              <span
-                ><strong>Asesoría en trámites migratorios</strong>, ideal si estás considerando extender tu estadía o establecerte en
-                EE.&nbsp;UU.</span
-              >
-            </div>
-          </div>
-          <p style="margin-top: 1rem">Nuestro objetivo es que vivas Miami <strong>sin límites</strong>, con todo resuelto desde el primer momento.</p>
-        </article>
-
-        <div class="about-split">
-          <article class="about-card" aria-labelledby="about-para-quien">
-            <h2 id="about-para-quien">💎 Para quién es esto</h2>
-            <p style="margin-bottom: 0.5rem">Esto es para ti si:</p>
-            <ul class="about-check-list">
-              <li>Viajas en grupo y quieres <strong>privacidad + exclusividad</strong>.</li>
-              <li>Buscas una <strong>experiencia diferente</strong>, no un hotel común.</li>
-              <li>Quieres <strong>comodidad, lujo y cero complicaciones</strong>.</li>
-              <li>Estás explorando <strong>oportunidades en EE.&nbsp;UU.</strong></li>
-            </ul>
-          </article>
-          <article class="about-card" aria-labelledby="about-diferencial">
-            <h2 id="about-diferencial">⚠️ Nuestro diferencial</h2>
-            <div class="about-diff">
-              <p>La mayoría llega a Miami <strong>improvisando</strong>… pierde tiempo, dinero y vive una experiencia promedio.</p>
-            </div>
-            <p style="margin-top: 1rem">
-              <strong>Con nosotros, todo está diseñado antes de tu llegada.</strong><br />
-              Tú solo llegas a disfrutar.
-            </p>
-          </article>
-        </div>
-
-        <footer class="site-footer">
-          <p><strong>Contacto</strong></p>
-          <p>WhatsApp: <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">+57 302 6691995</a></p>
-          <p>Correo: <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a></p>
-          <p class="legal">Nos reservamos todos los derechos © <span id="year"></span> Golden Coast Villas Rentals.</p>
-        </footer>
+        <div id="nosotros-mount"></div>
       </div>
     </section>
 
     <!-- Servicios (clientes) -->
-    <section id="view-servicios" class="view" aria-label="Servicios">
+    <section id="view-servicios" class="view" data-i18n-aria-label="nav.services" aria-label="Servicios">
       <div class="page-inner">
-        <h1>Servicios</h1>
-        <p class="muted">Explora nuestro catálogo. Filtra, abre detalles y reserva en línea.</p>
+        <h1 data-i18n="servicios.title">Servicios</h1>
+        <p class="muted" data-i18n="servicios.lead">Explora nuestro catálogo. Filtra, abre detalles y reserva en línea.</p>
         <div class="grid-2">
           <div class="card">
             <div class="card-inner">
-              <h3>Casas</h3>
-              <p class="muted">Mapa tipo Airbnb + filtros por tipo, habitaciones, piscina, mascotas, etc.</p>
-              <button type="button" class="nav-btn nav-btn--accent" data-nav="casas">Ver casas</button>
+              <h3 data-i18n="servicios.casas.title">Casas</h3>
+              <p class="muted" data-i18n="servicios.casas.sub">Mapa tipo Airbnb + filtros por tipo, habitaciones, piscina, mascotas, etc.</p>
+              <button type="button" class="nav-btn nav-btn--accent" data-nav="casas" data-i18n="servicios.btn.casas">Ver casas</button>
             </div>
           </div>
           <div class="card">
             <div class="card-inner">
-              <h3>Carros</h3>
-              <p class="muted">Filtros por marca, cilindraje, tipo y puestos.</p>
-              <button type="button" class="nav-btn nav-btn--accent" data-nav="carros">Ver carros</button>
+              <h3 data-i18n="servicios.carros.title">Carros</h3>
+              <p class="muted" data-i18n="servicios.carros.sub">Filtros por marca, cilindraje, tipo y puestos.</p>
+              <button type="button" class="nav-btn nav-btn--accent" data-nav="carros" data-i18n="servicios.btn.carros">Ver carros</button>
             </div>
           </div>
         </div>
@@ -1316,9 +1235,9 @@
     </section>
 
     <!-- Clientes: Casas -->
-    <section id="view-casas" class="view" aria-label="Casas">
+    <section id="view-casas" class="view" data-i18n-aria-label="servicios.casas.title" aria-label="Casas">
       <div class="page-inner">
-        <h1>Casas</h1>
+        <h1 data-i18n="casas.title">Casas</h1>
         <div class="card">
           <div class="card-inner">
             <div class="filters-panel" id="casas-filters"></div>
@@ -1327,7 +1246,7 @@
                 <div id="casas-list" class="cards-col"></div>
               </div>
               <div class="split-right">
-                <div id="casas-map" class="map-box" aria-label="Mapa casas"></div>
+                <div id="casas-map" class="map-box" data-i18n-aria-label="casas.map.aria" aria-label="Mapa casas"></div>
               </div>
             </div>
           </div>
@@ -1336,9 +1255,9 @@
     </section>
 
     <!-- Clientes: Carros -->
-    <section id="view-carros" class="view" aria-label="Carros">
+    <section id="view-carros" class="view" data-i18n-aria-label="servicios.carros.title" aria-label="Carros">
       <div class="page-inner">
-        <h1>Carros</h1>
+        <h1 data-i18n="carros.title">Carros</h1>
         <div class="card">
           <div class="card-inner">
             <div class="filters-panel" id="carros-filters"></div>
@@ -1351,8 +1270,8 @@
     <!-- Modal reutilizable -->
     <div id="modal" class="modal" aria-hidden="true">
       <div class="modal-backdrop" data-close="1"></div>
-      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Detalle">
-        <button type="button" class="modal-close" data-close="1" aria-label="Cerrar">✕</button>
+      <div class="modal-panel" role="dialog" aria-modal="true" data-i18n-aria-label="modal.detail" aria-label="Detalle">
+        <button type="button" class="modal-close" data-close="1" data-i18n-aria-label="modal.close" aria-label="Cerrar">✕</button>
         <div id="modal-body"></div>
       </div>
     </div>
@@ -1360,25 +1279,23 @@
     <!-- Admin: Login -->
     <section id="view-admin-login" class="view" aria-label="Acceso administradores">
       <div class="page-inner">
-        <h1>Administración</h1>
-        <p class="muted">Ingresa con tu cuenta de administrador.</p>
+        <h1 data-i18n="adminLogin.title">Administración</h1>
+        <p class="muted" data-i18n="adminLogin.lead">Ingresa con tu cuenta de administrador.</p>
         <div class="login-box">
           <p class="form-error" id="login-error" role="alert"></p>
           <form id="admin-form" novalidate>
-            <label for="admin-user">Usuario</label>
+            <label for="admin-user" data-i18n="adminLogin.user">Usuario</label>
             <input id="admin-user" name="user" type="text" autocomplete="username" required placeholder="Admin" />
-            <label for="admin-email">Correo</label>
+            <label for="admin-email" data-i18n="adminLogin.email">Correo</label>
             <input id="admin-email" name="email" type="email" autocomplete="email" required placeholder="admin@rentals.com" />
-            <label for="admin-pass">Contraseña</label>
+            <label for="admin-pass" data-i18n="adminLogin.pass">Contraseña</label>
             <div class="password-wrap">
               <input id="admin-pass" name="pass" type="password" autocomplete="current-password" required placeholder="•••••••" />
-              <button type="button" class="toggle-pass" id="admin-pass-toggle" aria-label="Mostrar u ocultar contraseña">👁</button>
+              <button type="button" class="toggle-pass" id="admin-pass-toggle" data-i18n-aria-label="adminLogin.toggleAria" aria-label="Mostrar u ocultar contraseña">👁</button>
             </div>
-            <button type="submit">Entrar</button>
+            <button type="submit" data-i18n="adminLogin.submit">Entrar</button>
           </form>
-          <p class="muted" style="font-size: 0.9rem; margin: 0.75rem 0 0">
-            Usuario demo: <strong>Admin</strong> · Clave: <strong>Admin123</strong> · Correo: <strong>admin@rentals.com</strong>
-          </p>
+          <p id="admin-login-demo" class="muted" style="font-size: 0.9rem; margin: 0.75rem 0 0"></p>
         </div>
       </div>
     </section>
@@ -1386,18 +1303,18 @@
     <!-- Admin: Panel (placeholder por ahora) -->
     <section id="view-admin" class="view" aria-label="Panel administrador">
       <div class="page-inner">
-        <h1>Panel admin</h1>
+        <h1 data-i18n="adminPanel.title">Panel admin</h1>
         <div class="card">
           <div class="card-inner" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between">
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center">
-              <button type="button" class="nav-btn nav-btn--accent" id="admin-nav-casas">Casas</button>
-              <button type="button" class="nav-btn" id="admin-nav-carros">Carros</button>
-              <button type="button" class="nav-btn" id="admin-nav-reservas">Reservas</button>
-              <button type="button" class="nav-btn" id="admin-nav-mapa">Mapa</button>
+              <button type="button" class="nav-btn nav-btn--accent" id="admin-nav-casas" data-i18n="adminPanel.casas">Casas</button>
+              <button type="button" class="nav-btn" id="admin-nav-carros" data-i18n="adminPanel.carros">Carros</button>
+              <button type="button" class="nav-btn" id="admin-nav-reservas" data-i18n="adminPanel.reservas">Reservas</button>
+              <button type="button" class="nav-btn" id="admin-nav-mapa" data-i18n="adminPanel.mapa">Mapa</button>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center">
               <span class="muted" id="admin-whoami" style="font-size: 0.9rem"></span>
-              <button type="button" class="nav-btn" id="admin-logout">Salir</button>
+              <button type="button" class="nav-btn" id="admin-logout" data-i18n="adminPanel.salir">Salir</button>
             </div>
           </div>
         </div>
@@ -1415,8 +1332,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=2026-04-16-2"></script>
-    <script type="module" src="app.js?v=2026-04-16-2"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-16-3"></script>
+    <script type="module" src="app.js?v=2026-04-16-3"></script>
   </body>
 </html>
 

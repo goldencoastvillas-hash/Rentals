@@ -1,6 +1,7 @@
 import { getClient } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
+import { t, getLang, tEstado, tTipo, applyI18nToDom } from "./i18n.js";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -58,7 +59,7 @@ function buildMenu(actions) {
   const menu = document.createElement("div");
   menu.className = "menu";
   menu.innerHTML = `
-    <button type="button" class="dots-btn" aria-label="Acciones">⋯</button>
+    <button type="button" class="dots-btn" aria-label="${escapeHtml(t("admin.menu.aria"))}">⋯</button>
     <div class="menu-panel" role="menu"></div>
   `;
   const btn = menu.querySelector("button");
@@ -97,11 +98,11 @@ function renderAdminShell(root) {
       <div class="card-inner">
         <div class="admin-toolbar">
           <div class="left">
-            <span class="pill" id="admin-kind-pill">Catálogo</span>
+            <span class="pill" id="admin-kind-pill">${escapeHtml(t("admin.catalog.casas"))}</span>
           </div>
           <div class="right">
             <label style="margin:0">
-              <span class="muted" style="font-size:0.85rem; display:block; margin-bottom:0.25rem">Por página</span>
+              <span class="muted" style="font-size:0.85rem; display:block; margin-bottom:0.25rem" data-i18n="admin.perPage"></span>
               <select id="admin-page-size">
                 <option value="5">5</option>
                 <option value="10" selected>10</option>
@@ -112,10 +113,10 @@ function renderAdminShell(root) {
 
         <div class="admin-toolbar" style="margin-top:0">
           <div class="left">
-            <input id="admin-search" type="search" placeholder="Buscar por nombre / tipo (casas) o marca (carros)" />
+            <input id="admin-search" type="search" placeholder="${escapeHtml(t("admin.searchPh"))}" data-i18n="admin.searchPh" />
           </div>
           <div class="right">
-            <button type="button" class="nav-btn nav-btn--accent" id="admin-add">Agregar</button>
+            <button type="button" class="nav-btn nav-btn--accent" id="admin-add" data-i18n="admin.agregar"></button>
           </div>
         </div>
 
@@ -125,8 +126,8 @@ function renderAdminShell(root) {
         <div class="admin-toolbar" style="margin-top:0.75rem">
           <div class="left muted" id="admin-page-info" style="font-size:0.9rem"></div>
           <div class="right" style="display:flex; gap:0.5rem; align-items:center">
-            <button type="button" class="nav-btn" id="admin-prev">Anterior</button>
-            <button type="button" class="nav-btn" id="admin-next">Siguiente</button>
+            <button type="button" class="nav-btn" id="admin-prev" data-i18n="admin.prev"></button>
+            <button type="button" class="nav-btn" id="admin-next" data-i18n="admin.next"></button>
           </div>
         </div>
       </div>
@@ -140,128 +141,128 @@ function casaFormHtml(state) {
   return `
     <div class="card">
       <div class="card-inner">
-        <h3 style="margin:0 0 0.5rem">${state.editing ? "Editar casa" : "Agregar casa"}</h3>
+        <h3 style="margin:0 0 0.5rem">${state.editing ? escapeHtml(t("admin.form.editCasa")) : escapeHtml(t("admin.form.addCasa"))}</h3>
         <form id="admin-casa-form">
           <div class="admin-form-grid">
             <div>
-              <label>Tipo de inmueble</label>
+              <label>${escapeHtml(t("admin.form.tipoInm"))}</label>
               <select name="tipo_inmueble" required>
-                <option value="casa" ${v.tipo_inmueble === "casa" ? "selected" : ""}>Casa</option>
-                <option value="apartamento" ${v.tipo_inmueble === "apartamento" ? "selected" : ""}>Apartamento</option>
-                <option value="cabaña" ${v.tipo_inmueble === "cabaña" ? "selected" : ""}>Cabaña</option>
+                <option value="casa" ${v.tipo_inmueble === "casa" ? "selected" : ""}>${escapeHtml(t("admin.form.opt.casa"))}</option>
+                <option value="apartamento" ${v.tipo_inmueble === "apartamento" ? "selected" : ""}>${escapeHtml(t("admin.form.opt.apto"))}</option>
+                <option value="cabaña" ${v.tipo_inmueble === "cabaña" ? "selected" : ""}>${escapeHtml(t("admin.form.opt.caba"))}</option>
               </select>
             </div>
             <div>
-              <label>Nombre</label>
+              <label>${escapeHtml(t("admin.form.nombre"))}</label>
               <input name="nombre" value="${escapeHtml(v.nombre || "")}" required />
             </div>
             <div class="span-2">
-              <label>Dirección</label>
-              <input name="direccion" value="${escapeHtml(v.direccion || "")}" placeholder="Dirección" />
+              <label>${escapeHtml(t("admin.form.dir"))}</label>
+              <input name="direccion" value="${escapeHtml(v.direccion || "")}" placeholder="${escapeHtml(t("admin.form.dir"))}" />
             </div>
             <div>
-              <label>Latitud (mapa)</label>
-              <input name="lat" type="number" step="any" value="${v.lat != null && v.lat !== "" ? escapeHtml(v.lat) : ""}" placeholder="ej. 25.79" />
+              <label>${escapeHtml(t("admin.form.lat"))}</label>
+              <input name="lat" type="number" step="any" value="${v.lat != null && v.lat !== "" ? escapeHtml(v.lat) : ""}" placeholder="${escapeHtml(t("admin.form.latPh"))}" />
             </div>
             <div>
-              <label>Longitud (mapa)</label>
-              <input name="lng" type="number" step="any" value="${v.lng != null && v.lng !== "" ? escapeHtml(v.lng) : ""}" placeholder="ej. -80.13" />
+              <label>${escapeHtml(t("admin.form.lng"))}</label>
+              <input name="lng" type="number" step="any" value="${v.lng != null && v.lng !== "" ? escapeHtml(v.lng) : ""}" placeholder="${escapeHtml(t("admin.form.lngPh"))}" />
             </div>
             <div class="span-2" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center">
-              <button type="button" class="nav-btn" id="admin-geocode">Buscar coordenadas (OpenStreetMap)</button>
-              <span class="muted" style="font-size:0.85rem">Aparece en el mapa de clientes y admin cuando hay lat/lng.</span>
+              <button type="button" class="nav-btn" id="admin-geocode">${escapeHtml(t("admin.form.geo"))}</button>
+              <span class="muted" style="font-size:0.85rem">${escapeHtml(t("admin.form.geoHint"))}</span>
             </div>
             <div>
-              <label>Habitaciones</label>
+              <label>${escapeHtml(t("admin.form.hab"))}</label>
               <input name="habitaciones" type="number" min="0" value="${escapeHtml(v.habitaciones ?? 0)}" />
             </div>
             <div>
-              <label>Baños</label>
+              <label>${escapeHtml(t("admin.form.banos"))}</label>
               <input name="banos" type="number" min="0" value="${escapeHtml(v.banos ?? 0)}" />
             </div>
             <div>
-              <label>Precio por noche</label>
+              <label>${escapeHtml(t("admin.form.precioNoche"))}</label>
               <input name="precio_noche" type="number" min="0" step="0.01" value="${escapeHtml(v.precio_noche ?? 0)}" />
             </div>
             <div>
-              <label>Max huéspedes</label>
+              <label>${escapeHtml(t("admin.form.maxHues"))}</label>
               <input name="max_huespedes" type="number" min="1" value="${escapeHtml(v.max_huespedes ?? 1)}" />
             </div>
             <div class="span-2">
-              <label>Descripción</label>
-              <input name="descripcion" value="${escapeHtml(v.descripcion || "")}" placeholder="Descripción corta" />
+              <label>${escapeHtml(t("admin.form.desc"))}</label>
+              <input name="descripcion" value="${escapeHtml(v.descripcion || "")}" placeholder="${escapeHtml(t("admin.form.descPh"))}" />
             </div>
 
             <div class="span-2">
               <label style="display:flex; align-items:center; gap:0.5rem; margin:0; font-weight:700">
                 <input type="checkbox" name="disponible" ${v.disponible === false ? "" : "checked"} />
-                Disponible (visible para clientes)
+                ${escapeHtml(t("admin.form.disponible"))}
               </label>
             </div>
 
             <div class="span-2">
-              <label>Amenidades</label>
+              <label>${escapeHtml(t("admin.form.amen"))}</label>
               <div style="display:flex; flex-wrap:wrap; gap:0.75rem; padding:0.65rem 0.75rem; border-radius:12px; border:1px solid rgba(0,109,119,0.2)">
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="wifi" ${v.wifi ? "checked" : ""} />
-                  Wifi
+                  ${escapeHtml(t("admin.form.wifi"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="piscina" ${v.piscina ? "checked" : ""} />
-                  Piscina
+                  ${escapeHtml(t("admin.form.pool"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="aire" ${v.aire ? "checked" : ""} />
-                  Aire acondicionado
+                  ${escapeHtml(t("admin.form.ac"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="mascotas" ${v.mascotas ? "checked" : ""} />
-                  Acepta mascotas
+                  ${escapeHtml(t("admin.form.pets"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="patio" ${v.patio ? "checked" : ""} />
-                  Patio
+                  ${escapeHtml(t("admin.form.patio"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="gym" ${v.gym ? "checked" : ""} />
-                  Gym
+                  ${escapeHtml(t("admin.form.gym"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="parking" ${v.parking ? "checked" : ""} />
-                  Parking
+                  ${escapeHtml(t("admin.form.parking"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="lavanderia" ${v.lavanderia ? "checked" : ""} />
-                  Lavandería
+                  ${escapeHtml(t("admin.form.laundry"))}
                 </label>
                 <label style="display:flex; align-items:center; gap:0.5rem; margin:0">
                   <input type="checkbox" name="bbq" ${v.bbq ? "checked" : ""} />
-                  BBQ / parrilla
+                  ${escapeHtml(t("admin.form.bbq"))}
                 </label>
               </div>
             </div>
 
             <div class="span-2">
-              <label>Fotos (subir desde dispositivo)</label>
+              <label>${escapeHtml(t("admin.form.fotosDev"))}</label>
               <input name="files" type="file" accept="image/*" multiple />
               <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
-                Se suben a Supabase Storage y se guardan como URLs en la casa.
+                ${escapeHtml(t("admin.form.fotosDevHintCasa"))}
               </div>
             </div>
 
             <div class="span-2">
-              <label>Fotos (URLs existentes, una por línea)</label>
+              <label>${escapeHtml(t("admin.form.fotosUrl"))}</label>
               <textarea name="fotos_urls" rows="4" style="width:100%; padding:0.7rem 0.75rem; border-radius:12px; border:1px solid rgba(0,109,119,0.2)">${escapeHtml(
                 fotos
               )}</textarea>
               <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
-                Imgur: usa enlace de imagen directa o página; intentamos convertir a <code>i.imgur.com/…jpg</code>.
+                ${t("admin.form.imgurHint")}
               </div>
             </div>
 
             <div class="span-2" style="display:flex; gap:0.5rem; justify-content:flex-end">
-              <button type="button" class="nav-btn" id="admin-cancel">Cancelar</button>
-              <button type="submit" class="nav-btn nav-btn--accent" style="width:auto">Guardar</button>
+              <button type="button" class="nav-btn" id="admin-cancel">${escapeHtml(t("common.cancel"))}</button>
+              <button type="submit" class="nav-btn nav-btn--accent" style="width:auto">${escapeHtml(t("common.save"))}</button>
             </div>
           </div>
         </form>
@@ -276,62 +277,62 @@ function carroFormHtml(state) {
   return `
     <div class="card">
       <div class="card-inner">
-        <h3 style="margin:0 0 0.5rem">${state.editing ? "Editar carro" : "Agregar carro"}</h3>
+        <h3 style="margin:0 0 0.5rem">${state.editing ? escapeHtml(t("admin.form.editCarro")) : escapeHtml(t("admin.form.addCarro"))}</h3>
         <form id="admin-carro-form">
           <div class="admin-form-grid">
             <div>
-              <label>Marca</label>
+              <label>${escapeHtml(t("admin.form.marca"))}</label>
               <input name="marca" value="${escapeHtml(v.marca || "")}" required />
             </div>
             <div>
-              <label>Cilindraje</label>
-              <input name="cilindraje" value="${escapeHtml(v.cilindraje || "")}" placeholder="2.0, 3.0, etc." />
+              <label>${escapeHtml(t("admin.form.cil"))}</label>
+              <input name="cilindraje" value="${escapeHtml(v.cilindraje || "")}" placeholder="${escapeHtml(t("admin.form.cilPh"))}" />
             </div>
             <div>
-              <label>Tipo</label>
-              <input name="tipo" value="${escapeHtml(v.tipo || "")}" placeholder="SUV, Sedan, ..." />
+              <label>${escapeHtml(t("admin.form.tipoCar"))}</label>
+              <input name="tipo" value="${escapeHtml(v.tipo || "")}" placeholder="${escapeHtml(t("admin.form.tipoCarPh"))}" />
             </div>
             <div>
-              <label>Puestos</label>
+              <label>${escapeHtml(t("admin.form.puestos"))}</label>
               <input name="puestos" type="number" min="1" value="${escapeHtml(v.puestos ?? 4)}" />
             </div>
             <div>
-              <label>Precio por día</label>
+              <label>${escapeHtml(t("admin.form.precioDia"))}</label>
               <input name="precio_dia" type="number" min="0" step="0.01" value="${escapeHtml(v.precio_dia ?? 0)}" />
             </div>
             <div class="span-2">
-              <label>Descripción</label>
-              <input name="descripcion" value="${escapeHtml(v.descripcion || "")}" placeholder="Descripción corta" />
+              <label>${escapeHtml(t("admin.form.desc"))}</label>
+              <input name="descripcion" value="${escapeHtml(v.descripcion || "")}" placeholder="${escapeHtml(t("admin.form.descPh"))}" />
             </div>
 
             <div class="span-2">
               <label style="display:flex; align-items:center; gap:0.5rem; margin:0; font-weight:700">
                 <input type="checkbox" name="disponible" ${v.disponible === false ? "" : "checked"} />
-                Disponible (visible para clientes)
+                ${escapeHtml(t("admin.form.disponible"))}
               </label>
             </div>
 
             <div class="span-2">
-              <label>Fotos (subir desde dispositivo)</label>
+              <label>${escapeHtml(t("admin.form.fotosDev"))}</label>
               <input name="files" type="file" accept="image/*" multiple />
               <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
-                Se suben a Supabase Storage y se guardan como URLs en el carro.
+                ${escapeHtml(t("admin.form.fotosDevHintCarro"))}
               </div>
             </div>
 
             <div class="span-2">
-              <label>Fotos (URLs existentes, una por línea)</label>
+              <label>${escapeHtml(t("admin.form.fotosUrl"))}</label>
               <textarea name="fotos_urls" rows="4" style="width:100%; padding:0.7rem 0.75rem; border-radius:12px; border:1px solid rgba(0,109,119,0.2)">${escapeHtml(
                 fotos
               )}</textarea>
               <div class="muted" style="font-size:0.85rem; margin-top:0.25rem">
-                Imgur: usa enlace de imagen directa o página; intentamos convertir a <code>i.imgur.com/…jpg</code>.
+                ${t("admin.form.imgurHint")}
               </div>
             </div>
 
             <div class="span-2" style="display:flex; gap:0.5rem; justify-content:flex-end">
-              <button type="button" class="nav-btn" id="admin-cancel">Cancelar</button>
-              <button type="submit" class="nav-btn nav-btn--accent" style="width:auto">Guardar</button>
+              <button type="button" class="nav-btn" id="admin-cancel">${escapeHtml(t("common.cancel"))}</button>
+              <button type="submit" class="nav-btn nav-btn--accent" style="width:auto">${escapeHtml(t("common.save"))}</button>
             </div>
           </div>
         </form>
@@ -418,8 +419,8 @@ async function updateReservaEstado(id, estado) {
 }
 
 function rowTitle(kind, r) {
-  if (kind === "casas") return `${r.nombre || "Casa"} · ${r.tipo_inmueble || ""}`.trim();
-  return `${r.marca || "Carro"} · ${r.cilindraje || ""}`.trim();
+  if (kind === "casas") return `${r.nombre || t("admin.row.fallbackCasa")} · ${r.tipo_inmueble || ""}`.trim();
+  return `${r.marca || t("admin.row.fallbackCarro")} · ${r.cilindraje || ""}`.trim();
 }
 
 function renderTable(state, rows) {
@@ -427,14 +428,18 @@ function renderTable(state, rows) {
   if (!wrap) return;
 
   if (!rows.length) {
-    wrap.innerHTML = `<div class="card"><div class="card-inner muted">No hay registros todavía.</div></div>`;
+    wrap.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("admin.noRows"))}</div></div>`;
     return;
   }
 
   const th =
     state.kind === "casas"
-      ? `<tr><th style="width:86px">Foto</th><th>Casa</th><th>Precio</th><th>Atributos</th><th style="text-align:right">Acciones</th></tr>`
-      : `<tr><th style="width:86px">Foto</th><th>Carro</th><th>Precio</th><th>Atributos</th><th style="text-align:right">Acciones</th></tr>`;
+      ? `<tr><th style="width:86px">${escapeHtml(t("admin.thumb"))}</th><th>${escapeHtml(t("admin.col.casa"))}</th><th>${escapeHtml(
+          t("admin.col.precio")
+        )}</th><th>${escapeHtml(t("admin.col.attr"))}</th><th style="text-align:right">${escapeHtml(t("admin.col.actions"))}</th></tr>`
+      : `<tr><th style="width:86px">${escapeHtml(t("admin.thumb"))}</th><th>${escapeHtml(t("admin.col.carro"))}</th><th>${escapeHtml(
+          t("admin.col.precio")
+        )}</th><th>${escapeHtml(t("admin.col.attr"))}</th><th style="text-align:right">${escapeHtml(t("admin.col.actions"))}</th></tr>`;
 
   const table = document.createElement("table");
   table.className = "admin-table";
@@ -448,16 +453,33 @@ function renderTable(state, rows) {
     const photosCount = Array.isArray(r.fotos_urls) ? r.fotos_urls.length : 0;
     const img = firstPhoto(r);
 
-    const disp = r.disponible === false ? " · no disp." : "";
+    const disp = r.disponible === false ? ` · ${t("admin.disp.no")}` : "";
     const attrs =
       state.kind === "casas"
-        ? `${escapeHtml(r.tipo_inmueble || "")} · ${escapeHtml(r.habitaciones ?? 0)} hab · ${escapeHtml(r.banos ?? 0)} baños · ${photosCount} fotos${disp}`
-        : `${escapeHtml(r.tipo || "")} · ${escapeHtml(r.puestos ?? 0)} puestos · ${photosCount} fotos${disp}`;
+        ? escapeHtml(
+            t("admin.row.attrCasa", {
+              tipo: r.tipo_inmueble || "",
+              h: r.habitaciones ?? 0,
+              b: r.banos ?? 0,
+              p: photosCount,
+              fotos: t("admin.row.fotos"),
+              disp,
+            })
+          )
+        : escapeHtml(
+            t("admin.row.attrCarro", {
+              tipo: r.tipo || "",
+              pu: r.puestos ?? 0,
+              p: photosCount,
+              fotos: t("admin.row.fotos"),
+              disp,
+            })
+          );
 
     const price =
       state.kind === "casas"
-        ? `$${Number(r.precio_noche || 0).toLocaleString()} / noche`
-        : `$${Number(r.precio_dia || 0).toLocaleString()} / día`;
+        ? `$${Number(r.precio_noche || 0).toLocaleString()}${t("admin.row.noche")}`
+        : `$${Number(r.precio_dia || 0).toLocaleString()}${t("admin.row.dia")}`;
 
     tr.innerHTML = `
       <td>
@@ -481,7 +503,7 @@ function renderTable(state, rows) {
       const urls = normalizePhotoUrls(Array.isArray(r.fotos_urls) ? r.fotos_urls : []);
       const html =
         urls.length === 0
-          ? `<div class="card"><div class="card-inner muted">Sin fotos.</div></div>`
+          ? `<div class="card"><div class="card-inner muted">${escapeHtml(t("admin.preview.none"))}</div></div>`
           : `<div class="card"><div class="card-inner"><div class="grid-2">${urls
               .slice(0, 8)
               .map((u) => `<div class="card" style="box-shadow:none"><img alt="" referrerpolicy="no-referrer" src="${escapeHtml(
@@ -490,9 +512,9 @@ function renderTable(state, rows) {
               .join("")}</div></div></div>`;
       const root = $("#admin-form-wrap");
       root.style.display = "block";
-      root.innerHTML = `<div class="card"><div class="card-inner"><h3 style="margin:0 0 0.5rem">Fotos — ${escapeHtml(
-        rowTitle(state.kind, r)
-      )}</h3><div class="muted" style="margin-bottom:0.75rem">Click en “Agregar” para editar/subir más fotos.</div>${html}</div></div>`;
+      root.innerHTML = `<div class="card"><div class="card-inner"><h3 style="margin:0 0 0.5rem">${escapeHtml(
+        t("admin.preview.title", { name: rowTitle(state.kind, r) })
+      )}</h3><div class="muted" style="margin-bottom:0.75rem">${escapeHtml(t("admin.photoHint"))}</div>${html}</div></div>`;
       window.scrollTo({ top: root.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" });
     });
 
@@ -500,17 +522,17 @@ function renderTable(state, rows) {
     actionsCell.style.textAlign = "right";
     const menu = buildMenu([
       {
-        label: "Actualizar / Editar",
+        label: t("admin.menu.editFull"),
         onClick: () => {
           state.editing = r;
           openForm(state);
         },
       },
       {
-        label: "Eliminar",
+        label: t("admin.menu.del"),
         danger: true,
         onClick: async () => {
-          const ok = confirm("¿Eliminar este registro? Esta acción no se puede deshacer.");
+          const ok = confirm(t("admin.del.confirm"));
           if (!ok) return;
           if (state.kind === "casas") await deleteCasa(r.id);
           else await deleteCarro(r.id);
@@ -518,8 +540,8 @@ function renderTable(state, rows) {
         },
       },
       {
-        label: "Ver reservas (pronto)",
-        onClick: () => alert("Reservas se habilitan en el siguiente paso."),
+        label: t("admin.menu.res"),
+        onClick: () => alert(t("admin.resvSoon")),
       },
     ]);
     actionsCell.appendChild(menu);
@@ -576,7 +598,7 @@ function openForm(state) {
       ev.preventDefault();
       const addr = String(form.querySelector('[name="direccion"]')?.value || "").trim();
       if (!addr) {
-        alert("Escribe una dirección para buscar coordenadas.");
+        alert(t("admin.geo.needAddr"));
         return;
       }
       try {
@@ -590,7 +612,7 @@ function openForm(state) {
         if (latIn) latIn.value = j[0].lat;
         if (lngIn) lngIn.value = j[0].lon;
       } catch (_e) {
-        alert("No se encontraron coordenadas. Ingresa latitud y longitud manualmente.");
+        alert(t("admin.geo.fail"));
       }
     });
   }
@@ -673,7 +695,7 @@ function openForm(state) {
       wrap.innerHTML = "";
       await refresh(state);
     } catch (err) {
-      alert((err && err.message) || "No se pudo guardar.");
+      alert((err && err.message) || t("admin.err.save"));
     }
   });
 
@@ -691,8 +713,8 @@ function render(state) {
   state.page = p.page;
 
   $("#admin-page-info").textContent = all.length
-    ? `Mostrando ${p.start}-${p.end} de ${p.total}`
-    : "0 resultados";
+    ? t("admin.showing", { a: p.start, b: p.end, c: p.total })
+    : t("admin.zeroResults");
 
   renderTable(state, p.slice);
 
@@ -737,6 +759,7 @@ async function runAdmin(root) {
   });
 
   renderAdminShell(root);
+  applyI18nToDom();
 
   const state = {
     kind: "casas",
@@ -770,7 +793,7 @@ async function runAdmin(root) {
     state.kind = kind;
     state.page = 1;
     state.editing = null;
-    $("#admin-kind-pill").textContent = kind === "casas" ? "Catálogo · Casas" : "Catálogo · Carros";
+    $("#admin-kind-pill").textContent = kind === "casas" ? t("admin.catalog.casas") : t("admin.catalog.carros");
     const formWrap = $("#admin-form-wrap");
     if (formWrap) {
       formWrap.style.display = "none";
@@ -821,14 +844,36 @@ async function runAdmin(root) {
 
   $("#admin-nav-reservas")?.addEventListener("click", async () => {
     setActiveTop("reservas");
-    await renderReservas(root);
+    await renderReservas(root, state);
   });
 
   $("#admin-nav-mapa")?.addEventListener("click", async () => {
-    state.mode = "mapa";
     setActiveTop("mapa");
     await renderMapaAdmin(root, state, { showCatalog });
   });
+
+  async function refreshAdminAfterLangChange() {
+    if ((location.hash || "").replace(/^#/, "") !== "admin") return;
+    if (state.mode === "catalogo") {
+      $("#admin-kind-pill").textContent = state.kind === "casas" ? t("admin.catalog.casas") : t("admin.catalog.carros");
+      render(state);
+    } else if (state.mode === "reservas") {
+      $("#admin-kind-pill").textContent = t("admin.reservas");
+      await renderReservas(root, state);
+    } else if (state.mode === "mapa") {
+      $("#admin-kind-pill").textContent = t("admin.mapaPill");
+      await renderMapaAdmin(root, state, { showCatalog });
+    }
+  }
+
+  window.__rentalsAdminLangPack = { refresh: refreshAdminAfterLangChange };
+
+  if (!window.__rentalsAdminLangListenerAttached) {
+    window.__rentalsAdminLangListenerAttached = true;
+    window.addEventListener("rentals-lang-change", () => {
+      window.__rentalsAdminLangPack?.refresh?.().catch(() => {});
+    });
+  }
 }
 
 let __adminMap = null;
@@ -849,15 +894,16 @@ function ensureAdminMap(el) {
 }
 
 async function renderMapaAdmin(_root, state, { showCatalog } = {}) {
+  state.mode = "mapa";
   const wrap = $("#admin-table-wrap");
   if (!wrap) return;
-  $("#admin-kind-pill").textContent = "Mapa · Casas";
+  $("#admin-kind-pill").textContent = t("admin.mapaPill");
 
   // UI mapa + lista rápida
   wrap.innerHTML = `
     <div class="card" style="box-shadow:none">
       <div class="card-inner">
-        <div class="muted" style="margin-bottom:0.5rem">Click en un marcador para abrir “Editar” de esa casa.</div>
+        <div class="muted" style="margin-bottom:0.5rem">${escapeHtml(t("admin.map.hint"))}</div>
         <div id="admin-map" class="map-box" style="height:520px"></div>
       </div>
     </div>
@@ -878,7 +924,7 @@ async function renderMapaAdmin(_root, state, { showCatalog } = {}) {
   casas.forEach((c) => {
     if (typeof c.lat !== "number" || typeof c.lng !== "number") return;
     const m = L.marker([c.lat, c.lng]).addTo(map);
-    m.bindPopup(`<strong>${escapeHtml(c.nombre || "Casa")}</strong>`);
+    m.bindPopup(`<strong>${escapeHtml(c.nombre || t("admin.map.popup"))}</strong>`);
     m.on("click", () => {
       state.editing = c;
       state.mode = "catalogo";
@@ -888,7 +934,7 @@ async function renderMapaAdmin(_root, state, { showCatalog } = {}) {
         });
       } else {
         // Fallback defensivo (no debería ocurrir)
-        $("#admin-kind-pill").textContent = "Catálogo · Casas";
+        $("#admin-kind-pill").textContent = t("admin.catalog.casas");
         setTimeout(() => openForm(state), 0);
       }
     });
@@ -913,8 +959,8 @@ function buildCalendar(monthDate, occupiedISO) {
   const prevDays = startDow;
   const totalCells = Math.ceil((prevDays + daysInMonth) / 7) * 7;
 
-  const dow = ["L", "M", "M", "J", "V", "S", "D"]
-    .map((x) => `<div class="cal-dow">${x}</div>`)
+  const dow = [0, 1, 2, 3, 4, 5, 6]
+    .map((i) => `<div class="cal-dow">${escapeHtml(t(`admin.cal.d${i}`))}</div>`)
     .join("");
 
   let cells = "";
@@ -927,11 +973,14 @@ function buildCalendar(monthDate, occupiedISO) {
     cells += `<div class="cal-day ${inMonth ? "" : "is-muted"} ${occ ? "is-occupied" : ""}">${inMonth ? dayNum : ""}</div>`;
   }
 
+  const loc = getLang() === "en" ? "en-US" : "es";
+  const monthTitle = monthDate.toLocaleString(loc, { month: "long", year: "numeric" });
+
   return `
     <div class="cal">
       <div class="cal-head">
-        <strong>${monthDate.toLocaleString("es", { month: "long", year: "numeric" })}</strong>
-        <span class="muted" style="font-size:0.9rem">Gris = ocupado (aprobado)</span>
+        <strong>${escapeHtml(monthTitle)}</strong>
+        <span class="muted" style="font-size:0.9rem">${escapeHtml(t("admin.cal.month"))}</span>
       </div>
       <div class="cal-grid">${dow}${cells}</div>
     </div>
@@ -950,7 +999,8 @@ function addOccupiedDays(set, desde, hasta) {
   }
 }
 
-async function renderReservas(root) {
+async function renderReservas(root, state) {
+  if (state) state.mode = "reservas";
   const reservas = await listReservas();
   const wrap = $("#admin-table-wrap");
   const formWrap = $("#admin-form-wrap");
@@ -971,12 +1021,12 @@ async function renderReservas(root) {
   table.innerHTML = `
     <thead>
       <tr>
-        <th>Estado</th>
-        <th>Tipo</th>
-        <th>Fechas</th>
-        <th>Cliente</th>
-        <th>Total</th>
-        <th style="text-align:right">Acciones</th>
+        <th>${escapeHtml(t("admin.resv.th.estado"))}</th>
+        <th>${escapeHtml(t("admin.resv.th.tipo"))}</th>
+        <th>${escapeHtml(t("admin.resv.th.fechas"))}</th>
+        <th>${escapeHtml(t("admin.resv.th.cliente"))}</th>
+        <th>${escapeHtml(t("admin.resv.th.total"))}</th>
+        <th style="text-align:right">${escapeHtml(t("admin.resv.th.acciones"))}</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -986,9 +1036,9 @@ async function renderReservas(root) {
   reservas.forEach((r) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><strong>${escapeHtml(r.estado)}</strong></td>
-      <td>${escapeHtml(r.tipo)}</td>
-      <td class="muted">${escapeHtml(r.desde)} → ${escapeHtml(r.hasta)}<br/>${escapeHtml(r.noches)} noches/días</td>
+      <td><strong>${escapeHtml(tEstado(r.estado))}</strong></td>
+      <td>${escapeHtml(tTipo(r.tipo))}</td>
+      <td class="muted">${escapeHtml(r.desde)} → ${escapeHtml(r.hasta)}<br/>${escapeHtml(t("admin.resv.cellNights", { n: r.noches ?? "" }))}</td>
       <td>${escapeHtml(r.nombre)}<div class="muted" style="font-size:0.85rem">${escapeHtml(r.pasaporte_id)}</div></td>
       <td><strong>$${Number(r.total || 0).toLocaleString()}</strong></td>
       <td style="text-align:right"></td>
@@ -997,18 +1047,18 @@ async function renderReservas(root) {
     tr.addEventListener("click", () => {
       openModal(`
         <div style="padding:1rem 1.05rem">
-          <h2 style="margin:0 0 0.5rem">Reserva</h2>
-          <div class="muted" style="margin-bottom:0.75rem">ID: ${escapeHtml(r.id)}</div>
+          <h2 style="margin:0 0 0.5rem">${escapeHtml(t("admin.resv.detailTitle"))}</h2>
+          <div class="muted" style="margin-bottom:0.75rem">${escapeHtml(t("admin.resv.lblId"))}: ${escapeHtml(r.id)}</div>
           <div class="grid-2">
             <div class="card" style="box-shadow:none"><div class="card-inner">
-              <strong>Cliente</strong>
+              <strong>${escapeHtml(t("admin.resv.lblCliente"))}</strong>
               <div class="muted" style="margin-top:0.35rem">${escapeHtml(r.nombre)} · ${escapeHtml(r.pasaporte_id)}</div>
-              <div class="muted" style="margin-top:0.25rem">Tel: ${escapeHtml(r.telefono || "-")}</div>
+              <div class="muted" style="margin-top:0.25rem">${escapeHtml(t("admin.resv.lblTel"))}: ${escapeHtml(r.telefono || "-")}</div>
             </div></div>
             <div class="card" style="box-shadow:none"><div class="card-inner">
-              <strong>Fechas</strong>
+              <strong>${escapeHtml(t("admin.resv.lblFechas"))}</strong>
               <div class="muted" style="margin-top:0.35rem">${escapeHtml(r.desde)} → ${escapeHtml(r.hasta)}</div>
-              <div class="muted" style="margin-top:0.25rem">Noches/días: ${escapeHtml(r.noches)}</div>
+              <div class="muted" style="margin-top:0.25rem">${escapeHtml(t("admin.resv.lblNoches"))}: ${escapeHtml(r.noches)}</div>
             </div></div>
           </div>
           <div style="margin-top:0.75rem">${calHtml}</div>
@@ -1019,18 +1069,18 @@ async function renderReservas(root) {
     const cell = tr.querySelector("td:last-child");
     const menu = buildMenu([
       {
-        label: "Aprobar",
+        label: t("admin.resv.aprobar"),
         onClick: async () => {
           await updateReservaEstado(r.id, "aprobada");
-          await renderReservas(root);
+          await renderReservas(root, state);
         },
       },
       {
-        label: "Rechazar",
+        label: t("admin.resv.rechazar"),
         danger: true,
         onClick: async () => {
           await updateReservaEstado(r.id, "rechazada");
-          await renderReservas(root);
+          await renderReservas(root, state);
         },
       },
     ]);
@@ -1039,12 +1089,12 @@ async function renderReservas(root) {
   });
 
   // Reemplaza vista catálogo por reservas
-  $("#admin-kind-pill").textContent = "Reservas";
+  $("#admin-kind-pill").textContent = t("admin.reservas");
   wrap.innerHTML = "";
   wrap.insertAdjacentHTML("beforeend", `<div style="margin:0.75rem 0">${calHtml}</div>`);
   wrap.appendChild(table);
 
-  $("#admin-page-info").textContent = `${reservas.length} reservas`;
+  $("#admin-page-info").textContent = t("admin.resv.count", { n: reservas.length });
   $("#admin-prev").disabled = true;
   $("#admin-next").disabled = true;
 }

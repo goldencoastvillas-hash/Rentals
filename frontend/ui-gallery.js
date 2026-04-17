@@ -1,4 +1,5 @@
 import { normalizePhotoUrls } from "./url-media.js";
+import { t } from "./i18n.js";
 
 function escAttr(s) {
   return String(s ?? "")
@@ -14,7 +15,7 @@ export function mountGallery(urls) {
   root.className = "gallery";
 
   if (!safe.length) {
-    root.innerHTML = `<div style="height:240px; display:flex; align-items:center; justify-content:center" class="muted">Sin fotos</div>`;
+    root.innerHTML = `<div style="height:240px; display:flex; align-items:center; justify-content:center" class="muted">${escAttr(t("gallery.noPhotos"))}</div>`;
     return root;
   }
 
@@ -33,8 +34,8 @@ export function mountGallery(urls) {
   const nav = document.createElement("div");
   nav.className = "gallery-nav";
   nav.innerHTML = `
-    <button type="button" class="gallery-nav-btn" aria-label="Anterior">‹</button>
-    <button type="button" class="gallery-nav-btn" aria-label="Siguiente">›</button>
+    <button type="button" class="gallery-nav-btn" aria-label="${escAttr(t("gallery.prevAria"))}">‹</button>
+    <button type="button" class="gallery-nav-btn" aria-label="${escAttr(t("gallery.nextAria"))}">›</button>
   `;
   root.appendChild(nav);
 

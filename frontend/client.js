@@ -38,28 +38,28 @@ async function fetchCarros() {
 
 function renderCasaCard(row) {
   const img = firstPhoto(row);
-  const precio = `$${Number(row.precio_noche || 0).toLocaleString()} / noche`;
-  const meta = `${row.tipo_inmueble || ""} · ${row.habitaciones ?? 0} hab · ${row.banos ?? 0} baños`;
+  const precio = `$${Number(row.precio_noche || 0).toLocaleString()}${t("featured.perNight")}`;
+  const meta = `${row.tipo_inmueble || ""} · ${row.habitaciones ?? 0} ${t("common.hab")} · ${row.banos ?? 0} ${t("common.baths")}`;
   const amen = [];
-  if (row.wifi) amen.push("Wifi");
-  if (row.parking) amen.push("Parking");
-  if (row.piscina) amen.push("Piscina");
-  if (row.aire) amen.push("Aire");
-  if (row.gym) amen.push("Gym");
-  if (row.mascotas) amen.push("Mascotas");
-  if (row.lavanderia) amen.push("Lavandería");
-  if (row.bbq) amen.push("BBQ");
+  if (row.wifi) amen.push(t("amenity.wifi"));
+  if (row.parking) amen.push(t("amenity.parking"));
+  if (row.piscina) amen.push(t("amenity.pool"));
+  if (row.aire) amen.push(t("amenity.ac"));
+  if (row.gym) amen.push(t("amenity.gym"));
+  if (row.mascotas) amen.push(t("amenity.pets"));
+  if (row.lavanderia) amen.push(t("amenity.laundry"));
+  if (row.bbq) amen.push(t("amenity.bbq"));
   const el = document.createElement("div");
   el.className = "item-card";
   el.innerHTML = `
     <img class="thumb" alt="" referrerpolicy="no-referrer" src="${escapeHtml(img)}" onerror="this.style.display='none'" />
     <div class="item-meta">
-      <h3>${escapeHtml(row.nombre || "Casa")}</h3>
+      <h3>${escapeHtml(row.nombre || t("detail.casaFallback"))}</h3>
       <div class="muted">${escapeHtml(meta)}</div>
       ${amen.length ? `<div class="amenities">${amen.slice(0, 5).map((x) => `<span class="amenity">${escapeHtml(x)}</span>`).join("")}</div>` : ""}
       <div class="price-row">
         <div class="price">${escapeHtml(precio)}</div>
-        <span class="pill">${Array.isArray(row.fotos_urls) ? row.fotos_urls.length : 0} fotos</span>
+        <span class="pill">${Array.isArray(row.fotos_urls) ? row.fotos_urls.length : 0} ${t("featured.photos")}</span>
       </div>
     </div>
   `;
@@ -69,8 +69,8 @@ function renderCasaCard(row) {
 
 function renderCarroCard(row) {
   const img = firstPhoto(row);
-  const precio = `$${Number(row.precio_dia || 0).toLocaleString()} / día`;
-  const meta = `${row.tipo || ""} · ${row.puestos ?? 0} puestos · ${row.cilindraje || ""}`;
+  const precio = `$${Number(row.precio_dia || 0).toLocaleString()}${t("featured.perDay")}`;
+  const meta = `${row.tipo || ""} · ${row.puestos ?? 0} ${t("common.seats")} · ${row.cilindraje || ""}`;
   const el = document.createElement("div");
   el.className = "card";
   el.style.cursor = "pointer";
@@ -79,11 +79,11 @@ function renderCarroCard(row) {
       <img alt="" referrerpolicy="no-referrer" src="${escapeHtml(img)}" style="width:100%; height:220px; object-fit:cover; display:block" onerror="this.style.display='none'" />
     </div>
     <div class="card-inner">
-      <h3>${escapeHtml(row.marca || "Carro")}</h3>
+      <h3>${escapeHtml(row.marca || t("detail.carroFallback"))}</h3>
       <div class="muted" style="margin-bottom:0.35rem">${escapeHtml(meta)}</div>
       <div class="price-row">
         <div class="price">${escapeHtml(precio)}</div>
-        <span class="pill">${Array.isArray(row.fotos_urls) ? row.fotos_urls.length : 0} fotos</span>
+        <span class="pill">${Array.isArray(row.fotos_urls) ? row.fotos_urls.length : 0} ${t("featured.photos")}</span>
       </div>
     </div>
   `;
@@ -94,19 +94,19 @@ function renderCarroCard(row) {
 function openCasaDetail(row) {
   const urls = Array.isArray(row.fotos_urls) ? row.fotos_urls : [];
   const offers = [
-    ["Wifi", !!row.wifi],
-    ["Estacionamiento", !!row.parking],
-    ["Piscina", !!row.piscina],
-    ["Patio", !!row.patio],
-    ["Aire acondicionado", !!row.aire],
-    ["Gym", !!row.gym],
-    ["Se permiten mascotas", !!row.mascotas],
-    ["Lavandería", !!row.lavanderia],
-    ["BBQ / parrilla", !!row.bbq],
+    [t("amenity.wifi"), !!row.wifi],
+    [t("amenity.parking"), !!row.parking],
+    [t("amenity.pool"), !!row.piscina],
+    [t("amenity.patio"), !!row.patio],
+    [t("amenity.ac"), !!row.aire],
+    [t("amenity.gym"), !!row.gym],
+    [t("amenity.pets"), !!row.mascotas],
+    [t("amenity.laundry"), !!row.lavanderia],
+    [t("amenity.bbq"), !!row.bbq],
   ];
   const html = `
     <div style="padding:1rem 1.05rem">
-      <h2 style="margin:0 0 0.5rem">${escapeHtml(row.nombre || "Casa")}</h2>
+      <h2 style="margin:0 0 0.5rem">${escapeHtml(row.nombre || t("detail.casaFallback"))}</h2>
       <div class="muted" style="margin-bottom:0.75rem">${escapeHtml(row.tipo_inmueble || "")} · ${escapeHtml(
         row.direccion || ""
       )}</div>
@@ -114,37 +114,37 @@ function openCasaDetail(row) {
       <div class="grid-2" style="margin-top:1rem">
         <div class="card" style="box-shadow:none">
           <div class="card-inner">
-            <strong>Precio</strong>
-            <div class="price" style="margin-top:0.25rem">$${Number(row.precio_noche || 0).toLocaleString()} / noche</div>
+            <strong>${t("common.price")}</strong>
+            <div class="price" style="margin-top:0.25rem">$${Number(row.precio_noche || 0).toLocaleString()}${t("detail.perNight")}</div>
           </div>
         </div>
         <div class="card" style="box-shadow:none">
           <div class="card-inner">
-            <strong>Características</strong>
+            <strong>${t("common.features")}</strong>
             <div class="muted" style="margin-top:0.35rem">
-              ${escapeHtml(row.habitaciones ?? 0)} hab · ${escapeHtml(row.banos ?? 0)} baños · Máx ${escapeHtml(row.max_huespedes ?? 1)} huéspedes
+              ${escapeHtml(row.habitaciones ?? 0)} ${t("common.hab")} · ${escapeHtml(row.banos ?? 0)} ${t("common.baths")} · ${t("detail.maxGuests")} ${escapeHtml(row.max_huespedes ?? 1)} ${t("common.guests")}
             </div>
           </div>
         </div>
       </div>
       <div class="card" style="box-shadow:none; margin-top:0.85rem">
         <div class="card-inner">
-          <strong>Lo que este lugar ofrece</strong>
+          <strong>${t("common.offers")}</strong>
           <div class="amenities-grid">
             ${offers
               .map(
                 ([label, ok]) =>
-                  `<div class="row"><strong>${escapeHtml(label)}</strong><span>${ok ? "Sí" : "No"}</span></div>`
+                  `<div class="row"><strong>${escapeHtml(label)}</strong><span>${ok ? t("common.yes") : t("common.no")}</span></div>`
               )
               .join("")}
           </div>
         </div>
       </div>
       <div style="margin-top:1rem; display:flex; gap:0.5rem; justify-content:flex-end; flex-wrap:wrap">
-        <button type="button" class="nav-btn nav-btn--accent" id="reserve-btn">Reservar</button>
+        <button type="button" class="nav-btn nav-btn--accent" id="reserve-btn">${t("common.reserve")}</button>
         <a class="nav-btn nav-btn--gold" href="https://wa.me/${escapeHtml(adminWhatsappDigits())}?text=${encodeURIComponent(
           `Hola, quiero reservar la casa: ${row.nombre || ""}`
-        )}" target="_blank" rel="noreferrer">WhatsApp</a>
+        )}" target="_blank" rel="noreferrer">${t("common.whatsapp")}</a>
       </div>
     </div>
   `;
@@ -158,30 +158,30 @@ function openCarroDetail(row) {
   const urls = Array.isArray(row.fotos_urls) ? row.fotos_urls : [];
   const html = `
     <div style="padding:1rem 1.05rem">
-      <h2 style="margin:0 0 0.5rem">${escapeHtml(row.marca || "Carro")}</h2>
+      <h2 style="margin:0 0 0.5rem">${escapeHtml(row.marca || t("detail.carroFallback"))}</h2>
       <div class="muted" style="margin-bottom:0.75rem">${escapeHtml(row.tipo || "")} · ${escapeHtml(row.cilindraje || "")}</div>
       <div id="detail-gallery"></div>
       <div class="grid-2" style="margin-top:1rem">
         <div class="card" style="box-shadow:none">
           <div class="card-inner">
-            <strong>Precio</strong>
-            <div class="price" style="margin-top:0.25rem">$${Number(row.precio_dia || 0).toLocaleString()} / día</div>
+            <strong>${t("common.price")}</strong>
+            <div class="price" style="margin-top:0.25rem">$${Number(row.precio_dia || 0).toLocaleString()}${t("detail.perDay")}</div>
           </div>
         </div>
         <div class="card" style="box-shadow:none">
           <div class="card-inner">
-            <strong>Detalles</strong>
+            <strong>${t("common.details")}</strong>
             <div class="muted" style="margin-top:0.35rem">
-              ${escapeHtml(row.puestos ?? 4)} puestos
+              ${escapeHtml(row.puestos ?? 4)} ${t("common.seats")}
             </div>
           </div>
         </div>
       </div>
       <div style="margin-top:1rem; display:flex; gap:0.5rem; justify-content:flex-end; flex-wrap:wrap">
-        <button type="button" class="nav-btn nav-btn--accent" id="reserve-btn">Reservar</button>
+        <button type="button" class="nav-btn nav-btn--accent" id="reserve-btn">${t("common.reserve")}</button>
         <a class="nav-btn nav-btn--gold" href="https://wa.me/${escapeHtml(adminWhatsappDigits())}?text=${encodeURIComponent(
           `Hola, quiero reservar el carro: ${row.marca || ""}`
-        )}" target="_blank" rel="noreferrer">WhatsApp</a>
+        )}" target="_blank" rel="noreferrer">${t("common.whatsapp")}</a>
       </div>
     </div>
   `;
@@ -212,65 +212,64 @@ function daysBetweenInclusiveStartExclusiveEnd(a, b) {
 
 function openReservaForm(tipo, item) {
   const isCasa = tipo === "casa";
-  const title = isCasa ? item.nombre || "Casa" : item.marca || "Carro";
+  const title = isCasa ? item.nombre || t("detail.casaFallback") : item.marca || t("detail.carroFallback");
   const unit = isCasa ? Number(item.precio_noche || 0) : Number(item.precio_dia || 0);
-  const unitLabel = isCasa ? "noche" : "día";
 
   const today = new Date();
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
   const html = `
     <div style="padding:1rem 1.05rem">
-      <h2 style="margin:0 0 0.25rem">Reservar — ${escapeHtml(title)}</h2>
-      <div class="muted" style="margin-bottom:0.75rem">Completa el formulario. Tu solicitud quedará <strong>pendiente</strong> hasta confirmación.</div>
+      <h2 style="margin:0 0 0.25rem">${escapeHtml(t("reserva.h2prefix"))} ${escapeHtml(title)}</h2>
+      <div class="muted" style="margin-bottom:0.75rem">${t("reserva.lead")}</div>
 
       <form id="reserva-form" class="card" style="box-shadow:none">
         <div class="card-inner">
           <div class="admin-form-grid">
             <div class="span-2">
-              <label>Nombre</label>
+              <label>${t("reserva.nombre")}</label>
               <input name="nombre" required />
             </div>
             <div>
-              <label>Fecha de nacimiento</label>
+              <label>${t("reserva.fnac")}</label>
               <input name="fecha_nacimiento" type="date" />
             </div>
             <div>
-              <label>Pasaporte o ID</label>
+              <label>${t("reserva.id")}</label>
               <input name="pasaporte_id" required />
             </div>
             <div>
-              <label>Teléfono</label>
-              <input name="telefono" placeholder="+57..." />
+              <label>${t("reserva.tel")}</label>
+              <input name="telefono" placeholder="${escapeHtml(t("reserva.telPh"))}" />
             </div>
             <div></div>
             <div>
-              <label>Desde</label>
+              <label>${t("reserva.desde")}</label>
               <input name="desde" type="date" required value="${isoDate(today)}" />
             </div>
             <div>
-              <label>Hasta</label>
+              <label>${t("reserva.hasta")}</label>
               <input name="hasta" type="date" required value="${isoDate(tomorrow)}" />
             </div>
             ${
               isCasa
                 ? `
             <div>
-              <label>Personas</label>
+              <label>${t("reserva.personas")}</label>
               <input name="personas" type="number" min="1" value="1" />
             </div>
             <div>
-              <label>Mascotas</label>
+              <label>${t("reserva.mascotas")}</label>
               <select name="mascotas">
-                <option value="false" selected>No</option>
-                <option value="true">Sí</option>
+                <option value="false" selected>${escapeHtml(t("yesno.no"))}</option>
+                <option value="true">${escapeHtml(t("yesno.si"))}</option>
               </select>
             </div>
             `
                 : `
             <div class="span-2">
-              <label>Notas (opcional)</label>
-              <input name="notas" placeholder="Algo que debamos saber…" />
+              <label>${t("reserva.notas")}</label>
+              <input name="notas" placeholder="${escapeHtml(t("reserva.notasPh"))}" />
             </div>
             `
             }
@@ -278,7 +277,7 @@ function openReservaForm(tipo, item) {
               <div class="card" style="box-shadow:none; border-style:dashed">
                 <div class="card-inner" style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap">
                   <div>
-                    <strong>Total</strong>
+                    <strong>${t("reserva.total")}</strong>
                     <div class="muted" id="total-hint" style="font-size:0.9rem"></div>
                   </div>
                   <div class="price" id="total-price" style="font-size:1.15rem">$0</div>
@@ -286,8 +285,8 @@ function openReservaForm(tipo, item) {
               </div>
             </div>
             <div class="span-2" style="display:flex; justify-content:flex-end; gap:0.5rem; flex-wrap:wrap">
-              <button type="button" class="nav-btn" data-close="1">Cancelar</button>
-              <button type="submit" class="nav-btn nav-btn--accent">Enviar reserva</button>
+              <button type="button" class="nav-btn" data-close="1">${t("common.cancel")}</button>
+              <button type="submit" class="nav-btn nav-btn--accent">${t("reserva.enviar")}</button>
             </div>
           </div>
         </div>
@@ -313,7 +312,10 @@ function openReservaForm(tipo, item) {
     const safeN = Math.max(1, n);
     const total = unit * safeN;
     totalEl.textContent = `$${Number(total || 0).toLocaleString()}`;
-    hintEl.textContent = `${safeN} ${safeN === 1 ? unitLabel : unitLabel + "s"} × $${Number(unit || 0).toLocaleString()}`;
+    hintEl.textContent = t(isCasa ? "renta.hintCasas" : "renta.hintCarros", {
+      n: safeN,
+      u: Number(unit || 0).toLocaleString(),
+    });
     return { noches: safeN, total };
   }
 
@@ -349,15 +351,35 @@ function openReservaForm(tipo, item) {
 
       const msg =
         tipo === "casa"
-          ? `Nueva reserva (CASA)\nCasa: ${title}\nNombre: ${payload.nombre}\nID: ${payload.pasaporte_id}\nDesde: ${payload.desde}\nHasta: ${payload.hasta}\nNoches: ${payload.noches}\nPersonas: ${payload.personas}\nMascotas: ${payload.mascotas ? "Sí" : "No"}\nTotal: $${Number(
-              payload.total || 0
-            ).toLocaleString()}\nReservaID: ${data.id}`
-          : `Nueva reserva (CARRO)\nCarro: ${title}\nNombre: ${payload.nombre}\nID: ${payload.pasaporte_id}\nDesde: ${payload.desde}\nHasta: ${payload.hasta}\nDías: ${payload.noches}\nTotal: $${Number(payload.total || 0).toLocaleString()}\nReservaID: ${data.id}`;
+          ? t("wa.casa", {
+              title,
+              nombre: payload.nombre,
+              id: payload.pasaporte_id,
+              desde: payload.desde,
+              hasta: payload.hasta,
+              noches: payload.noches,
+              personas: payload.personas,
+              mascotas: payload.mascotas ? t("yesno.si") : t("yesno.no"),
+              total: Number(payload.total || 0).toLocaleString(),
+              rid: data.id,
+            })
+          : t("wa.carro", {
+              title,
+              nombre: payload.nombre,
+              id: payload.pasaporte_id,
+              desde: payload.desde,
+              hasta: payload.hasta,
+              noches: payload.noches,
+              total: Number(payload.total || 0).toLocaleString(),
+              rid: data.id,
+            });
 
       window.open(`https://wa.me/${adminWhatsappDigits()}?text=${encodeURIComponent(msg)}`, "_blank", "noreferrer");
-      openModal(`<div style="padding:1rem 1.05rem"><h2>Reserva enviada</h2><p class="muted">Tu solicitud quedó pendiente. Te contactaremos por WhatsApp.</p></div>`);
+      openModal(
+        `<div style="padding:1rem 1.05rem"><h2>${escapeHtml(t("reserva.okTitle"))}</h2><p class="muted">${escapeHtml(t("reserva.okBody"))}</p></div>`
+      );
     } catch (err) {
-      alert((err && err.message) || "No se pudo enviar la reserva.");
+      alert((err && err.message) || t("reserva.errSend"));
     }
   });
 }
@@ -368,72 +390,84 @@ function renderCasaFilters(state) {
 
   wrap.innerHTML = `
     <div>
-      <label>Buscar</label>
-      <input id="casas-q" placeholder="Nombre o tipo (casa, apartamento, cabaña)" />
+      <label>${t("filters.buscar")}</label>
+      <input id="casas-q" placeholder="${escapeHtml(t("filters.casas.qPh"))}" />
     </div>
     <div>
-      <label>Tipo</label>
+      <label>${t("filters.tipo")}</label>
       <select id="casas-tipo">
-        <option value="">Todos</option>
-        <option value="casa">Casa</option>
-        <option value="apartamento">Apartamento</option>
-        <option value="cabaña">Cabaña</option>
+        <option value="">${escapeHtml(t("common.all"))}</option>
+        <option value="casa">${escapeHtml(t("admin.form.opt.casa"))}</option>
+        <option value="apartamento">${escapeHtml(t("admin.form.opt.apto"))}</option>
+        <option value="cabaña">${escapeHtml(t("admin.form.opt.caba"))}</option>
       </select>
     </div>
     <div>
-      <label>Habitaciones (min)</label>
+      <label>${t("filters.habMin")}</label>
       <input id="casas-hab" type="number" min="0" value="0" />
     </div>
     <div>
-      <label>Precio (máx)</label>
-      <input id="casas-precio" type="number" min="0" placeholder="Sin límite" />
+      <label>${t("filters.precioMax")}</label>
+      <input id="casas-precio" type="number" min="0" placeholder="${escapeHtml(t("filters.precioSinLim"))}" />
     </div>
     <div>
-      <label>Mascotas</label>
+      <label>${t("filters.mascotas")}</label>
       <select id="casas-mascotas">
-        <option value="">Indiferente</option>
-        <option value="true">Sí</option>
-        <option value="false">No</option>
+        <option value="">${escapeHtml(t("common.any"))}</option>
+        <option value="true">${escapeHtml(t("yesno.si"))}</option>
+        <option value="false">${escapeHtml(t("yesno.no"))}</option>
       </select>
     </div>
     <div>
-      <label>Piscina</label>
+      <label>${t("filters.piscina")}</label>
       <select id="casas-piscina">
-        <option value="">Indiferente</option>
-        <option value="true">Sí</option>
-        <option value="false">No</option>
+        <option value="">${escapeHtml(t("common.any"))}</option>
+        <option value="true">${escapeHtml(t("yesno.si"))}</option>
+        <option value="false">${escapeHtml(t("yesno.no"))}</option>
       </select>
     </div>
     <div>
-      <label>Aire acondicionado</label>
+      <label>${t("filters.aire")}</label>
       <select id="casas-aire">
-        <option value="">Indiferente</option>
-        <option value="true">Sí</option>
-        <option value="false">No</option>
+        <option value="">${escapeHtml(t("common.any"))}</option>
+        <option value="true">${escapeHtml(t("yesno.si"))}</option>
+        <option value="false">${escapeHtml(t("yesno.no"))}</option>
       </select>
     </div>
     <div>
-      <label>Wifi</label>
+      <label>${t("filters.wifi")}</label>
       <select id="casas-wifi">
-        <option value="">Indiferente</option>
-        <option value="true">Sí</option>
-        <option value="false">No</option>
+        <option value="">${escapeHtml(t("common.any"))}</option>
+        <option value="true">${escapeHtml(t("yesno.si"))}</option>
+        <option value="false">${escapeHtml(t("yesno.no"))}</option>
       </select>
     </div>
   `;
 
+  $("#casas-q").value = state.q || "";
+  $("#casas-tipo").value = state.tipo || "";
+  $("#casas-hab").value = String(state.hab ?? 0);
+  $("#casas-precio").value = state.precioMax != null ? String(state.precioMax) : "";
+  $("#casas-mascotas").value = state.mascotas || "";
+  $("#casas-piscina").value = state.piscina || "";
+  $("#casas-aire").value = state.aire || "";
+  $("#casas-wifi").value = state.wifi || "";
+
+  const sync = () => {
+    state.q = $("#casas-q").value || "";
+    state.tipo = $("#casas-tipo").value || "";
+    state.hab = Number($("#casas-hab").value || 0);
+    state.precioMax = $("#casas-precio").value ? Number($("#casas-precio").value) : null;
+    state.mascotas = $("#casas-mascotas").value;
+    state.piscina = $("#casas-piscina").value;
+    state.aire = $("#casas-aire").value;
+    state.wifi = $("#casas-wifi").value;
+    renderCasas(state);
+  };
+
   wrap.querySelectorAll("input,select").forEach((el) => {
-    el.addEventListener("input", () => {
-      state.q = $("#casas-q").value || "";
-      state.tipo = $("#casas-tipo").value || "";
-      state.hab = Number($("#casas-hab").value || 0);
-      state.precioMax = $("#casas-precio").value ? Number($("#casas-precio").value) : null;
-      state.mascotas = $("#casas-mascotas").value;
-      state.piscina = $("#casas-piscina").value;
-      state.aire = $("#casas-aire").value;
-      state.wifi = $("#casas-wifi").value;
-      renderCasas(state);
-    });
+    el.addEventListener("input", sync);
+    el.addEventListener("change", sync);
   });
 }
 
@@ -485,7 +519,7 @@ function setCasaMarkers(rows) {
     if (typeof r.lat !== "number" || typeof r.lng !== "number") return;
     const price = Number(r.precio_noche || 0);
     const marker = L.marker([r.lat, r.lng]).addTo(map);
-    marker.bindPopup(`<strong>${escapeHtml(r.nombre || "Casa")}</strong><br/>$${price.toLocaleString()} / noche`);
+    marker.bindPopup(`<strong>${escapeHtml(r.nombre || t("detail.casaFallback"))}</strong><br/>$${price.toLocaleString()}${t("featured.perNight")}`);
     marker.on("click", () => openCasaDetail(r));
     __casaMarkers.push(marker);
   });
@@ -498,7 +532,7 @@ function renderCasas(state) {
   const rows = (state.rows || []).filter((r) => casaMatches(state, r));
   list.innerHTML = "";
   if (!rows.length) {
-    list.innerHTML = `<div class="card"><div class="card-inner muted">No hay casas con esos filtros.</div></div>`;
+    list.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("list.noCasas"))}</div></div>`;
   } else {
     rows.forEach((r) => list.appendChild(renderCasaCard(r)));
   }
@@ -511,30 +545,38 @@ function renderCarroFilters(state) {
   if (!wrap) return;
   wrap.innerHTML = `
     <div>
-      <label>Buscar</label>
-      <input id="carros-q" placeholder="Marca o tipo" />
+      <label>${t("filters.buscar")}</label>
+      <input id="carros-q" placeholder="${escapeHtml(t("filters.carros.qPh"))}" />
     </div>
     <div>
-      <label>Tipo</label>
-      <input id="carros-tipo" placeholder="SUV, Sedan..." />
+      <label>${t("filters.tipo")}</label>
+      <input id="carros-tipo" placeholder="${escapeHtml(t("filters.carros.tipoPh"))}" />
     </div>
     <div>
-      <label>Cilindraje</label>
-      <input id="carros-cil" placeholder="2.0, 3.0..." />
+      <label>${t("admin.form.cil")}</label>
+      <input id="carros-cil" placeholder="${escapeHtml(t("filters.carros.cilPh"))}" />
     </div>
     <div>
-      <label>Puestos (min)</label>
+      <label>${t("filters.carros.puestos")}</label>
       <input id="carros-puestos" type="number" min="1" value="1" />
     </div>
   `;
+  $("#carros-q").value = state.q || "";
+  $("#carros-tipo").value = state.tipo || "";
+  $("#carros-cil").value = state.cil || "";
+  $("#carros-puestos").value = String(state.puestos ?? 1);
+
+  const sync = () => {
+    state.q = $("#carros-q").value || "";
+    state.tipo = $("#carros-tipo").value || "";
+    state.cil = $("#carros-cil").value || "";
+    state.puestos = Number($("#carros-puestos").value || 1);
+    renderCarros(state);
+  };
+
   wrap.querySelectorAll("input,select").forEach((el) => {
-    el.addEventListener("input", () => {
-      state.q = $("#carros-q").value || "";
-      state.tipo = $("#carros-tipo").value || "";
-      state.cil = $("#carros-cil").value || "";
-      state.puestos = Number($("#carros-puestos").value || 1);
-      renderCarros(state);
-    });
+    el.addEventListener("input", sync);
+    el.addEventListener("change", sync);
   });
 }
 
@@ -556,7 +598,7 @@ function renderCarros(state) {
   const rows = (state.rows || []).filter((r) => carroMatches(state, r));
   list.innerHTML = "";
   if (!rows.length) {
-    list.innerHTML = `<div class="card"><div class="card-inner muted">No hay carros con esos filtros.</div></div>`;
+    list.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("list.noCarros"))}</div></div>`;
     return;
   }
   rows.forEach((r) => list.appendChild(renderCarroCard(r)));
@@ -633,7 +675,7 @@ async function renderHomePageBlocks() {
         <div class="featured-side">
           <div>
             <h3>${c1 ? escapeHtml(c1.nombre) : t("featured.houses")}</h3>
-            <div class="muted">${c1 ? escapeHtml((c1.tipo_inmueble || "") + " · " + (c1.habitaciones ?? 0) + " hab · " + (c1.banos ?? 0) + " baños") : t("featured.noHouses")}</div>
+            <div class="muted">${c1 ? escapeHtml(`${c1.tipo_inmueble || ""} · ${c1.habitaciones ?? 0} ${t("common.hab")} · ${c1.banos ?? 0} ${t("common.baths")}`) : t("featured.noHouses")}</div>
           </div>
           <div class="price-row">
             <div class="price">${escapeHtml(c1 ? casaPrecio : "")}</div>
@@ -678,15 +720,19 @@ async function renderHomePageBlocks() {
 export async function initClient() {
   initModal();
   await renderHomePageBlocks();
-  window.addEventListener("rentals-lang-change", () => {
-    renderHomePageBlocks().catch(() => {});
-  });
-
   const casasState = { rows: [], q: "", tipo: "", hab: 0, precioMax: null, mascotas: "" };
   const carrosState = { rows: [], q: "", tipo: "", cil: "", puestos: 1 };
 
   renderCasaFilters(casasState);
   renderCarroFilters(carrosState);
+
+  window.addEventListener("rentals-lang-change", () => {
+    renderHomePageBlocks().catch(() => {});
+    renderCasaFilters(casasState);
+    renderCarroFilters(carrosState);
+    renderCasas(casasState);
+    renderCarros(carrosState);
+  });
 
   try {
     const allCasas = await fetchCasas();
@@ -694,7 +740,7 @@ export async function initClient() {
     renderCasas(casasState);
   } catch (e) {
     const list = document.getElementById("casas-list");
-    if (list) list.innerHTML = `<div class="card"><div class="card-inner muted">Error cargando casas: ${escapeHtml(e?.message || "sin detalle")}</div></div>`;
+    if (list) list.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("err.casas"))} ${escapeHtml(e?.message || "")}</div></div>`;
   }
 
   try {
@@ -703,7 +749,7 @@ export async function initClient() {
     renderCarros(carrosState);
   } catch (e) {
     const list = document.getElementById("carros-list");
-    if (list) list.innerHTML = `<div class="card"><div class="card-inner muted">Error cargando carros: ${escapeHtml(e?.message || "sin detalle")}</div></div>`;
+    if (list) list.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("err.carros"))} ${escapeHtml(e?.message || "")}</div></div>`;
   }
 
   // Al entrar a la vista de casas, Leaflet necesita recalcular tamaños para render rápido.
