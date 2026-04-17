@@ -49,7 +49,7 @@ export const NOSOTROS_HTML = {
             <p>👉 <strong>Agenda con nosotros</strong> y descubre tu próxima experiencia en Miami.</p>
             <a href="mailto:goldencoastvillas@gmail.com?subject=Asesor%C3%ADa%20Golden%20Coast%20Villas">Escribir a goldencoastvillas@gmail.com</a>
             ·
-            <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">WhatsApp +57 302 6691995</a>
+            <a href="https://wa.me/573026691995" target="_blank" rel="noreferrer">WhatsApp +57 302 669 1995</a>
           </div>
         </article>
         <article class="about-block">
@@ -99,7 +99,7 @@ export const NOSOTROS_HTML = {
         </div>
         <footer class="site-footer">
           <p><strong>Contacto</strong></p>
-          <p>WhatsApp: <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">+57 302 6691995</a></p>
+          <p>WhatsApp: <a href="https://wa.me/573026691995" target="_blank" rel="noreferrer">+57 302 669 1995</a></p>
           <p>Correo: <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a></p>
           <p class="legal">Nos reservamos todos los derechos © <span class="year-nosotros"></span> Golden Coast Villas Rentals.</p>
         </footer>
@@ -145,7 +145,7 @@ export const NOSOTROS_HTML = {
             <p>👉 <strong>Book with us</strong> and discover your next Miami experience.</p>
             <a href="mailto:goldencoastvillas@gmail.com?subject=Golden%20Coast%20Villas%20consultation">Email goldencoastvillas@gmail.com</a>
             ·
-            <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">WhatsApp +57 302 6691995</a>
+            <a href="https://wa.me/573026691995" target="_blank" rel="noreferrer">WhatsApp +57 302 669 1995</a>
           </div>
         </article>
         <article class="about-block">
@@ -194,7 +194,7 @@ export const NOSOTROS_HTML = {
         </div>
         <footer class="site-footer">
           <p><strong>Contact</strong></p>
-          <p>WhatsApp: <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">+57 302 6691995</a></p>
+          <p>WhatsApp: <a href="https://wa.me/573026691995" target="_blank" rel="noreferrer">+57 302 669 1995</a></p>
           <p>Email: <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a></p>
           <p class="legal">All rights reserved © <span class="year-nosotros"></span> Golden Coast Villas Rentals.</p>
         </footer>

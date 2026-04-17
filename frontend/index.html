@@ -1242,7 +1242,7 @@
               >Catálogo (casas y carros), reservas y panel admin en construcción continua. Para soporte o información:</span
             >
             <a href="mailto:goldencoastvillas@gmail.com">goldencoastvillas@gmail.com</a> ·
-            <a href="https://wa.me/573026661995" target="_blank" rel="noreferrer">WhatsApp +57 302 6691995</a>.
+            <a href="https://wa.me/573026691995" target="_blank" rel="noreferrer">WhatsApp +57 302 669 1995</a>.
           </p>
           <p class="muted" style="margin:0.65rem 0 0">
             <span data-i18n="home.dev.rights">Nos reservamos todos los derechos ©</span>
@@ -1334,17 +1334,16 @@
           <p class="form-error" id="login-error" role="alert"></p>
           <form id="admin-form" novalidate>
             <label for="admin-user" data-i18n="adminLogin.user">Usuario</label>
-            <input id="admin-user" name="user" type="text" autocomplete="username" required placeholder="Admin" />
+            <input id="admin-user" name="user" type="text" autocomplete="username" required placeholder="" data-i18n="adminLogin.userPh" />
             <label for="admin-email" data-i18n="adminLogin.email">Correo</label>
-            <input id="admin-email" name="email" type="email" autocomplete="email" required placeholder="admin@rentals.com" />
+            <input id="admin-email" name="email" type="email" autocomplete="email" required placeholder="" data-i18n="adminLogin.emailPh" />
             <label for="admin-pass" data-i18n="adminLogin.pass">Contraseña</label>
             <div class="password-wrap">
-              <input id="admin-pass" name="pass" type="password" autocomplete="current-password" required placeholder="•••••••" />
+              <input id="admin-pass" name="pass" type="password" autocomplete="current-password" required placeholder="" data-i18n="adminLogin.passPh" />
               <button type="button" class="toggle-pass" id="admin-pass-toggle" data-i18n-aria-label="adminLogin.toggleAria" aria-label="Mostrar u ocultar contraseña">👁</button>
             </div>
             <button type="submit" data-i18n="adminLogin.submit">Entrar</button>
           </form>
-          <p id="admin-login-demo" class="muted" style="font-size: 0.9rem; margin: 0.75rem 0 0"></p>
         </div>
       </div>
     </section>
@@ -1381,8 +1380,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=2026-04-16-6"></script>
-    <script type="module" src="app.js?v=2026-04-16-6"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-16-7"></script>
+    <script type="module" src="app.js?v=2026-04-16-7"></script>
   </body>
 </html>
 

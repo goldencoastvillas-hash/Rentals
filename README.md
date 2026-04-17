@@ -24,7 +24,7 @@ En el repo: **Settings → Secrets and variables → Actions → New repository 
 |--------|-------------|
 | `SUPABASE_URL` | Project URL (Settings → API) |
 | `SUPABASE_ANON_KEY` | Clave **anon / public** (JWT o publishable) |
-| `ADMIN_WHATSAPP_DIGITS` | Solo dígitos con código de país (ej. `573026661995`) |
+| `ADMIN_WHATSAPP_DIGITS` | Solo dígitos con código de país (ej. `573026691995`) |
 | `ADMIN_SYNC_SECRET` | Mismo texto que `v_expected` en `backend/sql/005_admin_list_reservas.sql` (tras cambiarlo en el SQL y ejecutarlo en Supabase) |
 
 Luego **Actions → Deploy GitHub Pages → Run workflow** (o un push a `main`). El workflow **sobrescribe** `frontend/rentals-config.js` en el artefacto con esos valores.

@@ -1,5 +1,5 @@
-import { applyI18nToDom, bindLangControls } from "./i18n.js?v=2026-04-16-6";
-import { ASSET_V } from "./asset-version.js?v=2026-04-16-6";
+import { applyI18nToDom, bindLangControls } from "./i18n.js?v=2026-04-16-7";
+import { ASSET_V } from "./asset-version.js?v=2026-04-16-7";
 
 function $(sel) {
   return document.querySelector(sel);

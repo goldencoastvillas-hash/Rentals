@@ -9,7 +9,7 @@
 window.RENTALS_CONFIG = {
   supabaseUrl: "https://yxhogojcagmloetoivgv.supabase.co",
   supabaseAnonKey: "sb_publishable_QfbTgDu7pnaqEV4GUCtaUg_RxqyagcX",
-  adminWhatsappDigits: "573026661995",
+  adminWhatsappDigits: "573026691995",
   adminSyncSecret: "",
   airbnbUrl: "https://airbnb.com.co/h/goldencoastvillas",
 };

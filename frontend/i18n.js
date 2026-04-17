@@ -1,5 +1,5 @@
-import { STRINGS } from "./i18n-strings.js?v=2026-04-16-6";
-import { NOSOTROS_HTML } from "./i18n-nosotros.js?v=2026-04-16-6";
+import { STRINGS } from "./i18n-strings.js?v=2026-04-16-7";
+import { NOSOTROS_HTML } from "./i18n-nosotros.js?v=2026-04-16-7";
 
 const STORAGE_KEY = "rentals_lang";
 
@@ -94,9 +94,6 @@ export function applyI18nToDom() {
       n.textContent = y;
     });
   }
-
-  const demo = document.getElementById("admin-login-demo");
-  if (demo) demo.innerHTML = t("adminLogin.demo");
 }
 
 export function bindLangControls() {
