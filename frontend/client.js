@@ -2,7 +2,7 @@ import { getClient, adminWhatsappDigits } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { mountGallery } from "./ui-gallery.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t, tInmueble } from "./i18n.js?v=2026-04-16-4";
+import { t, tInmueble } from "./i18n.js?v=2026-04-16-5";
 
 function $(sel) {
   return document.querySelector(sel);

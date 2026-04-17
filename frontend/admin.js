@@ -1,7 +1,7 @@
 import { getClient } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t, getLang, tEstado, tTipo, applyI18nToDom } from "./i18n.js?v=2026-04-16-4";
+import { t, getLang, tEstado, tTipo, applyI18nToDom } from "./i18n.js?v=2026-04-16-5";
 
 function $(sel) {
   return document.querySelector(sel);

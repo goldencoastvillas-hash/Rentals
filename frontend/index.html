@@ -184,6 +184,24 @@
         box-shadow: 0 3px 14px rgba(201, 162, 39, 0.25);
       }
 
+      /* Airbnb en barra: oro más vivo (evita aspecto “amarillo gris”) */
+      a.nav-btn--airbnb {
+        text-decoration: none;
+        background: linear-gradient(180deg, #f5d55a 0%, #d4af37 45%, #b8890f 100%);
+        color: #141008;
+        border: 1px solid rgba(100, 70, 0, 0.38);
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.4) inset,
+          0 4px 16px rgba(184, 137, 15, 0.38);
+        font-weight: 700;
+      }
+      a.nav-btn--airbnb:hover {
+        color: #0a0600;
+        filter: brightness(1.05);
+        text-decoration: none;
+        border-color: rgba(70, 48, 0, 0.5);
+      }
+
       .page-inner {
         max-width: 1100px;
         margin: 0 auto;
@@ -1116,7 +1134,14 @@
           <button type="button" class="nav-btn" data-nav="home" data-i18n="nav.home">Inicio</button>
           <button type="button" class="nav-btn" data-nav="nosotros" data-i18n="nav.about">Nosotros</button>
           <button type="button" class="nav-btn" data-nav="servicios" data-i18n="nav.services">Servicios</button>
-          <a class="nav-btn nav-btn--gold" id="airbnb-link" href="#" target="_blank" rel="noreferrer" data-i18n="nav.airbnb">Airbnb</a>
+          <a
+            class="nav-btn nav-btn--airbnb"
+            id="airbnb-link"
+            href="https://airbnb.com.co/h/goldencoastvillas"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-i18n="nav.airbnb"
+            >Airbnb</a>
           <button type="button" class="nav-btn nav-btn--accent" data-nav="admin-login" data-i18n="nav.admin">Admin</button>
         </nav>
       </div>
@@ -1346,8 +1371,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=2026-04-16-4"></script>
-    <script type="module" src="app.js?v=2026-04-16-4"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-16-5"></script>
+    <script type="module" src="app.js?v=2026-04-16-5"></script>
   </body>
 </html>
 

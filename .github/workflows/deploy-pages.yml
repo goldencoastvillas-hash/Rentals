@@ -37,6 +37,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require("fs");
+          const cfgPath = "frontend/rentals-config.js";
           const supaUrl = (process.env.SUPABASE_URL || "").trim();
           const supaAnon = (process.env.SUPABASE_ANON_KEY || "").trim();
 
@@ -46,20 +47,27 @@ jobs:
             process.exit(0);
           }
 
+          let repoAirbnb = "";
+          try {
+            const old = fs.readFileSync(cfgPath, "utf8");
+            const m = old.match(/airbnbUrl:\s*"([^"]*)"/);
+            if (m && m[1]) repoAirbnb = m[1].trim();
+          } catch (_e) {}
+
+          const secretAirbnb = (process.env.AIRBNB_URL || "").trim();
+          const airbnbUrl = secretAirbnb || repoAirbnb;
+
           const wa = (process.env.ADMIN_WHATSAPP_DIGITS || "573026661995").replace(/\D/g, "") || "573026661995";
           const cfg = {
             supabaseUrl: supaUrl,
             supabaseAnonKey: supaAnon,
             adminWhatsappDigits: wa,
             adminSyncSecret: (process.env.ADMIN_SYNC_SECRET || "").trim(),
-            airbnbUrl: (process.env.AIRBNB_URL || "").trim(),
+            airbnbUrl,
           };
           const hdr =
             "/** Generado en GitHub Actions desde Repository secrets (no commitear claves en el repo). */\n";
-          fs.writeFileSync(
-            "frontend/rentals-config.js",
-            hdr + "window.RENTALS_CONFIG = " + JSON.stringify(cfg, null, 2) + ";\n"
-          );
+          fs.writeFileSync(cfgPath, hdr + "window.RENTALS_CONFIG = " + JSON.stringify(cfg, null, 2) + ";\n");
           NODE
 
       - name: Configure Pages

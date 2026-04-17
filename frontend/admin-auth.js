@@ -1,5 +1,5 @@
 import { isConfigured, rpcAdminLogin } from "./rentals-supabase.js";
-import { t } from "./i18n.js?v=2026-04-16-4";
+import { t } from "./i18n.js?v=2026-04-16-5";
 
 function $(sel) {
   return document.querySelector(sel);

@@ -1,5 +1,5 @@
-import { applyI18nToDom, bindLangControls } from "./i18n.js?v=2026-04-16-4";
-import { ASSET_V } from "./asset-version.js?v=2026-04-16-4";
+import { applyI18nToDom, bindLangControls } from "./i18n.js?v=2026-04-16-5";
+import { ASSET_V } from "./asset-version.js?v=2026-04-16-5";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -42,15 +42,19 @@ window.RentalsApp = {
   current: () => routeFromHash(),
 };
 
+/** Misma URL que en index.html / rentals-config; sirve si el deploy deja airbnbUrl vacío. */
+const DEFAULT_AIRBNB_HREF = "https://airbnb.com.co/h/goldencoastvillas";
+
 function applyConfigToUI() {
   const cfg = window.RENTALS_CONFIG || {};
   const airbnbLink = $("#airbnb-link");
   if (airbnbLink) {
-    const url = (cfg.airbnbUrl || "").trim();
-    airbnbLink.href = url || "#";
-    airbnbLink.style.pointerEvents = url ? "auto" : "none";
-    airbnbLink.style.opacity = url ? "1" : "0.55";
-    airbnbLink.title = url ? "Ver en Airbnb" : "Configura AIRBNB_URL en el deploy";
+    const fromCfg = (cfg.airbnbUrl || "").trim();
+    const url = fromCfg || DEFAULT_AIRBNB_HREF;
+    airbnbLink.href = url;
+    airbnbLink.style.pointerEvents = "auto";
+    airbnbLink.style.opacity = "1";
+    airbnbLink.title = "Airbnb — Golden Coast Villas";
   }
 }
 
@@ -71,11 +75,11 @@ function bindNav() {
 }
 
 function init() {
-  applyConfigToUI();
   showFileWarningIfNeeded();
   bindNav();
   applyI18nToDom();
   bindLangControls();
+  applyConfigToUI();
 
   const year = $("#year");
   if (year) year.textContent = String(new Date().getFullYear());
@@ -88,6 +92,8 @@ function init() {
 
   window.addEventListener("hashchange", () => setActiveView(routeFromHash()));
   setActiveView(routeFromHash());
+
+  window.addEventListener("rentals-lang-change", () => applyConfigToUI());
 }
 
 init();
