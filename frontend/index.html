@@ -323,8 +323,20 @@
         width: min(520px, 92vw);
       }
 
-      .admin-table {
+      /* Tablas admin: scroll horizontal en pantallas estrechas */
+      #admin-table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        margin-top: 0.75rem;
+        border-radius: 16px;
+        scrollbar-width: thin;
+      }
+
+      #admin-root .admin-table {
         width: 100%;
+        min-width: 720px;
         border-collapse: collapse;
         background: var(--surface);
         border: 1px solid rgba(0, 109, 119, 0.14);
@@ -395,6 +407,34 @@
 
       #view-admin .page-inner {
         padding-bottom: 4rem;
+        padding-left: clamp(0.75rem, 3vw, 1.25rem);
+        padding-right: clamp(0.75rem, 3vw, 1.25rem);
+      }
+
+      .admin-panel-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .admin-panel-bar__nav,
+      .admin-panel-bar__session {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      #admin-whoami {
+        max-width: 100%;
+        word-break: break-word;
+      }
+
+      /* Mapa admin: altura fluida (evita 520px fijos en móvil) */
+      #admin-map.map-box {
+        height: min(520px, 62vh);
       }
 
       .menu-panel.is-open {
@@ -873,6 +913,21 @@
         .admin-form-grid .span-2 {
           grid-column: auto;
         }
+        .admin-toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .admin-toolbar .left,
+        .admin-toolbar .right {
+          width: 100%;
+          justify-content: flex-start;
+        }
+        .admin-toolbar input[type="search"] {
+          width: 100%;
+        }
+        #admin-root .admin-table {
+          min-width: 600px;
+        }
         .cards-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -894,6 +949,56 @@
         }
         .amenities-grid {
           grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        #admin-map.map-box {
+          height: min(400px, 52vh);
+        }
+        #admin-root .admin-table {
+          min-width: 560px;
+        }
+        .admin-table th,
+        .admin-table td {
+          padding: 0.55rem 0.5rem;
+          font-size: 0.88rem;
+        }
+        .cal-dow {
+          padding: 0.4rem 0.2rem;
+          font-size: 0.68rem;
+        }
+        .cal-day {
+          padding: 0.5rem 0.2rem;
+          font-size: 0.8rem;
+        }
+        .modal-panel {
+          width: calc(100vw - 1rem);
+          max-height: min(88vh, 900px);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .admin-panel-bar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .admin-panel-bar__nav,
+        .admin-panel-bar__session {
+          justify-content: center;
+        }
+        #admin-whoami {
+          text-align: center;
+          width: 100%;
+        }
+        #view-admin h1 {
+          font-size: clamp(1.35rem, 5vw, 1.75rem);
+        }
+        .login-box {
+          padding: 1rem 0.85rem;
+          margin-left: 0;
+          margin-right: 0;
+          max-width: none;
         }
       }
 
@@ -1353,14 +1458,14 @@
       <div class="page-inner">
         <h1 data-i18n="adminPanel.title">Panel admin</h1>
         <div class="card">
-          <div class="card-inner" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between">
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center">
+          <div class="card-inner admin-panel-bar">
+            <div class="admin-panel-bar__nav">
               <button type="button" class="nav-btn nav-btn--accent" id="admin-nav-casas" data-i18n="adminPanel.casas">Casas</button>
               <button type="button" class="nav-btn" id="admin-nav-carros" data-i18n="adminPanel.carros">Carros</button>
               <button type="button" class="nav-btn" id="admin-nav-reservas" data-i18n="adminPanel.reservas">Reservas</button>
               <button type="button" class="nav-btn" id="admin-nav-mapa" data-i18n="adminPanel.mapa">Mapa</button>
             </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center">
+            <div class="admin-panel-bar__session">
               <span class="muted" id="admin-whoami" style="font-size: 0.9rem"></span>
               <button type="button" class="nav-btn" id="admin-logout" data-i18n="adminPanel.salir">Salir</button>
             </div>
@@ -1380,8 +1485,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=2026-04-16-7"></script>
-    <script type="module" src="app.js?v=2026-04-16-7"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-16-8"></script>
+    <script type="module" src="app.js?v=2026-04-16-8"></script>
   </body>
 </html>
 

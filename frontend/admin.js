@@ -1,7 +1,7 @@
 import { getClient } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t, getLang, tEstado, tTipo, applyI18nToDom } from "./i18n.js?v=2026-04-16-7";
+import { t, getLang, tEstado, tTipo, applyI18nToDom } from "./i18n.js?v=2026-04-16-8";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -121,7 +121,7 @@ function renderAdminShell(root) {
         </div>
 
         <div id="admin-form-wrap" class="admin-form" style="display:none"></div>
-        <div id="admin-table-wrap" style="margin-top:0.75rem"></div>
+        <div id="admin-table-wrap"></div>
 
         <div class="admin-toolbar" style="margin-top:0.75rem">
           <div class="left muted" id="admin-page-info" style="font-size:0.9rem"></div>
@@ -904,7 +904,7 @@ async function renderMapaAdmin(_root, state, { showCatalog } = {}) {
     <div class="card" style="box-shadow:none">
       <div class="card-inner">
         <div class="muted" style="margin-bottom:0.5rem">${escapeHtml(t("admin.map.hint"))}</div>
-        <div id="admin-map" class="map-box" style="height:520px"></div>
+        <div id="admin-map" class="map-box"></div>
       </div>
     </div>
   `;
