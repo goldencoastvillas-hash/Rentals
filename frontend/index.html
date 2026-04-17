@@ -311,7 +311,8 @@
         background: var(--surface);
         border: 1px solid rgba(0, 109, 119, 0.14);
         border-radius: 16px;
-        overflow: hidden;
+        /* visible: no recortar últimas filas ni menús ⋯ (hidden cortaba el panel) */
+        overflow: visible;
       }
 
       .admin-table th,
@@ -363,6 +364,19 @@
         padding: 0.35rem;
         display: none;
         z-index: 20;
+      }
+
+      /* Panel admin: las .card no deben recortar tablas ni menús desplegables */
+      #admin-root .card {
+        overflow: visible;
+      }
+
+      #admin-root .menu-panel {
+        z-index: 120;
+      }
+
+      #view-admin .page-inner {
+        padding-bottom: 4rem;
       }
 
       .menu-panel.is-open {
