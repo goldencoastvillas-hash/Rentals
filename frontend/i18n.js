@@ -1,5 +1,5 @@
-import { STRINGS } from "./i18n-strings.js?v=2026-04-16-5";
-import { NOSOTROS_HTML } from "./i18n-nosotros.js?v=2026-04-16-5";
+import { STRINGS } from "./i18n-strings.js?v=2026-04-16-6";
+import { NOSOTROS_HTML } from "./i18n-nosotros.js?v=2026-04-16-6";
 
 const STORAGE_KEY = "rentals_lang";
 

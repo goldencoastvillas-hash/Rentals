@@ -2,7 +2,7 @@ import { getClient, adminWhatsappDigits } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { mountGallery } from "./ui-gallery.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t, tInmueble } from "./i18n.js?v=2026-04-16-5";
+import { t, tInmueble } from "./i18n.js?v=2026-04-16-6";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -619,15 +619,8 @@ function sortLuxuryFirst(rows) {
   return copy;
 }
 
-function collectHomeCarouselUrls(pubCasas, pubCarros) {
-  const out = [];
-  sortLuxuryFirst(pubCasas).forEach((c) => {
-    (Array.isArray(c.fotos_urls) ? c.fotos_urls : []).forEach((u) => out.push(u));
-  });
-  (pubCarros || []).forEach((c) => {
-    (Array.isArray(c.fotos_urls) ? c.fotos_urls : []).forEach((u) => out.push(u));
-  });
-  const norm = normalizePhotoUrls(out);
+function uniqPhotoUrls(urls, max) {
+  const norm = normalizePhotoUrls(urls || []);
   const seen = new Set();
   const uniq = [];
   norm.forEach((u) => {
@@ -635,7 +628,33 @@ function collectHomeCarouselUrls(pubCasas, pubCarros) {
     seen.add(u);
     uniq.push(u);
   });
-  return uniq.slice(0, 18);
+  return uniq.slice(0, max);
+}
+
+function sortCarrosLuxuryFirst(rows) {
+  const copy = [...(rows || [])];
+  const lux = (r) =>
+    /luxury|lujo|luxe|bmw|mercedes|benz|audi|porsche|porche|ferrari|lambo|lamborghini|tesla|cadillac|range|maserati|rolls|bentley/i.test(
+      `${String(r.marca || "")} ${String(r.tipo || "")}`
+    );
+  copy.sort((a, b) => Number(lux(b)) - Number(lux(a)));
+  return copy;
+}
+
+function collectHomeCasasCarouselUrls(pubCasas) {
+  const out = [];
+  sortLuxuryFirst(pubCasas).forEach((c) => {
+    (Array.isArray(c.fotos_urls) ? c.fotos_urls : []).forEach((u) => out.push(u));
+  });
+  return uniqPhotoUrls(out, 18);
+}
+
+function collectHomeCarrosCarouselUrls(pubCarros) {
+  const out = [];
+  sortCarrosLuxuryFirst(pubCarros).forEach((c) => {
+    (Array.isArray(c.fotos_urls) ? c.fotos_urls : []).forEach((u) => out.push(u));
+  });
+  return uniqPhotoUrls(out, 18);
 }
 
 async function renderHomePageBlocks() {
@@ -689,13 +708,23 @@ async function renderHomePageBlocks() {
     `;
     }
 
+    const carsCarouselMount = $("#home-carros-carousel");
     if (carouselMount) {
       carouselMount.innerHTML = "";
-      const slides = collectHomeCarouselUrls(pubCasas, pubCarros);
-      if (slides.length) {
-        carouselMount.appendChild(mountGallery(slides));
+      const slidesCasas = collectHomeCasasCarouselUrls(pubCasas);
+      if (slidesCasas.length) {
+        carouselMount.appendChild(mountGallery(slidesCasas));
       } else {
         carouselMount.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("featured.carouselEmpty"))}</div></div>`;
+      }
+    }
+    if (carsCarouselMount) {
+      carsCarouselMount.innerHTML = "";
+      const slidesCarros = collectHomeCarrosCarouselUrls(pubCarros);
+      if (slidesCarros.length) {
+        carsCarouselMount.appendChild(mountGallery(slidesCarros));
+      } else {
+        carsCarouselMount.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("featured.carouselEmptyCars"))}</div></div>`;
       }
     }
   } catch (_e) {
@@ -713,6 +742,10 @@ async function renderHomePageBlocks() {
     }
     if (carouselMount) {
       carouselMount.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("featured.supabase"))}</div></div>`;
+    }
+    const carsCarouselMountErr = $("#home-carros-carousel");
+    if (carsCarouselMountErr) {
+      carsCarouselMountErr.innerHTML = `<div class="card"><div class="card-inner muted">${escapeHtml(t("featured.supabase"))}</div></div>`;
     }
   }
 }

@@ -808,6 +808,10 @@
         margin-top: 1.25rem;
       }
 
+      .home-carousel-section + .home-carousel-section {
+        margin-top: 1.85rem;
+      }
+
       .home-carousel-mount .gallery-slide img {
         height: 380px;
       }
@@ -1192,9 +1196,15 @@
         </div>
 
         <div class="home-carousel-section">
-          <h2 class="section-title" data-i18n="home.section.carousel">Galería</h2>
-          <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.carousel.hint">Desliza o usa las flechas · prioridad lujo</p>
+          <h2 class="section-title" data-i18n="home.section.carousel">Casas</h2>
+          <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.carousel.hint">Desliza o usa las flechas · villas de lujo</p>
           <div id="home-luxury-carousel" class="home-carousel-mount"></div>
+        </div>
+
+        <div class="home-carousel-section">
+          <h2 class="section-title" data-i18n="home.section.carouselCars">Carros</h2>
+          <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.carouselCars.hint">Desliza o usa las flechas · catálogo de autos</p>
+          <div id="home-carros-carousel" class="home-carousel-mount"></div>
         </div>
 
         <h2 class="section-title" data-i18n="home.section.featured">Destacados</h2>
@@ -1371,8 +1381,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=2026-04-16-5"></script>
-    <script type="module" src="app.js?v=2026-04-16-5"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-16-6"></script>
+    <script type="module" src="app.js?v=2026-04-16-6"></script>
   </body>
 </html>
 
