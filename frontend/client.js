@@ -233,6 +233,45 @@ function parseISODate(s) {
   return dt;
 }
 
+function navigateToRoute(route) {
+  try {
+    if (window.RentalsApp && typeof window.RentalsApp.go === "function") {
+      window.RentalsApp.go(route);
+      return;
+    }
+  } catch (_e) {}
+  location.hash = route;
+}
+
+/** Evita doble disparo touch+click en iOS y asegura respuesta al toque. */
+function bindTap(el, handler) {
+  if (!el) return;
+  let lastTouch = 0;
+  el.addEventListener(
+    "touchend",
+    (e) => {
+      lastTouch = Date.now();
+      e.preventDefault();
+      handler(e);
+    },
+    { passive: false }
+  );
+  el.addEventListener("click", (e) => {
+    if (Date.now() - lastTouch < 450) {
+      e.preventDefault();
+      return;
+    }
+    handler(e);
+  });
+}
+
+function tryPlayHomeHeroVideo() {
+  const v = document.querySelector("#view-home .hero-video__media");
+  if (!v || typeof v.play !== "function") return;
+  const p = v.play();
+  if (p && typeof p.catch === "function") p.catch(() => {});
+}
+
 function bindHomeSearch() {
   const form = $("#home-search");
   if (!form) return;
@@ -298,22 +337,22 @@ function bindHomeSearch() {
   form.addEventListener("input", () => snapshot());
   form.addEventListener("change", () => snapshot());
 
-  dec.addEventListener("click", () => {
+  bindTap(dec, () => {
     guests.value = String(Math.max(1, Number(guests.value || 1) - 1));
     snapshot();
   });
-  inc.addEventListener("click", () => {
+  bindTap(inc, () => {
     guests.value = String(Math.max(1, Number(guests.value || 1) + 1));
     snapshot();
   });
 
-  btnCasas.addEventListener("click", () => {
+  bindTap(btnCasas, () => {
     snapshot();
-    window.RentalsApp?.go?.("casas");
+    navigateToRoute("casas");
   });
-  btnCarros.addEventListener("click", () => {
+  bindTap(btnCarros, () => {
     snapshot();
-    window.RentalsApp?.go?.("carros");
+    navigateToRoute("carros");
   });
 }
 
@@ -876,6 +915,14 @@ async function renderHomePageBlocks() {
 export async function initClient() {
   initModal();
   bindHomeSearch();
+  tryPlayHomeHeroVideo();
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (!document.hidden) tryPlayHomeHeroVideo();
+    },
+    { passive: true }
+  );
   await renderHomePageBlocks();
   const casasState = { rows: [], q: "", tipo: "", hab: 0, precioMax: null, mascotas: "" };
   const carrosState = { rows: [], q: "", tipo: "", cil: "", puestos: 1 };

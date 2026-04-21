@@ -43,6 +43,7 @@
         color: var(--text);
         line-height: 1.5;
         min-height: 100vh;
+        overflow-x: hidden;
       }
 
       body.modal-open {
@@ -217,14 +218,25 @@
         border: 1px solid rgba(0, 109, 119, 0.18);
       }
 
-      /* Hero con video + buscador (Inicio) */
+      /* Hero cinematográfico (ancho completo, estilo referencia tipo Rivage) */
+      .home-hero-cinematic-wrap {
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        overflow: hidden;
+      }
+
       .hero.hero-video {
         position: relative;
         padding: 0;
         overflow: hidden;
-        min-height: clamp(320px, 48vh, 520px);
-        background: #0b2430;
-        border-color: rgba(0, 0, 0, 0.14);
+        margin-top: 0;
+        border-radius: 0;
+        min-height: clamp(420px, 72vh, 820px);
+        background: #0a1620;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .hero-video__media {
@@ -233,44 +245,68 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transform: scale(1.02);
-        filter: saturate(1.05) contrast(1.02);
+        transform: scale(1.04);
+        filter: saturate(1.12) contrast(1.06) brightness(1.02);
       }
 
       .hero-video__overlay {
         position: absolute;
         inset: 0;
+        z-index: 1;
         background:
-          radial-gradient(820px 440px at 50% 42%, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.68) 60%, rgba(0, 0, 0, 0.76) 100%),
-          linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0.65) 100%);
+          radial-gradient(ellipse 120% 85% at 50% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 52%),
+          radial-gradient(ellipse 90% 70% at 50% 18%, rgba(255, 210, 120, 0.12) 0%, transparent 45%),
+          linear-gradient(180deg, rgba(8, 22, 32, 0.25) 0%, rgba(8, 22, 32, 0.5) 45%, rgba(4, 12, 20, 0.78) 100%);
       }
 
       .hero-video__content {
         position: relative;
         z-index: 2;
         height: 100%;
-        padding: clamp(1rem, 3.2vw, 2rem);
+        min-height: inherit;
+        padding: clamp(2.5rem, 8vh, 5rem) clamp(1rem, 4vw, 2.5rem);
         display: flex;
         align-items: center;
         justify-content: center;
       }
 
       .hero-video__stack {
-        width: min(980px, 100%);
+        width: min(920px, 100%);
         text-align: center;
       }
 
-      .hero-video__title {
-        margin: 0 0 1.05rem;
+      .hero-video__brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
         color: #fff;
-        font-weight: 800;
-        letter-spacing: 0.01em;
-        font-size: clamp(2.05rem, 4.2vw, 3.35rem);
-        text-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+        text-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+      }
+
+      .hero-video__brand-line1 {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        font-size: clamp(2.35rem, 6.5vw, 4.15rem);
+        line-height: 1.05;
+      }
+
+      .hero-video__brand-line2 {
+        margin: 0;
+        font-family: var(--font-sans);
+        font-weight: 600;
+        letter-spacing: 0.38em;
+        font-size: clamp(0.68rem, 1.6vw, 0.82rem);
+        text-transform: uppercase;
+        opacity: 0.92;
       }
 
       .home-search-section {
         margin-top: 1.1rem;
+        position: relative;
+        z-index: 2;
       }
 
       .home-search {
@@ -281,6 +317,7 @@
         background: var(--surface);
         border: 1px solid rgba(0, 109, 119, 0.18);
         box-shadow: 0 14px 50px rgba(26, 51, 56, 0.12);
+        touch-action: manipulation;
       }
 
       .home-search__grid {
@@ -300,8 +337,7 @@
         text-align: left;
       }
 
-      .home-field select,
-      .home-field input {
+      .home-field select {
         width: 100%;
         border-radius: 14px;
         border: 1px solid rgba(0, 109, 119, 0.18);
@@ -313,21 +349,102 @@
         outline: none;
       }
 
-      .home-field select:focus,
-      .home-field input:focus {
+      .home-field select:focus {
+        box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.18);
+        border-color: rgba(201, 162, 39, 0.55);
+      }
+
+      /* Fechas: contenedor más “premium” (el picker nativo sigue siendo del SO) */
+      .home-date-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 16px;
+        padding: 0.1rem 0.1rem 0.1rem 0.65rem;
+        background: linear-gradient(135deg, rgba(0, 109, 119, 0.12), rgba(201, 162, 39, 0.14));
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.65) inset,
+          0 10px 26px rgba(26, 51, 56, 0.08);
+      }
+      .home-date-wrap::after {
+        content: "";
+        position: absolute;
+        inset: 1px;
+        border-radius: 15px;
+        background: #fff;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .home-date-icon {
+        position: relative;
+        z-index: 1;
+        flex: 0 0 auto;
+        font-size: 1rem;
+        line-height: 1;
+        opacity: 0.85;
+      }
+      .home-date-wrap input[type="date"] {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        padding: 0.72rem 0.65rem 0.72rem 0.15rem;
+        font: inherit;
+        font-weight: 700;
+        color: #0f2a31;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .home-date-wrap input[type="date"]:focus {
+        box-shadow: none;
+      }
+      .home-date-wrap:focus-within {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.65) inset,
+          0 10px 26px rgba(26, 51, 56, 0.08),
+          0 0 0 4px rgba(201, 162, 39, 0.2);
+      }
+
+      .home-stepper input[type="number"] {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        background: #fff;
+        padding: 0.8rem 0.5rem;
+        font: inherit;
+        font-weight: 700;
+        color: #0f2a31;
+        text-align: center;
+        outline: none;
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+      .home-stepper input[type="number"]::-webkit-outer-spin-button,
+      .home-stepper input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .home-stepper input[type="number"]:focus {
         box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.18);
         border-color: rgba(201, 162, 39, 0.55);
       }
 
       .home-stepper {
         display: grid;
-        grid-template-columns: 44px 1fr 44px;
+        grid-template-columns: 48px 1fr 48px;
         gap: 0.5rem;
         align-items: center;
       }
 
       .step-btn {
-        height: 44px;
+        position: relative;
+        z-index: 2;
+        height: 48px;
+        min-width: 48px;
         border-radius: 14px;
         border: 1px solid rgba(0, 109, 119, 0.18);
         background: rgba(0, 109, 119, 0.06);
@@ -335,6 +452,8 @@
         font: inherit;
         font-weight: 900;
         color: var(--accent-deep);
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .step-btn:hover {
@@ -354,20 +473,27 @@
         color: #0f2a31;
         font-weight: 700;
         text-align: left;
-        height: 44px;
+        min-height: 48px;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .toggle-switch {
         position: relative;
-        width: 46px;
-        height: 26px;
+        width: 50px;
+        height: 30px;
         flex: 0 0 auto;
       }
       .toggle-switch input {
         position: absolute;
         inset: 0;
-        opacity: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0.04;
         cursor: pointer;
+        z-index: 3;
       }
       .toggle-switch .track {
         position: absolute;
@@ -376,17 +502,21 @@
         background: rgba(90, 109, 114, 0.35);
         box-shadow: inset 0 0 0 1px rgba(15, 42, 49, 0.18);
         transition: 150ms ease;
+        pointer-events: none;
+        z-index: 1;
       }
       .toggle-switch .knob {
         position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 20px;
-        height: 20px;
+        top: 4px;
+        left: 4px;
+        width: 22px;
+        height: 22px;
         border-radius: 999px;
         background: #fff;
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         transition: 150ms ease;
+        pointer-events: none;
+        z-index: 2;
       }
       .toggle-switch input:checked + .track {
         background: rgba(0, 109, 119, 0.85);
@@ -411,6 +541,8 @@
         font: inherit;
         font-weight: 800;
         letter-spacing: 0.01em;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .home-search__actions .btn-casas {
@@ -431,16 +563,13 @@
       }
       @media (max-width: 560px) {
         .hero.hero-video {
-          min-height: clamp(300px, 44vh, 440px);
+          min-height: clamp(360px, 62vh, 640px);
         }
         .home-search__grid {
           grid-template-columns: 1fr;
         }
         .home-search__actions {
           grid-template-columns: 1fr;
-        }
-        .hero-video__title {
-          margin-bottom: 0.85rem;
         }
       }
 
@@ -1487,20 +1616,25 @@
 
     <!-- Inicio -->
     <section id="view-home" class="view is-active" data-i18n-aria-label="nav.home" aria-label="Inicio">
-      <div class="page-inner">
-        <div class="hero hero-video" aria-label="Búsqueda principal">
-          <video class="hero-video__media" autoplay muted loop playsinline preload="metadata" poster="">
+      <div class="home-hero-cinematic-wrap">
+        <div class="hero hero-video" aria-label="Video principal">
+          <video class="hero-video__media" autoplay muted loop playsinline preload="auto" poster="">
             <source src="assets/hero-beach.mp4" type="video/mp4" />
-            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+            <source src="https://videos.pexels.com/video-files/4278291/4278291-sd_640_360_30fps.mp4" type="video/mp4" />
           </video>
           <div class="hero-video__overlay" aria-hidden="true"></div>
           <div class="hero-video__content">
             <div class="hero-video__stack">
-              <h1 class="hero-video__title">Golden Coast Villas Miami</h1>
+              <div class="hero-video__brand">
+                <p class="hero-video__brand-line1">Golden Coast Villas</p>
+                <p class="hero-video__brand-line2">Miami · South Florida</p>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
+      <div class="page-inner">
         <div class="home-search-section">
           <form id="home-search" class="home-search" autocomplete="off" aria-label="Buscar disponibilidad">
             <div class="home-search__grid">
@@ -1512,29 +1646,34 @@
               </div>
               <div class="home-field">
                 <label for="home-checkin">Check in</label>
-                <input id="home-checkin" name="checkin" type="date" />
+                <div class="home-date-wrap">
+                  <span class="home-date-icon" aria-hidden="true">📅</span>
+                  <input id="home-checkin" name="checkin" type="date" />
+                </div>
               </div>
               <div class="home-field">
                 <label for="home-checkout">Check out</label>
-                <input id="home-checkout" name="checkout" type="date" />
+                <div class="home-date-wrap">
+                  <span class="home-date-icon" aria-hidden="true">📅</span>
+                  <input id="home-checkout" name="checkout" type="date" />
+                </div>
               </div>
               <div class="home-field">
                 <label for="home-guests">Huéspedes</label>
                 <div class="home-stepper">
                   <button type="button" class="step-btn" id="home-guests-dec" aria-label="Disminuir huéspedes">−</button>
-                  <input id="home-guests" name="huespedes" type="number" min="1" step="1" value="1" />
+                  <input id="home-guests" name="huespedes" type="number" min="1" step="1" value="1" inputmode="numeric" />
                   <button type="button" class="step-btn" id="home-guests-inc" aria-label="Aumentar huéspedes">+</button>
                 </div>
               </div>
               <div class="home-field" style="grid-column: 1 / -1">
-                <label style="opacity:0; height:0; margin:0; overflow:hidden" aria-hidden="true">Mascotas</label>
-                <div class="home-toggle">
+                <label class="home-toggle" for="home-pets">
                   <span>¿Incluye mascotas?</span>
-                  <span class="toggle-switch" aria-label="Incluye mascotas">
-                    <input id="home-pets" name="mascotas" type="checkbox" />
+                  <span class="toggle-switch">
+                    <input id="home-pets" name="mascotas" type="checkbox" aria-label="Incluye mascotas" />
                     <span class="track"><span class="knob"></span></span>
                   </span>
-                </div>
+                </label>
               </div>
             </div>
             <div class="home-search__actions">
@@ -1542,46 +1681,6 @@
               <button type="button" class="btn-carros" id="home-search-carros">Buscar carros</button>
             </div>
           </form>
-        </div>
-
-        <!-- Sección original del Inicio (restaurada) -->
-        <div class="hero" aria-label="Introducción">
-          <div class="hero-grid">
-            <div>
-              <p class="muted" style="margin: 0; font-weight: 800; color: var(--accent)" data-i18n="home.brand">Golden Coast Villas Miami</p>
-              <h1 data-i18n="home.hero.title">Villas exclusivas y carros de lujo en Miami</h1>
-              <p data-i18n="home.hero.lead">
-                En Golden Coast Villas Miami el lujo es una experiencia: propiedades premium, movilidad de alto nivel y un equipo que cuida
-                cada detalle antes de tu llegada.
-              </p>
-              <div class="hero-cta">
-                <a class="cta-pill" href="#" data-nav="servicios" role="button" data-i18n="home.hero.cta.casas">Ver casas</a>
-                <a class="cta-pill cta-pill--gold" href="#" data-nav="servicios" role="button" data-i18n="home.hero.cta.carros">Ver carros</a>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-inner">
-                <h3 style="margin: 0 0 0.35rem" data-i18n="home.avail.title">Disponible hoy</h3>
-                <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.avail.lead">
-                  Explora nuestro catálogo. Reserva en línea y confirma por WhatsApp.
-                </p>
-                <div class="grid-2">
-                  <div class="card" style="box-shadow: none">
-                    <div class="card-inner">
-                      <strong data-i18n="home.avail.casas.title">Casas</strong>
-                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.casas.sub">Mapa + filtros tipo Airbnb</div>
-                    </div>
-                  </div>
-                  <div class="card" style="box-shadow: none">
-                    <div class="card-inner">
-                      <strong data-i18n="home.avail.carros.title">Carros</strong>
-                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.carros.sub">Marca, cilindraje, tipo, asientos</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="home-carousel-section">
@@ -1651,7 +1750,46 @@
     <!-- Servicios (clientes) -->
     <section id="view-servicios" class="view" data-i18n-aria-label="nav.services" aria-label="Servicios">
       <div class="page-inner">
-        <h1 data-i18n="servicios.title">Servicios</h1>
+        <div class="hero" aria-label="Introducción">
+          <div class="hero-grid">
+            <div>
+              <p class="muted" style="margin: 0; font-weight: 800; color: var(--accent)" data-i18n="home.brand">Golden Coast Villas Miami</p>
+              <h1 data-i18n="home.hero.title">Villas exclusivas y carros de lujo en Miami</h1>
+              <p data-i18n="home.hero.lead">
+                En Golden Coast Villas Miami el lujo es una experiencia: propiedades premium, movilidad de alto nivel y un equipo que cuida
+                cada detalle antes de tu llegada.
+              </p>
+              <div class="hero-cta">
+                <a class="cta-pill" href="#" data-nav="casas" role="button" data-i18n="home.hero.cta.casas">Ver casas</a>
+                <a class="cta-pill cta-pill--gold" href="#" data-nav="carros" role="button" data-i18n="home.hero.cta.carros">Ver carros</a>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-inner">
+                <h3 style="margin: 0 0 0.35rem" data-i18n="home.avail.title">Disponible hoy</h3>
+                <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.avail.lead">
+                  Explora nuestro catálogo. Reserva en línea y confirma por WhatsApp.
+                </p>
+                <div class="grid-2">
+                  <div class="card" style="box-shadow: none">
+                    <div class="card-inner">
+                      <strong data-i18n="home.avail.casas.title">Casas</strong>
+                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.casas.sub">Mapa + filtros tipo Airbnb</div>
+                    </div>
+                  </div>
+                  <div class="card" style="box-shadow: none">
+                    <div class="card-inner">
+                      <strong data-i18n="home.avail.carros.title">Carros</strong>
+                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.carros.sub">Marca, cilindraje, tipo, asientos</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title" style="margin-top: 1.35rem; font-size: 1.45rem" data-i18n="servicios.title">Servicios</h2>
         <p class="muted" data-i18n="servicios.lead">Explora nuestro catálogo. Filtra, abre detalles y reserva en línea.</p>
         <div class="grid-2">
           <div class="card">
