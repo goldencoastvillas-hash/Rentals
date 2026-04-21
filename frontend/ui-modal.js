@@ -30,7 +30,16 @@ export function initModal() {
     if (c) closeModal();
   });
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
+    if (e.key !== "Escape") return;
+    const openCal = document.querySelector(".home-cal-pop.is-open");
+    if (openCal) {
+      openCal.classList.remove("is-open");
+      openCal.setAttribute("aria-hidden", "true");
+      const btn = openCal._rangeCalBtnOpen;
+      if (btn) btn.setAttribute("aria-expanded", "false");
+      return;
+    }
+    if (modal.classList.contains("is-open")) closeModal();
   });
 }
 

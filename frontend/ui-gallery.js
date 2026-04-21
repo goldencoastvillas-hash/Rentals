@@ -1,5 +1,5 @@
 import { normalizePhotoUrls } from "./url-media.js";
-import { t } from "./i18n.js?v=2026-04-16-8";
+import { t } from "./i18n.js?v=2026-04-21-3";
 
 function escAttr(s) {
   return String(s ?? "")

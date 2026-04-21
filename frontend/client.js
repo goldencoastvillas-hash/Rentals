@@ -2,7 +2,7 @@ import { getClient, adminWhatsappDigits } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { mountGallery } from "./ui-gallery.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t, tInmueble } from "./i18n.js?v=2026-04-16-8";
+import { t, tInmueble } from "./i18n.js?v=2026-04-21-3";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -315,21 +315,6 @@ async function fetchOccupiedForCatalogItem(tipo, itemId) {
   }
 }
 
-let __rangeCalEscapeInstalled = false;
-function ensureRangeCalendarEscapeHandler() {
-  if (__rangeCalEscapeInstalled) return;
-  __rangeCalEscapeInstalled = true;
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-    const openPop = document.querySelector(".home-cal-pop.is-open");
-    if (!openPop) return;
-    openPop.classList.remove("is-open");
-    openPop.setAttribute("aria-hidden", "true");
-    const btn = openPop._rangeCalBtnOpen;
-    if (btn) btn.setAttribute("aria-expanded", "false");
-  });
-}
-
 /**
  * Un solo calendario: elige entrada y luego salida.
  * Azul = noche ocupada. Dorado = rango seleccionado.
@@ -518,8 +503,6 @@ function setupRangeCalendarMount({
     if (signal.aborted) return;
     render();
   }
-
-  ensureRangeCalendarEscapeHandler();
 
   gridEl?.addEventListener(
     "click",
@@ -884,11 +867,12 @@ function openReservaForm(tipo, item) {
 
   openModal(html);
 
-  const form = $("#reserva-form");
-  const totalEl = $("#total-price");
-  const hintEl = $("#total-hint");
-  const dispReservaRange = $("#reserva-dates-display");
-  const btnReservaDates = $("#reserva-dates-open");
+  const modalBody = document.querySelector("#modal-body");
+  const form = modalBody?.querySelector("#reserva-form");
+  const totalEl = modalBody?.querySelector("#total-price");
+  const hintEl = modalBody?.querySelector("#total-hint");
+  const dispReservaRange = modalBody?.querySelector("#reserva-dates-display");
+  const btnReservaDates = modalBody?.querySelector("#reserva-dates-open");
 
   function updateReservaRangeDisplay() {
     if (!dispReservaRange || !form) return;
@@ -933,6 +917,7 @@ function openReservaForm(tipo, item) {
   updateReservaRangeDisplay();
 
   function recalc() {
+    if (!form || !totalEl || !hintEl) return { noches: 0, total: 0 };
     const d1 = parseISODate(form.desde.value);
     const d2 = parseISODate(form.hasta.value);
     if (!d1 || !d2) {
@@ -951,10 +936,12 @@ function openReservaForm(tipo, item) {
     return { noches: safeN, total };
   }
 
-  form.addEventListener("input", recalc);
-  recalc();
+  if (form) {
+    form.addEventListener("input", recalc);
+    recalc();
+  }
 
-  form.addEventListener("submit", async (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const { noches, total } = recalc();
 

@@ -433,9 +433,12 @@
       }
 
       /* Popover calendario */
-      /* Por encima del modal de reserva (z-index ~9999) */
+      /* Por encima del modal (z-index ~9999); asegura clics con body.modal-open */
       #reserva-cal-pop.home-cal-pop {
         z-index: 10050;
+      }
+      body.modal-open .home-cal-pop.is-open {
+        pointer-events: auto;
       }
 
       .home-cal-pop {
@@ -2144,8 +2147,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=2026-04-16-8"></script>
-    <script type="module" src="app.js?v=2026-04-16-8"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-21-3"></script>
+    <script type="module" src="app.js?v=2026-04-21-3"></script>
   </body>
 </html>
 
