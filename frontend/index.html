@@ -322,7 +322,7 @@
 
       .home-search__grid {
         display: grid;
-        grid-template-columns: 1.2fr 1fr 1fr 0.95fr;
+        grid-template-columns: 1.1fr 2.1fr 0.95fr;
         gap: 0.75rem;
         align-items: end;
       }
@@ -420,6 +420,9 @@
         letter-spacing: 0.01em;
         color: #0f2a31;
         line-height: 1.15;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .home-date-trigger__hint {
         font-size: 0.72rem;
@@ -496,6 +499,14 @@
         font-size: clamp(1.15rem, 3.2vw, 1.35rem);
         color: #0f2a31;
       }
+      .home-cal-pop__sub {
+        margin: 0 0 0.5rem;
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: rgba(90, 109, 114, 0.95);
+        letter-spacing: 0.02em;
+      }
       .home-cal-pop__week {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -543,17 +554,31 @@
         font-size: clamp(1rem, 2.8vw, 1.12rem);
         color: #0f2a31;
       }
-      .home-cal-day.is-checkin {
-        border-color: rgba(0, 109, 119, 0.55);
-        background: rgba(0, 109, 119, 0.12);
+      /* Rango seleccionado (dorado) */
+      .home-cal-day.is-in-range {
+        background: rgba(212, 175, 55, 0.22);
+        border-color: rgba(184, 137, 15, 0.42);
+        color: #3d3310;
       }
+      .home-cal-day.is-checkin,
       .home-cal-day.is-checkout {
-        border-color: rgba(201, 162, 39, 0.65);
-        background: rgba(201, 162, 39, 0.16);
+        background: linear-gradient(180deg, #fff6d6 0%, #f0d78a 55%, #e4c66f 100%);
+        border-color: rgba(184, 137, 15, 0.75);
+        color: #2b2410;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
+      }
+      /* Noches ya reservadas (cualquier casa) — azul */
+      .home-cal-day.is-occupied {
+        background: linear-gradient(180deg, rgba(147, 197, 253, 0.55), rgba(96, 165, 250, 0.62));
+        border-color: rgba(37, 99, 235, 0.55);
+        color: #1e3a5f;
       }
       .home-cal-day.is-disabled {
-        opacity: 0.35;
+        opacity: 0.38;
         cursor: not-allowed;
+      }
+      .home-cal-day.is-occupied.is-disabled {
+        opacity: 0.92;
       }
       .home-cal-pop__done {
         margin-top: 0.85rem;
@@ -723,7 +748,7 @@
 
       @media (max-width: 900px) {
         .home-search__grid {
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1fr;
         }
       }
       @media (max-width: 560px) {
@@ -1809,28 +1834,23 @@
                   <option value="miami">Miami</option>
                 </select>
               </div>
-              <div class="home-field">
-                <label id="home-checkin-lbl">Check in</label>
+              <div class="home-field home-field--dates">
+                <label id="home-dates-lbl">Entrada y salida</label>
                 <div class="home-date-field">
                   <input type="hidden" id="home-checkin" name="checkin" />
-                  <button type="button" class="home-date-trigger" id="home-checkin-open" aria-expanded="false" aria-haspopup="dialog" aria-labelledby="home-checkin-lbl">
-                    <span class="home-date-trigger__icon" aria-hidden="true">📅</span>
-                    <span class="home-date-trigger__main">
-                      <span class="home-date-trigger__value" id="home-checkin-display">—</span>
-                      <span class="home-date-trigger__hint">Toca para elegir</span>
-                    </span>
-                  </button>
-                </div>
-              </div>
-              <div class="home-field">
-                <label id="home-checkout-lbl">Check out</label>
-                <div class="home-date-field">
                   <input type="hidden" id="home-checkout" name="checkout" />
-                  <button type="button" class="home-date-trigger" id="home-checkout-open" aria-expanded="false" aria-haspopup="dialog" aria-labelledby="home-checkout-lbl">
+                  <button
+                    type="button"
+                    class="home-date-trigger"
+                    id="home-dates-open"
+                    aria-expanded="false"
+                    aria-haspopup="dialog"
+                    aria-labelledby="home-dates-lbl"
+                  >
                     <span class="home-date-trigger__icon" aria-hidden="true">📅</span>
                     <span class="home-date-trigger__main">
-                      <span class="home-date-trigger__value" id="home-checkout-display">—</span>
-                      <span class="home-date-trigger__hint">Toca para elegir</span>
+                      <span class="home-date-trigger__value" id="home-dates-display">—</span>
+                      <span class="home-date-trigger__hint">Un solo calendario · azul = ocupado · dorado = tu selección</span>
                     </span>
                   </button>
                 </div>
@@ -2089,6 +2109,7 @@
           <div class="home-cal-pop__title" data-home-cal-title></div>
           <button type="button" data-home-cal-next aria-label="Mes siguiente">›</button>
         </div>
+        <p class="home-cal-pop__sub" data-home-cal-sub></p>
         <div class="home-cal-pop__week" aria-hidden="true">
           <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
         </div>

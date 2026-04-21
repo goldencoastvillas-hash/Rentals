@@ -261,39 +261,109 @@ function formatDateDisplayEs(iso) {
   }
 }
 
+function cmpISODate(a, b) {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+}
+
+/** Noches ocupadas (desde inclusive, hasta exclusive) en reservas de casas. */
+function expandCasaReservationNightsToSet(desde, hasta, set) {
+  let cur = parseISODate(String(desde || "").slice(0, 10));
+  const end = parseISODate(String(hasta || "").slice(0, 10));
+  if (!cur || !end) return;
+  while (cur < end) {
+    set.add(localISODate(cur));
+    cur = addLocalDays(cur, 1);
+  }
+}
+
+async function fetchCasaOccupiedNightSet() {
+  try {
+    const client = getClient();
+    const { data, error } = await client
+      .from("reservas")
+      .select("desde, hasta, estado, tipo")
+      .eq("tipo", "casa")
+      .in("estado", ["pendiente", "aprobada"]);
+    if (error) throw error;
+    const set = new Set();
+    for (const row of data || []) {
+      expandCasaReservationNightsToSet(row.desde, row.hasta, set);
+    }
+    return set;
+  } catch (_e) {
+    return new Set();
+  }
+}
+
 /**
- * Calendario visual grande (responsive) para check-in / check-out.
- * Depende de `#home-cal-pop` en el HTML.
+ * Un solo calendario: elige entrada y luego salida.
+ * Azul = noche ya reservada (cualquier casa). Dorado = rango seleccionado.
  */
-function setupHomeCalendarPopovers(checkinHidden, checkoutHidden, dispIn, dispOut, btnIn, btnOut, snapshot) {
+function setupHomeRangeCalendar(checkinHidden, checkoutHidden, dispRange, btnOpen, snapshot, refreshRangeLabel) {
   const pop = document.getElementById("home-cal-pop");
-  if (!pop || !checkinHidden || !checkoutHidden || !btnIn || !btnOut) return;
+  if (!pop || !checkinHidden || !checkoutHidden || !btnOpen) return;
 
   const backdrop = pop.querySelector("[data-home-cal-backdrop]");
   const gridEl = pop.querySelector("[data-home-cal-grid]");
   const titleEl = pop.querySelector("[data-home-cal-title]");
+  const subEl = pop.querySelector("[data-home-cal-sub]");
   const prevBtn = pop.querySelector("[data-home-cal-prev]");
   const nextBtn = pop.querySelector("[data-home-cal-next]");
   const closeBtn = pop.querySelector("[data-home-cal-close]");
 
   let viewYear = new Date().getFullYear();
   let viewMonth = new Date().getMonth();
-  let activeField = null;
+  /** 0 = elige entrada, 1 = elige salida */
+  let phase = 0;
+  let occupiedSet = new Set();
+
+  const todayIso = localISODate(startOfLocalDay(new Date()));
 
   function closeCal() {
-    activeField = null;
     pop.classList.remove("is-open");
     pop.setAttribute("aria-hidden", "true");
-    btnIn.setAttribute("aria-expanded", "false");
-    btnOut.setAttribute("aria-expanded", "false");
+    btnOpen.setAttribute("aria-expanded", "false");
   }
 
-  function minDateForField(field) {
-    const t0 = startOfLocalDay(new Date());
-    if (field === "in") return t0;
-    const cin = parseISODate(checkinHidden.value);
-    if (!cin) return addLocalDays(t0, 1);
-    return addLocalDays(startOfLocalDay(cin), 1);
+  function canPickStart(iso) {
+    return cmpISODate(iso, todayIso) >= 0 && !occupiedSet.has(iso);
+  }
+
+  function rangeHasNoOccupiedNights(cinIso, coutIso) {
+    const end = parseISODate(coutIso);
+    let d = parseISODate(cinIso);
+    if (!d || !end || cmpISODate(coutIso, cinIso) <= 0) return false;
+    while (d < end) {
+      if (occupiedSet.has(localISODate(d))) return false;
+      d = addLocalDays(d, 1);
+    }
+    return true;
+  }
+
+  function canPickEnd(cinIso, coutIso) {
+    return cmpISODate(coutIso, cinIso) > 0 && rangeHasNoOccupiedNights(cinIso, coutIso);
+  }
+
+  function cellDisabled(iso) {
+    const cinIso = checkinHidden.value;
+    const coutIso = checkoutHidden.value;
+    const past = cmpISODate(iso, todayIso) < 0;
+    const occ = occupiedSet.has(iso);
+    if (past || occ) return true;
+
+    if (phase === 0) {
+      return !canPickStart(iso);
+    }
+    const okStart = cmpISODate(iso, cinIso) <= 0 && canPickStart(iso);
+    const okEnd = cmpISODate(iso, cinIso) > 0 && canPickEnd(cinIso, iso);
+    return !(okStart || okEnd);
+  }
+
+  function updateSub() {
+    if (!subEl) return;
+    subEl.textContent =
+      phase === 0 ? "Paso 1: elige la fecha de entrada" : "Paso 2: elige la fecha de salida (noches en dorado)";
   }
 
   function render() {
@@ -301,11 +371,11 @@ function setupHomeCalendarPopovers(checkinHidden, checkoutHidden, dispIn, dispOu
     const first = new Date(viewYear, viewMonth, 1);
     const monthLabel = new Intl.DateTimeFormat("es", { month: "long", year: "numeric" }).format(first);
     titleEl.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+    updateSub();
 
     const dim = new Date(viewYear, viewMonth + 1, 0).getDate();
     const jsDow = first.getDay();
     const leading = (jsDow + 6) % 7;
-    const minD = startOfLocalDay(minDateForField(activeField || "in"));
 
     const cinIso = checkinHidden.value;
     const coutIso = checkoutHidden.value;
@@ -318,15 +388,23 @@ function setupHomeCalendarPopovers(checkinHidden, checkoutHidden, dispIn, dispOu
         continue;
       }
       const cellDate = new Date(viewYear, viewMonth, dayNum);
-      const cellStart = startOfLocalDay(cellDate);
-      const disabled = cellStart.getTime() < minD.getTime();
       const iso = localISODate(cellDate);
+      const occ = occupiedSet.has(iso);
+      const dis = cellDisabled(iso);
+
       let extra = "";
-      if (!disabled && cinIso && iso === cinIso) extra += " is-checkin";
-      if (!disabled && coutIso && iso === coutIso) extra += " is-checkout";
+      if (occ) extra += " is-occupied";
+      if (cinIso && coutIso && cmpISODate(cinIso, coutIso) < 0) {
+        if (iso === cinIso) extra += " is-checkin";
+        else if (iso === coutIso) extra += " is-checkout";
+        else if (cmpISODate(iso, cinIso) > 0 && cmpISODate(iso, coutIso) < 0) extra += " is-in-range";
+      } else if (cinIso && iso === cinIso) {
+        extra += " is-checkin";
+      }
+
       parts.push(
-        `<button type="button" class="home-cal-day${disabled ? " is-disabled" : ""}${extra}" data-home-cal-day="${disabled ? "" : iso}" ${
-          disabled ? "disabled" : ""
+        `<button type="button" class="home-cal-day${dis ? " is-disabled" : ""}${extra}" data-home-cal-day="${dis ? "" : iso}" ${
+          dis ? "disabled" : ""
         }><span class="home-cal-day__num">${dayNum}</span></button>`
       );
     }
@@ -334,32 +412,37 @@ function setupHomeCalendarPopovers(checkinHidden, checkoutHidden, dispIn, dispOu
   }
 
   function onPick(iso) {
-    if (!iso || !activeField) return;
-    if (activeField === "in") {
+    if (!iso) return;
+    const cinIso = checkinHidden.value;
+    const coutIso = checkoutHidden.value;
+
+    if (phase === 0) {
+      if (!canPickStart(iso)) return;
       checkinHidden.value = iso;
-      if (dispIn) dispIn.textContent = formatDateDisplayEs(iso);
-      const co = parseISODate(checkoutHidden.value);
-      const ci = parseISODate(iso);
-      if (co && ci && co.getTime() <= ci.getTime()) {
-        checkoutHidden.value = localISODate(addLocalDays(ci, 1));
-        if (dispOut) dispOut.textContent = formatDateDisplayEs(checkoutHidden.value);
-      }
+      checkoutHidden.value = "";
+      phase = 1;
     } else {
-      checkoutHidden.value = iso;
-      if (dispOut) dispOut.textContent = formatDateDisplayEs(iso);
+      if (cmpISODate(iso, cinIso) <= 0) {
+        if (!canPickStart(iso)) return;
+        checkinHidden.value = iso;
+        checkoutHidden.value = "";
+        phase = 1;
+      } else {
+        if (!canPickEnd(cinIso, iso)) return;
+        checkoutHidden.value = iso;
+        phase = 0;
+      }
     }
+
+    refreshRangeLabel();
     snapshot();
-    closeCal();
+    render();
   }
 
-  function open(field) {
-    activeField = field;
-    pop.classList.add("is-open");
-    pop.setAttribute("aria-hidden", "false");
-    btnIn.setAttribute("aria-expanded", field === "in" ? "true" : "false");
-    btnOut.setAttribute("aria-expanded", field === "out" ? "true" : "false");
+  async function open() {
+    phase = checkinHidden.value && !checkoutHidden.value ? 1 : 0;
 
-    const anchor = field === "in" ? parseISODate(checkinHidden.value) : parseISODate(checkoutHidden.value);
+    const anchor = parseISODate(checkoutHidden.value || checkinHidden.value || "");
     const now = new Date();
     if (anchor) {
       viewYear = anchor.getFullYear();
@@ -368,14 +451,22 @@ function setupHomeCalendarPopovers(checkinHidden, checkoutHidden, dispIn, dispOu
       viewYear = now.getFullYear();
       viewMonth = now.getMonth();
     }
-
-    const minD = minDateForField(field);
-    const minMonth = new Date(minD.getFullYear(), minD.getMonth(), 1);
+    const t0 = startOfLocalDay(new Date());
+    const minMonth = new Date(t0.getFullYear(), t0.getMonth(), 1);
     const curMonth = new Date(viewYear, viewMonth, 1);
     if (curMonth.getTime() < minMonth.getTime()) {
       viewYear = minMonth.getFullYear();
       viewMonth = minMonth.getMonth();
     }
+
+    occupiedSet = new Set();
+    pop.classList.add("is-open");
+    pop.setAttribute("aria-hidden", "false");
+    btnOpen.setAttribute("aria-expanded", "true");
+    updateSub();
+    render();
+
+    occupiedSet = await fetchCasaOccupiedNightSet();
     render();
   }
 
@@ -387,8 +478,7 @@ function setupHomeCalendarPopovers(checkinHidden, checkoutHidden, dispIn, dispOu
     onPick(iso);
   });
 
-  bindTap(btnIn, () => open("in"));
-  bindTap(btnOut, () => open("out"));
+  bindTap(btnOpen, () => open());
   if (backdrop) bindTap(backdrop, closeCal);
   if (closeBtn) bindTap(closeBtn, closeCal);
 
@@ -464,10 +554,8 @@ function bindHomeSearch() {
   const pets = $("#home-pets");
   const petsNo = $("#home-pets-no");
   const petsYes = $("#home-pets-yes");
-  const dispIn = $("#home-checkin-display");
-  const dispOut = $("#home-checkout-display");
-  const btnOpenIn = $("#home-checkin-open");
-  const btnOpenOut = $("#home-checkout-open");
+  const dispRange = $("#home-dates-display");
+  const btnOpenDates = $("#home-dates-open");
   const dec = $("#home-guests-dec");
   const inc = $("#home-guests-inc");
   const btnCasas = $("#home-search-casas");
@@ -492,8 +580,21 @@ function bindHomeSearch() {
     pets.checked = false;
   }
 
-  if (dispIn) dispIn.textContent = formatDateDisplayEs(checkin.value);
-  if (dispOut) dispOut.textContent = formatDateDisplayEs(checkout.value);
+  function updateRangeDisplay() {
+    if (!dispRange) return;
+    const a = checkin.value;
+    const b = checkout.value;
+    if (!a) {
+      dispRange.textContent = "Elegir fechas";
+      return;
+    }
+    if (!b) {
+      dispRange.textContent = `${formatDateDisplayEs(a)} → elige salida`;
+      return;
+    }
+    dispRange.textContent = `${formatDateDisplayEs(a)} → ${formatDateDisplayEs(b)}`;
+  }
+  updateRangeDisplay();
 
   function syncPetsSeg() {
     petsNo?.classList.toggle("is-active", !pets.checked);
@@ -512,7 +613,7 @@ function bindHomeSearch() {
     if (!d1 || !d2) return;
     if (d2.getTime() <= d1.getTime()) {
       checkout.value = localISODate(addLocalDays(startOfLocalDay(d1), 1));
-      if (dispOut) dispOut.textContent = formatDateDisplayEs(checkout.value);
+      updateRangeDisplay();
     }
   }
 
@@ -546,7 +647,7 @@ function bindHomeSearch() {
     });
   }
 
-  setupHomeCalendarPopovers(checkin, checkout, dispIn, dispOut, btnOpenIn, btnOpenOut, snapshot);
+  setupHomeRangeCalendar(checkin, checkout, dispRange, btnOpenDates, snapshot, updateRangeDisplay);
 
   bindTap(dec, () => {
     guests.value = String(Math.max(1, Number(guests.value || 1) - 1));
