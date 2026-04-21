@@ -433,6 +433,11 @@
       }
 
       /* Popover calendario */
+      /* Por encima del modal de reserva (z-index ~9999) */
+      #reserva-cal-pop.home-cal-pop {
+        z-index: 10050;
+      }
+
       .home-cal-pop {
         position: fixed;
         inset: 0;
@@ -2104,6 +2109,24 @@
     <div id="home-cal-pop" class="home-cal-pop" aria-hidden="true">
       <div class="home-cal-pop__backdrop" data-home-cal-backdrop></div>
       <div class="home-cal-pop__panel" role="dialog" aria-modal="true" aria-label="Elegir fecha">
+        <div class="home-cal-pop__head">
+          <button type="button" data-home-cal-prev aria-label="Mes anterior">‹</button>
+          <div class="home-cal-pop__title" data-home-cal-title></div>
+          <button type="button" data-home-cal-next aria-label="Mes siguiente">›</button>
+        </div>
+        <p class="home-cal-pop__sub" data-home-cal-sub></p>
+        <div class="home-cal-pop__week" aria-hidden="true">
+          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+        <div class="home-cal-pop__grid" data-home-cal-grid></div>
+        <button type="button" class="home-cal-pop__done" data-home-cal-close>Listo</button>
+      </div>
+    </div>
+
+    <!-- Calendario de rango para reservas (modal casas / carros) -->
+    <div id="reserva-cal-pop" class="home-cal-pop" aria-hidden="true">
+      <div class="home-cal-pop__backdrop" data-home-cal-backdrop></div>
+      <div class="home-cal-pop__panel" role="dialog" aria-modal="true" aria-label="Elegir fechas de reserva">
         <div class="home-cal-pop__head">
           <button type="button" data-home-cal-prev aria-label="Mes anterior">‹</button>
           <div class="home-cal-pop__title" data-home-cal-title></div>

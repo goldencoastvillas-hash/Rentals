@@ -4,17 +4,44 @@
 begin;
 
 -- Helper: ¿el usuario autenticado es admin?
+-- Compatible con:
+--   - `011_admins_auth.sql`: tabla `admins` con columna `user_id` (Supabase Auth).
+--   - `000_supabase_reset_final.sql`: tabla `admins` sin `user_id` (login web); aquí
+--     esta función devuelve false (no hay JWT de admin vinculado). Las políticas que
+--     usan is_admin() solo aplican tras migrar admins a modelo Auth o añadir `user_id`.
 create or replace function public.is_admin()
 returns boolean
-language sql
+language plpgsql
 stable
+security definer
+set search_path = public
 as $$
+declare
+  v_has_user_id boolean;
+  v_ok boolean;
+begin
   select exists(
     select 1
-    from public.admins a
-    where a.user_id = auth.uid()
-      and a.activo = true
-  );
+    from information_schema.columns c
+    where c.table_schema = 'public'
+      and c.table_name = 'admins'
+      and c.column_name = 'user_id'
+  )
+  into v_has_user_id;
+
+  if not coalesce(v_has_user_id, false) then
+    return false;
+  end if;
+
+  execute 'select exists(
+    select 1 from public.admins a
+    where a.user_id = $1 and coalesce(a.activo, true)
+  )'
+  using auth.uid()
+  into v_ok;
+
+  return coalesce(v_ok, false);
+end;
 $$;
 
 grant execute on function public.is_admin() to anon, authenticated;

@@ -266,8 +266,8 @@ function cmpISODate(a, b) {
   return a < b ? -1 : 1;
 }
 
-/** Noches ocupadas (desde inclusive, hasta exclusive) en reservas de casas. */
-function expandCasaReservationNightsToSet(desde, hasta, set) {
+/** Noches ocupadas (desde inclusive, hasta exclusive). */
+function expandReservationNightsToSet(desde, hasta, set) {
   let cur = parseISODate(String(desde || "").slice(0, 10));
   const end = parseISODate(String(hasta || "").slice(0, 10));
   if (!cur || !end) return;
@@ -288,7 +288,7 @@ async function fetchCasaOccupiedNightSet() {
     if (error) throw error;
     const set = new Set();
     for (const row of data || []) {
-      expandCasaReservationNightsToSet(row.desde, row.hasta, set);
+      expandReservationNightsToSet(row.desde, row.hasta, set);
     }
     return set;
   } catch (_e) {
@@ -296,13 +296,60 @@ async function fetchCasaOccupiedNightSet() {
   }
 }
 
+/** Ocupación de una casa o carro concreto (otras reservas del mismo ítem). */
+async function fetchOccupiedForCatalogItem(tipo, itemId) {
+  try {
+    const client = getClient();
+    let q = client.from("reservas").select("desde, hasta").eq("tipo", tipo).in("estado", ["pendiente", "aprobada"]);
+    if (tipo === "casa") q = q.eq("casa_id", itemId);
+    else q = q.eq("carro_id", itemId);
+    const { data, error } = await q;
+    if (error) throw error;
+    const set = new Set();
+    for (const row of data || []) {
+      expandReservationNightsToSet(row.desde, row.hasta, set);
+    }
+    return set;
+  } catch (_e) {
+    return new Set();
+  }
+}
+
+let __rangeCalEscapeInstalled = false;
+function ensureRangeCalendarEscapeHandler() {
+  if (__rangeCalEscapeInstalled) return;
+  __rangeCalEscapeInstalled = true;
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const openPop = document.querySelector(".home-cal-pop.is-open");
+    if (!openPop) return;
+    openPop.classList.remove("is-open");
+    openPop.setAttribute("aria-hidden", "true");
+    const btn = openPop._rangeCalBtnOpen;
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  });
+}
+
 /**
  * Un solo calendario: elige entrada y luego salida.
- * Azul = noche ya reservada (cualquier casa). Dorado = rango seleccionado.
+ * Azul = noche ocupada. Dorado = rango seleccionado.
+ * @param {() => Promise<Set<string>>} fetchOccupiedSet noches YYYY-MM-DD no disponibles
  */
-function setupHomeRangeCalendar(checkinHidden, checkoutHidden, dispRange, btnOpen, snapshot, refreshRangeLabel) {
-  const pop = document.getElementById("home-cal-pop");
-  if (!pop || !checkinHidden || !checkoutHidden || !btnOpen) return;
+function setupRangeCalendarMount({
+  pop: popOrId,
+  checkinHidden,
+  checkoutHidden,
+  btnOpen,
+  onDatesChange,
+  fetchOccupiedSet,
+}) {
+  const pop = typeof popOrId === "string" ? document.getElementById(popOrId) : popOrId;
+  if (!pop || !checkinHidden || !checkoutHidden || !btnOpen || typeof fetchOccupiedSet !== "function") return;
+
+  if (pop._rangeCalAc) pop._rangeCalAc.abort();
+  const ac = new AbortController();
+  pop._rangeCalAc = ac;
+  const signal = ac.signal;
 
   const backdrop = pop.querySelector("[data-home-cal-backdrop]");
   const gridEl = pop.querySelector("[data-home-cal-grid]");
@@ -434,12 +481,13 @@ function setupHomeRangeCalendar(checkinHidden, checkoutHidden, dispRange, btnOpe
       }
     }
 
-    refreshRangeLabel();
-    snapshot();
+    if (typeof onDatesChange === "function") onDatesChange();
     render();
   }
 
   async function open() {
+    if (signal.aborted) return;
+    pop._rangeCalBtnOpen = btnOpen;
     phase = checkinHidden.value && !checkoutHidden.value ? 1 : 0;
 
     const anchor = parseISODate(checkoutHidden.value || checkinHidden.value || "");
@@ -466,41 +514,66 @@ function setupHomeRangeCalendar(checkinHidden, checkoutHidden, dispRange, btnOpe
     updateSub();
     render();
 
-    occupiedSet = await fetchCasaOccupiedNightSet();
+    occupiedSet = await fetchOccupiedSet();
+    if (signal.aborted) return;
     render();
   }
 
-  gridEl?.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-home-cal-day]");
-    if (!b || b.disabled) return;
-    const iso = b.getAttribute("data-home-cal-day");
-    if (!iso) return;
-    onPick(iso);
-  });
+  ensureRangeCalendarEscapeHandler();
 
-  bindTap(btnOpen, () => open());
-  if (backdrop) bindTap(backdrop, closeCal);
-  if (closeBtn) bindTap(closeBtn, closeCal);
+  gridEl?.addEventListener(
+    "click",
+    (e) => {
+      const b = e.target.closest("[data-home-cal-day]");
+      if (!b || b.disabled) return;
+      const iso = b.getAttribute("data-home-cal-day");
+      if (!iso) return;
+      onPick(iso);
+    },
+    { signal }
+  );
 
-  prevBtn?.addEventListener("click", () => {
-    viewMonth -= 1;
-    if (viewMonth < 0) {
-      viewMonth = 11;
-      viewYear -= 1;
-    }
-    render();
-  });
-  nextBtn?.addEventListener("click", () => {
-    viewMonth += 1;
-    if (viewMonth > 11) {
-      viewMonth = 0;
-      viewYear += 1;
-    }
-    render();
-  });
+  bindTapSignal(btnOpen, () => open(), signal);
+  if (backdrop) bindTapSignal(backdrop, closeCal, signal);
+  if (closeBtn) bindTapSignal(closeBtn, closeCal, signal);
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && pop.classList.contains("is-open")) closeCal();
+  prevBtn?.addEventListener(
+    "click",
+    () => {
+      viewMonth -= 1;
+      if (viewMonth < 0) {
+        viewMonth = 11;
+        viewYear -= 1;
+      }
+      render();
+    },
+    { signal }
+  );
+  nextBtn?.addEventListener(
+    "click",
+    () => {
+      viewMonth += 1;
+      if (viewMonth > 11) {
+        viewMonth = 0;
+        viewYear += 1;
+      }
+      render();
+    },
+    { signal }
+  );
+}
+
+function setupHomeRangeCalendar(checkinHidden, checkoutHidden, dispRange, btnOpen, snapshot, refreshRangeLabel) {
+  setupRangeCalendarMount({
+    pop: "home-cal-pop",
+    checkinHidden,
+    checkoutHidden,
+    btnOpen,
+    onDatesChange: () => {
+      refreshRangeLabel();
+      snapshot();
+    },
+    fetchOccupiedSet: fetchCasaOccupiedNightSet,
   });
 }
 
@@ -534,6 +607,31 @@ function bindTap(el, handler) {
     }
     handler(e);
   });
+}
+
+function bindTapSignal(el, handler, signal) {
+  if (!el || !signal || signal.aborted) return;
+  let lastTouch = 0;
+  el.addEventListener(
+    "touchend",
+    (e) => {
+      lastTouch = Date.now();
+      e.preventDefault();
+      handler(e);
+    },
+    { passive: false, signal }
+  );
+  el.addEventListener(
+    "click",
+    (e) => {
+      if (Date.now() - lastTouch < 450) {
+        e.preventDefault();
+        return;
+      }
+      handler(e);
+    },
+    { signal }
+  );
 }
 
 function tryPlayHomeHeroVideo() {
@@ -680,15 +778,18 @@ function openReservaForm(tipo, item) {
   const title = isCasa ? item.nombre || t("detail.casaFallback") : item.marca || t("detail.carroFallback");
   const unit = isCasa ? Number(item.precio_noche || 0) : Number(item.precio_dia || 0);
 
-  const now = new Date();
-  const fallbackCheckin = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-  const fallbackCheckout = new Date(fallbackCheckin.getTime() + 24 * 60 * 60 * 1000);
+  const today0 = startOfLocalDay(new Date());
+  const fallbackCheckin = addLocalDays(today0, 1);
+  const fallbackCheckout = addLocalDays(fallbackCheckin, 1);
 
   const hs = loadHomeSearch();
   const d1 = hs?.checkin ? parseISODate(hs.checkin) : null;
   const d2 = hs?.checkout ? parseISODate(hs.checkout) : null;
-  const today = d1 || fallbackCheckin;
-  const tomorrow = d2 && d1 && d2.getTime() > d1.getTime() ? d2 : fallbackCheckout;
+  let startD = d1 ? startOfLocalDay(d1) : fallbackCheckin;
+  let endD = d2 && d1 && d2.getTime() > d1.getTime() ? startOfLocalDay(d2) : fallbackCheckout;
+  if (endD.getTime() <= startD.getTime()) endD = addLocalDays(startD, 1);
+  const desdeVal = localISODate(startD);
+  const hastaVal = localISODate(endD);
   const defaultGuests = hs?.huespedes ? Math.max(1, Number(hs.huespedes || 1)) : 1;
   const defaultPets = hs?.mascotas === true;
 
@@ -717,13 +818,26 @@ function openReservaForm(tipo, item) {
               <input name="telefono" placeholder="${escapeHtml(t("reserva.telPh"))}" />
             </div>
             <div></div>
-            <div>
-              <label>${t("reserva.desde")}</label>
-              <input name="desde" type="date" required value="${isoDate(today)}" />
-            </div>
-            <div>
-              <label>${t("reserva.hasta")}</label>
-              <input name="hasta" type="date" required value="${isoDate(tomorrow)}" />
+            <div class="span-2">
+              <label id="reserva-dates-lbl">${escapeHtml(t("reserva.desde"))} · ${escapeHtml(t("reserva.hasta"))}</label>
+              <div class="home-date-field">
+                <input type="hidden" name="desde" required value="${escapeHtml(desdeVal)}" />
+                <input type="hidden" name="hasta" required value="${escapeHtml(hastaVal)}" />
+                <button
+                  type="button"
+                  class="home-date-trigger"
+                  id="reserva-dates-open"
+                  aria-expanded="false"
+                  aria-haspopup="dialog"
+                  aria-labelledby="reserva-dates-lbl"
+                >
+                  <span class="home-date-trigger__icon" aria-hidden="true">📅</span>
+                  <span class="home-date-trigger__main">
+                    <span class="home-date-trigger__value" id="reserva-dates-display"></span>
+                    <span class="home-date-trigger__hint">Un solo calendario · azul = ocupado · dorado = tu selección</span>
+                  </span>
+                </button>
+              </div>
             </div>
             ${
               isCasa
@@ -773,6 +887,50 @@ function openReservaForm(tipo, item) {
   const form = $("#reserva-form");
   const totalEl = $("#total-price");
   const hintEl = $("#total-hint");
+  const dispReservaRange = $("#reserva-dates-display");
+  const btnReservaDates = $("#reserva-dates-open");
+
+  function updateReservaRangeDisplay() {
+    if (!dispReservaRange || !form) return;
+    const a = form.desde.value;
+    const b = form.hasta.value;
+    if (!a) {
+      dispReservaRange.textContent = "Elegir fechas";
+      return;
+    }
+    if (!b) {
+      dispReservaRange.textContent = `${formatDateDisplayEs(a)} → elige salida`;
+      return;
+    }
+    dispReservaRange.textContent = `${formatDateDisplayEs(a)} → ${formatDateDisplayEs(b)}`;
+  }
+
+  function ensureReservaDatesCoherent() {
+    if (!form) return;
+    const d1 = parseISODate(form.desde.value);
+    const d2 = parseISODate(form.hasta.value);
+    if (!d1 || !d2) return;
+    if (d2.getTime() <= d1.getTime()) {
+      form.hasta.value = localISODate(addLocalDays(startOfLocalDay(d1), 1));
+      updateReservaRangeDisplay();
+    }
+  }
+
+  if (form && btnReservaDates) {
+    setupRangeCalendarMount({
+      pop: "reserva-cal-pop",
+      checkinHidden: form.desde,
+      checkoutHidden: form.hasta,
+      btnOpen: btnReservaDates,
+      onDatesChange: () => {
+        ensureReservaDatesCoherent();
+        updateReservaRangeDisplay();
+        recalc();
+      },
+      fetchOccupiedSet: () => fetchOccupiedForCatalogItem(tipo, item.id),
+    });
+  }
+  updateReservaRangeDisplay();
 
   function recalc() {
     const d1 = parseISODate(form.desde.value);
