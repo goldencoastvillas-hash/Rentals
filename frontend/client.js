@@ -8,6 +8,36 @@ function $(sel) {
   return document.querySelector(sel);
 }
 
+const HOME_SEARCH_KEY = "gcv_home_search_v1";
+
+function readJsonSafe(s) {
+  try {
+    return JSON.parse(s);
+  } catch (_e) {
+    return null;
+  }
+}
+
+function loadHomeSearch() {
+  const raw = localStorage.getItem(HOME_SEARCH_KEY);
+  const v = raw ? readJsonSafe(raw) : null;
+  if (!v || typeof v !== "object") return null;
+  const out = {
+    destino: String(v.destino || "miami"),
+    checkin: String(v.checkin || ""),
+    checkout: String(v.checkout || ""),
+    huespedes: Math.max(1, Number(v.huespedes || 1)),
+    mascotas: !!v.mascotas,
+  };
+  return out;
+}
+
+function saveHomeSearch(next) {
+  try {
+    localStorage.setItem(HOME_SEARCH_KEY, JSON.stringify(next || {}));
+  } catch (_e) {}
+}
+
 function escapeHtml(s) {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -203,6 +233,90 @@ function parseISODate(s) {
   return dt;
 }
 
+function bindHomeSearch() {
+  const form = $("#home-search");
+  if (!form) return;
+
+  const dest = $("#home-dest");
+  const checkin = $("#home-checkin");
+  const checkout = $("#home-checkout");
+  const guests = $("#home-guests");
+  const pets = $("#home-pets");
+  const dec = $("#home-guests-dec");
+  const inc = $("#home-guests-inc");
+  const btnCasas = $("#home-search-casas");
+  const btnCarros = $("#home-search-carros");
+
+  if (!dest || !checkin || !checkout || !guests || !pets || !dec || !inc || !btnCasas || !btnCarros) return;
+
+  const today = new Date();
+  const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+  const existing = loadHomeSearch();
+  if (existing) {
+    dest.value = existing.destino || "miami";
+    if (existing.checkin) checkin.value = existing.checkin;
+    if (existing.checkout) checkout.value = existing.checkout;
+    guests.value = String(existing.huespedes || 1);
+    pets.checked = !!existing.mascotas;
+  } else {
+    checkin.value = isoDate(today);
+    checkout.value = isoDate(tomorrow);
+    guests.value = "1";
+    pets.checked = false;
+  }
+
+  function clampGuests() {
+    const n = Math.max(1, Math.min(50, Number(guests.value || 1)));
+    guests.value = String(Number.isFinite(n) ? n : 1);
+  }
+
+  function ensureDatesCoherent() {
+    const d1 = parseISODate(checkin.value);
+    const d2 = parseISODate(checkout.value);
+    if (!d1 || !d2) return;
+    if (d2.getTime() <= d1.getTime()) {
+      const next = new Date(d1.getTime() + 24 * 60 * 60 * 1000);
+      checkout.value = isoDate(next);
+    }
+  }
+
+  function snapshot() {
+    clampGuests();
+    ensureDatesCoherent();
+    const payload = {
+      destino: dest.value || "miami",
+      checkin: checkin.value || "",
+      checkout: checkout.value || "",
+      huespedes: Math.max(1, Number(guests.value || 1)),
+      mascotas: !!pets.checked,
+    };
+    saveHomeSearch(payload);
+    return payload;
+  }
+
+  form.addEventListener("input", () => snapshot());
+  form.addEventListener("change", () => snapshot());
+
+  dec.addEventListener("click", () => {
+    guests.value = String(Math.max(1, Number(guests.value || 1) - 1));
+    snapshot();
+  });
+  inc.addEventListener("click", () => {
+    guests.value = String(Math.max(1, Number(guests.value || 1) + 1));
+    snapshot();
+  });
+
+  btnCasas.addEventListener("click", () => {
+    snapshot();
+    window.RentalsApp?.go?.("casas");
+  });
+  btnCarros.addEventListener("click", () => {
+    snapshot();
+    window.RentalsApp?.go?.("carros");
+  });
+}
+
 function daysBetweenInclusiveStartExclusiveEnd(a, b) {
   const ms = 24 * 60 * 60 * 1000;
   const da = new Date(a.getFullYear(), a.getMonth(), a.getDate());
@@ -215,8 +329,17 @@ function openReservaForm(tipo, item) {
   const title = isCasa ? item.nombre || t("detail.casaFallback") : item.marca || t("detail.carroFallback");
   const unit = isCasa ? Number(item.precio_noche || 0) : Number(item.precio_dia || 0);
 
-  const today = new Date();
-  const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const fallbackCheckin = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const fallbackCheckout = new Date(fallbackCheckin.getTime() + 24 * 60 * 60 * 1000);
+
+  const hs = loadHomeSearch();
+  const d1 = hs?.checkin ? parseISODate(hs.checkin) : null;
+  const d2 = hs?.checkout ? parseISODate(hs.checkout) : null;
+  const today = d1 || fallbackCheckin;
+  const tomorrow = d2 && d1 && d2.getTime() > d1.getTime() ? d2 : fallbackCheckout;
+  const defaultGuests = hs?.huespedes ? Math.max(1, Number(hs.huespedes || 1)) : 1;
+  const defaultPets = hs?.mascotas === true;
 
   const html = `
     <div style="padding:1rem 1.05rem">
@@ -256,13 +379,13 @@ function openReservaForm(tipo, item) {
                 ? `
             <div>
               <label>${t("reserva.personas")}</label>
-              <input name="personas" type="number" min="1" value="1" />
+              <input name="personas" type="number" min="1" value="${escapeHtml(String(defaultGuests))}" />
             </div>
             <div>
               <label>${t("reserva.mascotas")}</label>
               <select name="mascotas">
-                <option value="false" selected>${escapeHtml(t("yesno.no"))}</option>
-                <option value="true">${escapeHtml(t("yesno.si"))}</option>
+                <option value="false" ${defaultPets ? "" : "selected"}>${escapeHtml(t("yesno.no"))}</option>
+                <option value="true" ${defaultPets ? "selected" : ""}>${escapeHtml(t("yesno.si"))}</option>
               </select>
             </div>
             `
@@ -752,6 +875,7 @@ async function renderHomePageBlocks() {
 
 export async function initClient() {
   initModal();
+  bindHomeSearch();
   await renderHomePageBlocks();
   const casasState = { rows: [], q: "", tipo: "", hab: 0, precioMax: null, mascotas: "" };
   const carrosState = { rows: [], q: "", tipo: "", cil: "", puestos: 1 };
