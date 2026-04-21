@@ -354,59 +354,288 @@
         border-color: rgba(201, 162, 39, 0.55);
       }
 
-      /* Fechas: contenedor más “premium” (el picker nativo sigue siendo del SO) */
-      .home-date-wrap {
+      /* Fechas: botón grande + calendario custom (popover) */
+      .home-date-field {
         position: relative;
+      }
+      .home-date-trigger {
+        width: 100%;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        border-radius: 16px;
-        padding: 0.1rem 0.1rem 0.1rem 0.65rem;
-        background: linear-gradient(135deg, rgba(0, 109, 119, 0.12), rgba(201, 162, 39, 0.14));
+        gap: 0.85rem;
+        min-height: 58px;
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        border: 1px solid rgba(0, 109, 119, 0.16);
+        background: linear-gradient(180deg, #fffef9 0%, #fff 55%, #f6f2ea 100%);
         box-shadow:
-          0 1px 0 rgba(255, 255, 255, 0.65) inset,
-          0 10px 26px rgba(26, 51, 56, 0.08);
+          0 1px 0 rgba(255, 255, 255, 0.9) inset,
+          0 10px 28px rgba(26, 51, 56, 0.1);
+        cursor: pointer;
+        text-align: left;
+        font: inherit;
+        color: inherit;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+          box-shadow 0.18s ease,
+          transform 0.18s ease;
       }
-      .home-date-wrap::after {
-        content: "";
-        position: absolute;
-        inset: 1px;
-        border-radius: 15px;
-        background: #fff;
-        z-index: 0;
-        pointer-events: none;
+      .home-date-trigger:hover {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.9) inset,
+          0 14px 34px rgba(26, 51, 56, 0.12);
       }
-      .home-date-icon {
-        position: relative;
-        z-index: 1;
+      .home-date-trigger:focus-visible {
+        outline: none;
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.9) inset,
+          0 14px 34px rgba(26, 51, 56, 0.12),
+          0 0 0 4px rgba(201, 162, 39, 0.28);
+      }
+      .home-date-trigger:active {
+        transform: scale(0.992);
+      }
+      .home-date-trigger__icon {
         flex: 0 0 auto;
-        font-size: 1rem;
-        line-height: 1;
-        opacity: 0.85;
+        width: 2.35rem;
+        height: 2.35rem;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(0, 109, 119, 0.12), rgba(201, 162, 39, 0.16));
+        border: 1px solid rgba(0, 109, 119, 0.12);
+        font-size: 1.15rem;
       }
-      .home-date-wrap input[type="date"] {
-        position: relative;
-        z-index: 1;
+      .home-date-trigger__main {
         flex: 1;
         min-width: 0;
-        border: none;
-        background: transparent;
-        padding: 0.72rem 0.65rem 0.72rem 0.15rem;
-        font: inherit;
-        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+      }
+      .home-date-trigger__value {
+        font-size: clamp(1.02rem, 2.6vw, 1.2rem);
+        font-weight: 800;
+        letter-spacing: 0.01em;
         color: #0f2a31;
-        outline: none;
-        -webkit-appearance: none;
-        appearance: none;
+        line-height: 1.15;
       }
-      .home-date-wrap input[type="date"]:focus {
-        box-shadow: none;
+      .home-date-trigger__hint {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgba(90, 109, 114, 0.85);
       }
-      .home-date-wrap:focus-within {
+
+      /* Popover calendario */
+      .home-cal-pop {
+        position: fixed;
+        inset: 0;
+        z-index: 160;
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0;
+      }
+      .home-cal-pop.is-open {
+        display: flex;
+      }
+      .home-cal-pop__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 22, 32, 0.45);
+        backdrop-filter: blur(4px);
+      }
+      .home-cal-pop__panel {
+        position: relative;
+        z-index: 1;
+        width: min(520px, 100%);
+        max-height: min(92vh, 640px);
+        overflow: auto;
+        border-radius: 22px 22px 0 0;
+        background: linear-gradient(180deg, #fffdf8 0%, #fff 40%, #f7f4ee 100%);
+        border: 1px solid rgba(0, 109, 119, 0.14);
+        box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.22);
+        padding: 1rem 1.05rem 1.1rem;
+      }
+      @media (min-width: 561px) {
+        .home-cal-pop {
+          align-items: center;
+          padding: 1rem;
+        }
+        .home-cal-pop__panel {
+          border-radius: 22px;
+        }
+      }
+      .home-cal-pop__head {
+        display: grid;
+        grid-template-columns: 48px 1fr 48px;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.65rem;
+      }
+      .home-cal-pop__head button {
+        height: 48px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 109, 119, 0.16);
+        background: rgba(0, 109, 119, 0.06);
+        font: inherit;
+        font-weight: 900;
+        font-size: 1.35rem;
+        line-height: 1;
+        color: var(--accent-deep);
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .home-cal-pop__title {
+        text-align: center;
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: clamp(1.15rem, 3.2vw, 1.35rem);
+        color: #0f2a31;
+      }
+      .home-cal-pop__week {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 0.25rem;
+        margin: 0.35rem 0 0.45rem;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgba(90, 109, 114, 0.85);
+        text-align: center;
+      }
+      .home-cal-pop__grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 0.35rem;
+      }
+      .home-cal-cell--empty {
+        min-height: 52px;
+      }
+      .home-cal-day {
+        min-height: 52px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 109, 119, 0.12);
+        background: rgba(255, 255, 255, 0.85);
+        cursor: pointer;
+        padding: 0;
+        font: inherit;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+          transform 0.12s ease,
+          background 0.12s ease,
+          border-color 0.12s ease;
+      }
+      .home-cal-day:active:not(.is-disabled) {
+        transform: scale(0.97);
+      }
+      .home-cal-day__num {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        font-weight: 800;
+        font-size: clamp(1rem, 2.8vw, 1.12rem);
+        color: #0f2a31;
+      }
+      .home-cal-day.is-checkin {
+        border-color: rgba(0, 109, 119, 0.55);
+        background: rgba(0, 109, 119, 0.12);
+      }
+      .home-cal-day.is-checkout {
+        border-color: rgba(201, 162, 39, 0.65);
+        background: rgba(201, 162, 39, 0.16);
+      }
+      .home-cal-day.is-disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .home-cal-pop__done {
+        margin-top: 0.85rem;
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+        color: #fff;
+        font: inherit;
+        font-weight: 900;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      /* Mascotas: segmentos grandes (más claro que un switch pequeño) */
+      .home-field--pets {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .home-field__pets-label {
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        color: var(--muted);
+      }
+      .home-pets-sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .home-pets-seg {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        padding: 0.35rem;
+        border-radius: 18px;
+        background: rgba(0, 109, 119, 0.06);
+        border: 1px solid rgba(0, 109, 119, 0.14);
+      }
+      .home-pets-seg__btn {
+        min-height: 52px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        background: transparent;
+        font: inherit;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+        color: var(--accent-deep);
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+          background 0.15s ease,
+          box-shadow 0.15s ease,
+          transform 0.12s ease;
+      }
+      .home-pets-seg__btn:active {
+        transform: scale(0.99);
+      }
+      .home-pets-seg__btn.is-active {
+        background: linear-gradient(180deg, #fffef9 0%, #fff 55%, #f3eee6 100%);
+        border-color: rgba(0, 109, 119, 0.18);
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.9) inset,
+          0 10px 26px rgba(26, 51, 56, 0.1);
+      }
+      #home-pets-yes.is-active {
+        color: #2b2410;
+        border-color: rgba(201, 162, 39, 0.45);
+        background: linear-gradient(180deg, #fff6d6 0%, #f6e7b8 55%, #edd78f 100%);
         box-shadow:
           0 1px 0 rgba(255, 255, 255, 0.65) inset,
-          0 10px 26px rgba(26, 51, 56, 0.08),
-          0 0 0 4px rgba(201, 162, 39, 0.2);
+          0 10px 26px rgba(201, 162, 39, 0.22);
       }
 
       .home-stepper input[type="number"] {
@@ -459,70 +688,6 @@
       .step-btn:hover {
         background: #fff;
         filter: brightness(1.02);
-      }
-
-      .home-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.6rem;
-        padding: 0.7rem 0.85rem;
-        border-radius: 14px;
-        border: 1px solid rgba(0, 109, 119, 0.18);
-        background: rgba(0, 109, 119, 0.04);
-        color: #0f2a31;
-        font-weight: 700;
-        text-align: left;
-        min-height: 48px;
-        cursor: pointer;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      .toggle-switch {
-        position: relative;
-        width: 50px;
-        height: 30px;
-        flex: 0 0 auto;
-      }
-      .toggle-switch input {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        opacity: 0.04;
-        cursor: pointer;
-        z-index: 3;
-      }
-      .toggle-switch .track {
-        position: absolute;
-        inset: 0;
-        border-radius: 999px;
-        background: rgba(90, 109, 114, 0.35);
-        box-shadow: inset 0 0 0 1px rgba(15, 42, 49, 0.18);
-        transition: 150ms ease;
-        pointer-events: none;
-        z-index: 1;
-      }
-      .toggle-switch .knob {
-        position: absolute;
-        top: 4px;
-        left: 4px;
-        width: 22px;
-        height: 22px;
-        border-radius: 999px;
-        background: #fff;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        transition: 150ms ease;
-        pointer-events: none;
-        z-index: 2;
-      }
-      .toggle-switch input:checked + .track {
-        background: rgba(0, 109, 119, 0.85);
-      }
-      .toggle-switch input:checked + .track .knob {
-        transform: translateX(20px);
       }
 
       .home-search__actions {
@@ -1619,8 +1784,8 @@
       <div class="home-hero-cinematic-wrap">
         <div class="hero hero-video" aria-label="Video principal">
           <video class="hero-video__media" autoplay muted loop playsinline preload="auto" poster="">
+            <source src="https://videos.pexels.com/video-files/14037398/14037398-sd_640_360_30fps.mp4" type="video/mp4" />
             <source src="assets/hero-beach.mp4" type="video/mp4" />
-            <source src="https://videos.pexels.com/video-files/4278291/4278291-sd_640_360_30fps.mp4" type="video/mp4" />
           </video>
           <div class="hero-video__overlay" aria-hidden="true"></div>
           <div class="hero-video__content">
@@ -1645,17 +1810,29 @@
                 </select>
               </div>
               <div class="home-field">
-                <label for="home-checkin">Check in</label>
-                <div class="home-date-wrap">
-                  <span class="home-date-icon" aria-hidden="true">📅</span>
-                  <input id="home-checkin" name="checkin" type="date" />
+                <label id="home-checkin-lbl">Check in</label>
+                <div class="home-date-field">
+                  <input type="hidden" id="home-checkin" name="checkin" />
+                  <button type="button" class="home-date-trigger" id="home-checkin-open" aria-expanded="false" aria-haspopup="dialog" aria-labelledby="home-checkin-lbl">
+                    <span class="home-date-trigger__icon" aria-hidden="true">📅</span>
+                    <span class="home-date-trigger__main">
+                      <span class="home-date-trigger__value" id="home-checkin-display">—</span>
+                      <span class="home-date-trigger__hint">Toca para elegir</span>
+                    </span>
+                  </button>
                 </div>
               </div>
               <div class="home-field">
-                <label for="home-checkout">Check out</label>
-                <div class="home-date-wrap">
-                  <span class="home-date-icon" aria-hidden="true">📅</span>
-                  <input id="home-checkout" name="checkout" type="date" />
+                <label id="home-checkout-lbl">Check out</label>
+                <div class="home-date-field">
+                  <input type="hidden" id="home-checkout" name="checkout" />
+                  <button type="button" class="home-date-trigger" id="home-checkout-open" aria-expanded="false" aria-haspopup="dialog" aria-labelledby="home-checkout-lbl">
+                    <span class="home-date-trigger__icon" aria-hidden="true">📅</span>
+                    <span class="home-date-trigger__main">
+                      <span class="home-date-trigger__value" id="home-checkout-display">—</span>
+                      <span class="home-date-trigger__hint">Toca para elegir</span>
+                    </span>
+                  </button>
                 </div>
               </div>
               <div class="home-field">
@@ -1666,14 +1843,13 @@
                   <button type="button" class="step-btn" id="home-guests-inc" aria-label="Aumentar huéspedes">+</button>
                 </div>
               </div>
-              <div class="home-field" style="grid-column: 1 / -1">
-                <label class="home-toggle" for="home-pets">
-                  <span>¿Incluye mascotas?</span>
-                  <span class="toggle-switch">
-                    <input id="home-pets" name="mascotas" type="checkbox" aria-label="Incluye mascotas" />
-                    <span class="track"><span class="knob"></span></span>
-                  </span>
-                </label>
+              <div class="home-field home-field--pets" style="grid-column: 1 / -1">
+                <span class="home-field__pets-label">¿Incluye mascotas?</span>
+                <div class="home-pets-seg" role="group" aria-label="Mascotas en la reserva">
+                  <button type="button" class="home-pets-seg__btn is-active" id="home-pets-no">No</button>
+                  <button type="button" class="home-pets-seg__btn" id="home-pets-yes">Sí</button>
+                </div>
+                <input type="checkbox" id="home-pets" name="mascotas" class="home-pets-sr" />
               </div>
             </div>
             <div class="home-search__actions">
@@ -1903,6 +2079,23 @@
         </div>
       </div>
     </section>
+
+    <!-- Calendario del buscador (Inicio): panel global -->
+    <div id="home-cal-pop" class="home-cal-pop" aria-hidden="true">
+      <div class="home-cal-pop__backdrop" data-home-cal-backdrop></div>
+      <div class="home-cal-pop__panel" role="dialog" aria-modal="true" aria-label="Elegir fecha">
+        <div class="home-cal-pop__head">
+          <button type="button" data-home-cal-prev aria-label="Mes anterior">‹</button>
+          <div class="home-cal-pop__title" data-home-cal-title></div>
+          <button type="button" data-home-cal-next aria-label="Mes siguiente">›</button>
+        </div>
+        <div class="home-cal-pop__week" aria-hidden="true">
+          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+        <div class="home-cal-pop__grid" data-home-cal-grid></div>
+        <button type="button" class="home-cal-pop__done" data-home-cal-close>Listo</button>
+      </div>
+    </div>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
