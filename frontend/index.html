@@ -222,7 +222,7 @@
         position: relative;
         padding: 0;
         overflow: hidden;
-        min-height: clamp(520px, 72vh, 760px);
+        min-height: clamp(320px, 48vh, 520px);
         background: #0b2430;
         border-color: rgba(0, 0, 0, 0.14);
       }
@@ -269,15 +269,18 @@
         text-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
       }
 
+      .home-search-section {
+        margin-top: 1.1rem;
+      }
+
       .home-search {
         margin: 0 auto;
         width: min(920px, 100%);
         padding: 0.9rem;
         border-radius: 22px;
-        background: rgba(245, 242, 235, 0.16);
-        border: 1px solid rgba(255, 255, 255, 0.26);
-        box-shadow: 0 18px 62px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(14px);
+        background: var(--surface);
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        box-shadow: 0 14px 50px rgba(26, 51, 56, 0.12);
       }
 
       .home-search__grid {
@@ -289,7 +292,7 @@
 
       .home-field label {
         display: block;
-        color: rgba(255, 255, 255, 0.88);
+        color: var(--muted);
         font-size: 0.78rem;
         font-weight: 800;
         letter-spacing: 0.02em;
@@ -301,8 +304,8 @@
       .home-field input {
         width: 100%;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.26);
-        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        background: #fff;
         padding: 0.8rem 0.85rem;
         font: inherit;
         font-weight: 600;
@@ -326,8 +329,8 @@
       .step-btn {
         height: 44px;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.26);
-        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        background: rgba(0, 109, 119, 0.06);
         cursor: pointer;
         font: inherit;
         font-weight: 900;
@@ -346,8 +349,8 @@
         gap: 0.6rem;
         padding: 0.7rem 0.85rem;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.26);
-        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(0, 109, 119, 0.18);
+        background: rgba(0, 109, 119, 0.04);
         color: #0f2a31;
         font-weight: 700;
         text-align: left;
@@ -428,7 +431,7 @@
       }
       @media (max-width: 560px) {
         .hero.hero-video {
-          min-height: clamp(560px, 78vh, 820px);
+          min-height: clamp(300px, 44vh, 440px);
         }
         .home-search__grid {
           grid-template-columns: 1fr;
@@ -1487,53 +1490,96 @@
       <div class="page-inner">
         <div class="hero hero-video" aria-label="Búsqueda principal">
           <video class="hero-video__media" autoplay muted loop playsinline preload="metadata" poster="">
-            <source src="https://cdn.coverr.co/videos/coverr-aerial-shot-of-a-boat-in-turquoise-water-2325/1080p.mp4" type="video/mp4" />
             <source src="assets/hero-beach.mp4" type="video/mp4" />
+            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
           </video>
           <div class="hero-video__overlay" aria-hidden="true"></div>
           <div class="hero-video__content">
             <div class="hero-video__stack">
               <h1 class="hero-video__title">Golden Coast Villas Miami</h1>
-              <form id="home-search" class="home-search" autocomplete="off">
-                <div class="home-search__grid">
-                  <div class="home-field">
-                    <label for="home-dest">Lugar</label>
-                    <select id="home-dest" name="destino" required>
-                      <option value="miami">Miami</option>
-                    </select>
-                  </div>
-                  <div class="home-field">
-                    <label for="home-checkin">Check in</label>
-                    <input id="home-checkin" name="checkin" type="date" />
-                  </div>
-                  <div class="home-field">
-                    <label for="home-checkout">Check out</label>
-                    <input id="home-checkout" name="checkout" type="date" />
-                  </div>
-                  <div class="home-field">
-                    <label for="home-guests">Huéspedes</label>
-                    <div class="home-stepper">
-                      <button type="button" class="step-btn" id="home-guests-dec" aria-label="Disminuir huéspedes">−</button>
-                      <input id="home-guests" name="huespedes" type="number" min="1" step="1" value="1" />
-                      <button type="button" class="step-btn" id="home-guests-inc" aria-label="Aumentar huéspedes">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-search-section">
+          <form id="home-search" class="home-search" autocomplete="off" aria-label="Buscar disponibilidad">
+            <div class="home-search__grid">
+              <div class="home-field">
+                <label for="home-dest">Lugar</label>
+                <select id="home-dest" name="destino" required>
+                  <option value="miami">Miami</option>
+                </select>
+              </div>
+              <div class="home-field">
+                <label for="home-checkin">Check in</label>
+                <input id="home-checkin" name="checkin" type="date" />
+              </div>
+              <div class="home-field">
+                <label for="home-checkout">Check out</label>
+                <input id="home-checkout" name="checkout" type="date" />
+              </div>
+              <div class="home-field">
+                <label for="home-guests">Huéspedes</label>
+                <div class="home-stepper">
+                  <button type="button" class="step-btn" id="home-guests-dec" aria-label="Disminuir huéspedes">−</button>
+                  <input id="home-guests" name="huespedes" type="number" min="1" step="1" value="1" />
+                  <button type="button" class="step-btn" id="home-guests-inc" aria-label="Aumentar huéspedes">+</button>
+                </div>
+              </div>
+              <div class="home-field" style="grid-column: 1 / -1">
+                <label style="opacity:0; height:0; margin:0; overflow:hidden" aria-hidden="true">Mascotas</label>
+                <div class="home-toggle">
+                  <span>¿Incluye mascotas?</span>
+                  <span class="toggle-switch" aria-label="Incluye mascotas">
+                    <input id="home-pets" name="mascotas" type="checkbox" />
+                    <span class="track"><span class="knob"></span></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="home-search__actions">
+              <button type="button" class="btn-casas" id="home-search-casas">Buscar casas</button>
+              <button type="button" class="btn-carros" id="home-search-carros">Buscar carros</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Sección original del Inicio (restaurada) -->
+        <div class="hero" aria-label="Introducción">
+          <div class="hero-grid">
+            <div>
+              <p class="muted" style="margin: 0; font-weight: 800; color: var(--accent)" data-i18n="home.brand">Golden Coast Villas Miami</p>
+              <h1 data-i18n="home.hero.title">Villas exclusivas y carros de lujo en Miami</h1>
+              <p data-i18n="home.hero.lead">
+                En Golden Coast Villas Miami el lujo es una experiencia: propiedades premium, movilidad de alto nivel y un equipo que cuida
+                cada detalle antes de tu llegada.
+              </p>
+              <div class="hero-cta">
+                <a class="cta-pill" href="#" data-nav="servicios" role="button" data-i18n="home.hero.cta.casas">Ver casas</a>
+                <a class="cta-pill cta-pill--gold" href="#" data-nav="servicios" role="button" data-i18n="home.hero.cta.carros">Ver carros</a>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-inner">
+                <h3 style="margin: 0 0 0.35rem" data-i18n="home.avail.title">Disponible hoy</h3>
+                <p class="muted" style="margin: 0 0 0.75rem" data-i18n="home.avail.lead">
+                  Explora nuestro catálogo. Reserva en línea y confirma por WhatsApp.
+                </p>
+                <div class="grid-2">
+                  <div class="card" style="box-shadow: none">
+                    <div class="card-inner">
+                      <strong data-i18n="home.avail.casas.title">Casas</strong>
+                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.casas.sub">Mapa + filtros tipo Airbnb</div>
                     </div>
                   </div>
-                  <div class="home-field" style="grid-column: 1 / -1">
-                    <label style="opacity:0; height:0; margin:0; overflow:hidden" aria-hidden="true">Mascotas</label>
-                    <div class="home-toggle">
-                      <span>¿Incluye mascotas?</span>
-                      <span class="toggle-switch" aria-label="Incluye mascotas">
-                        <input id="home-pets" name="mascotas" type="checkbox" />
-                        <span class="track"><span class="knob"></span></span>
-                      </span>
+                  <div class="card" style="box-shadow: none">
+                    <div class="card-inner">
+                      <strong data-i18n="home.avail.carros.title">Carros</strong>
+                      <div class="muted" style="font-size: 0.9rem" data-i18n="home.avail.carros.sub">Marca, cilindraje, tipo, asientos</div>
                     </div>
                   </div>
                 </div>
-                <div class="home-search__actions">
-                  <button type="button" class="btn-casas" id="home-search-casas">Buscar casas</button>
-                  <button type="button" class="btn-carros" id="home-search-carros">Buscar carros</button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
