@@ -662,10 +662,17 @@ function initHeroVideoPlaylist() {
   function setSrc(nextIdx) {
     idx = ((nextIdx % uniq.length) + uniq.length) % uniq.length;
     const next = uniq[idx];
+    const nextUrl = (() => {
+      try {
+        return new URL(next, window.location.href).href;
+      } catch (_e) {
+        return next;
+      }
+    })();
     try {
       v.pause?.();
     } catch (_e) {}
-    v.src = next;
+    v.src = nextUrl;
     try {
       v.load?.();
     } catch (_e) {}
@@ -684,6 +691,16 @@ function initHeroVideoPlaylist() {
     },
     { passive: true }
   );
+
+  // Rotación por tiempo (además de ended/error) para que se note siempre.
+  // Si el video es largo o el evento ended no dispara por streaming, igual rota.
+  const ROTATE_MS = 18000;
+  if (v._heroRotateTimer) {
+    try {
+      clearInterval(v._heroRotateTimer);
+    } catch (_e) {}
+  }
+  v._heroRotateTimer = setInterval(() => setSrc(idx + 1), ROTATE_MS);
 
   // Forzamos src inicial para que arranque la rotación.
   setSrc(idx);
