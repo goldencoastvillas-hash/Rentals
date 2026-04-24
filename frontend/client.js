@@ -625,12 +625,12 @@ function tryPlayHomeHeroVideo() {
 }
 
 function initHeroVideoPlaylist() {
-  const v = document.querySelector("#view-home .hero-video__media");
-  if (!v) return;
+  const vA = document.querySelector("#view-home .hero-video__media");
+  if (!vA) return;
 
-  // Si el video viene con <source>, los quitamos para controlar `v.src` nosotros.
+  // Si el video viene con <source>, los quitamos para controlar `src` nosotros.
   try {
-    v.querySelectorAll?.("source")?.forEach((s) => s.remove());
+    vA.querySelectorAll?.("source")?.forEach((s) => s.remove());
   } catch (_e) {}
 
   // Playlist: video remoto actual + videos del proyecto.
@@ -650,60 +650,97 @@ function initHeroVideoPlaylist() {
   }
   if (uniq.length <= 1) return;
 
-  v.loop = false;
+  // Doble buffer: creamos un segundo <video> encima para evitar pantallazo negro al cambiar src.
+  let vB = vA.parentElement?.querySelector?.(".hero-video__media.hero-video__media--b");
+  if (!vB) {
+    vB = vA.cloneNode(true);
+    vB.classList.add("hero-video__media--b", "is-hidden");
+    vB.removeAttribute("src");
+    try {
+      vB.querySelectorAll?.("source")?.forEach((s) => s.remove());
+    } catch (_e) {}
+    vA.parentElement?.appendChild(vB);
+  }
+
+  const vids = [vA, vB];
+  vids.forEach((x) => {
+    x.muted = true;
+    x.loop = false;
+    x.playsInline = true;
+    x.setAttribute("playsinline", "");
+    x.setAttribute("muted", "");
+    x.setAttribute("preload", "auto");
+  });
 
   let idx = 0;
-  const curSrc = (v.currentSrc || v.src || "").trim();
-  if (curSrc) {
-    const hit = uniq.findIndex((x) => curSrc.includes(x.replace(/^\.\.\//, "")) || curSrc.includes(x));
-    if (hit >= 0) idx = hit;
+  let active = 0; // 0 => vA, 1 => vB
+  let rotateTimer = null;
+  const ROTATE_MS = 12000;
+
+  function absUrl(next) {
+    try {
+      return new URL(next, window.location.href).href;
+    } catch (_e) {
+      return next;
+    }
   }
 
-  function setSrc(nextIdx) {
+  function scheduleNext() {
+    if (rotateTimer) clearTimeout(rotateTimer);
+    rotateTimer = setTimeout(() => swapTo(idx + 1), ROTATE_MS);
+  }
+
+  function swapTo(nextIdx) {
     idx = ((nextIdx % uniq.length) + uniq.length) % uniq.length;
-    const next = uniq[idx];
-    const nextUrl = (() => {
-      try {
-        return new URL(next, window.location.href).href;
-      } catch (_e) {
-        return next;
-      }
-    })();
+    const next = absUrl(uniq[idx]);
+    const from = vids[active];
+    const to = vids[1 - active];
+
+    // Cargar siguiente en "to"
     try {
-      v.pause?.();
+      to.pause?.();
     } catch (_e) {}
-    v.src = nextUrl;
+    to.classList.add("is-hidden");
+    to.src = next;
     try {
-      v.load?.();
+      to.load?.();
     } catch (_e) {}
-    tryPlayHomeHeroVideo();
+
+    let done = false;
+    const cleanup = () => {
+      if (done) return;
+      done = true;
+      to.removeEventListener("canplay", onReady);
+      to.removeEventListener("loadeddata", onReady);
+      to.removeEventListener("error", onErr);
+    };
+
+    const onErr = () => {
+      cleanup();
+      // salta al siguiente si falla este
+      swapTo(idx + 1);
+    };
+
+    const onReady = () => {
+      cleanup();
+      // Arranca "to" y luego hace fade.
+      const p = to.play?.();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+      requestAnimationFrame(() => {
+        to.classList.remove("is-hidden");
+        from.classList.add("is-hidden");
+      });
+      active = 1 - active;
+      scheduleNext();
+    };
+
+    to.addEventListener("canplay", onReady, { once: true, passive: true });
+    to.addEventListener("loadeddata", onReady, { once: true, passive: true });
+    to.addEventListener("error", onErr, { once: true, passive: true });
   }
 
-  // Si por políticas de autoplay el primer play falla, el `visibilitychange` ya reintenta.
-  const onEnded = () => setSrc(idx + 1);
-  v.addEventListener("ended", onEnded, { passive: true });
-
-  // Si un archivo no carga en Pages, saltamos al siguiente.
-  v.addEventListener(
-    "error",
-    () => {
-      setSrc(idx + 1);
-    },
-    { passive: true }
-  );
-
-  // Rotación por tiempo (además de ended/error) para que se note siempre.
-  // Si el video es largo o el evento ended no dispara por streaming, igual rota.
-  const ROTATE_MS = 18000;
-  if (v._heroRotateTimer) {
-    try {
-      clearInterval(v._heroRotateTimer);
-    } catch (_e) {}
-  }
-  v._heroRotateTimer = setInterval(() => setSrc(idx + 1), ROTATE_MS);
-
-  // Forzamos src inicial para que arranque la rotación.
-  setSrc(idx);
+  // Start
+  swapTo(0);
 }
 
 function bindHomeSearch() {
