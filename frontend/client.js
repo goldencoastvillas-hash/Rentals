@@ -628,6 +628,11 @@ function initHeroVideoPlaylist() {
   const v = document.querySelector("#view-home .hero-video__media");
   if (!v) return;
 
+  // Si el video viene con <source>, los quitamos para controlar `v.src` nosotros.
+  try {
+    v.querySelectorAll?.("source")?.forEach((s) => s.remove());
+  } catch (_e) {}
+
   // Playlist: video remoto actual + videos del proyecto.
   // Nota: los mp4 en la raíz se referencian desde `frontend/` con `../` y espacios URL-encoded.
   const list = [
@@ -671,8 +676,17 @@ function initHeroVideoPlaylist() {
   const onEnded = () => setSrc(idx + 1);
   v.addEventListener("ended", onEnded, { passive: true });
 
-  // Si el video actual es el de <source>, fijamos el src para poder iterar bien entre archivos.
-  if (!v.src) setSrc(idx);
+  // Si un archivo no carga en Pages, saltamos al siguiente.
+  v.addEventListener(
+    "error",
+    () => {
+      setSrc(idx + 1);
+    },
+    { passive: true }
+  );
+
+  // Forzamos src inicial para que arranque la rotación.
+  setSrc(idx);
 }
 
 function bindHomeSearch() {
