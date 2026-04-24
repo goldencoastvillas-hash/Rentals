@@ -1488,7 +1488,6 @@ async function renderHomePageBlocks() {
 export async function initClient() {
   initModal();
   bindHomeSearch();
-  initHeroVideoPlaylist();
   tryPlayHomeHeroVideo();
   document.addEventListener(
     "visibilitychange",
