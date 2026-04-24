@@ -330,16 +330,6 @@
         line-height: 1.05;
       }
 
-      .hero-video__brand-line2 {
-        margin: 0;
-        font-family: var(--font-sans);
-        font-weight: 600;
-        letter-spacing: 0.38em;
-        font-size: clamp(0.68rem, 1.6vw, 0.82rem);
-        text-transform: uppercase;
-        opacity: 0.92;
-      }
-
       .hero-video__brand-line1 {
         /* Dorado metálico como el logo */
         background: linear-gradient(180deg, #f5d55a 0%, #d4af37 46%, #b8890f 100%);
@@ -354,7 +344,21 @@
           0 0 14px rgba(0, 0, 0, 0.7);
       }
       .hero-video__brand-line2 {
-        color: rgba(255, 255, 255, 0.92);
+        margin: 0;
+        font-family: var(--font-sans);
+        font-weight: 600;
+        letter-spacing: 0.38em;
+        font-size: clamp(0.68rem, 1.6vw, 0.82rem);
+        text-transform: uppercase;
+        background: linear-gradient(180deg, #f5d55a 0%, #d4af37 46%, #b8890f 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        text-shadow:
+          0 18px 60px rgba(0, 0, 0, 0.88),
+          0 0 52px rgba(212, 175, 55, 0.5),
+          0 0 12px rgba(0, 0, 0, 0.65);
       }
 
       .home-search-section {
