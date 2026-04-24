@@ -624,6 +624,57 @@ function tryPlayHomeHeroVideo() {
   if (p && typeof p.catch === "function") p.catch(() => {});
 }
 
+function initHeroVideoPlaylist() {
+  const v = document.querySelector("#view-home .hero-video__media");
+  if (!v) return;
+
+  // Playlist: video remoto actual + videos del proyecto.
+  // Nota: los mp4 en la raíz se referencian desde `frontend/` con `../` y espacios URL-encoded.
+  const list = [
+    "https://videos.pexels.com/video-files/14037398/14037398-sd_640_360_30fps.mp4",
+    "assets/hero-beach.mp4",
+    "../video%201.mp4",
+    "../video%20playa.mp4",
+  ];
+
+  const uniq = [];
+  for (const src of list) {
+    const s = String(src || "").trim();
+    if (!s) continue;
+    if (!uniq.includes(s)) uniq.push(s);
+  }
+  if (uniq.length <= 1) return;
+
+  v.loop = false;
+
+  let idx = 0;
+  const curSrc = (v.currentSrc || v.src || "").trim();
+  if (curSrc) {
+    const hit = uniq.findIndex((x) => curSrc.includes(x.replace(/^\.\.\//, "")) || curSrc.includes(x));
+    if (hit >= 0) idx = hit;
+  }
+
+  function setSrc(nextIdx) {
+    idx = ((nextIdx % uniq.length) + uniq.length) % uniq.length;
+    const next = uniq[idx];
+    try {
+      v.pause?.();
+    } catch (_e) {}
+    v.src = next;
+    try {
+      v.load?.();
+    } catch (_e) {}
+    tryPlayHomeHeroVideo();
+  }
+
+  // Si por políticas de autoplay el primer play falla, el `visibilitychange` ya reintenta.
+  const onEnded = () => setSrc(idx + 1);
+  v.addEventListener("ended", onEnded, { passive: true });
+
+  // Si el video actual es el de <source>, fijamos el src para poder iterar bien entre archivos.
+  if (!v.src) setSrc(idx);
+}
+
 function bindHomeSearch() {
   const form = $("#home-search");
   if (!form) return;
@@ -1371,6 +1422,7 @@ async function renderHomePageBlocks() {
 export async function initClient() {
   initModal();
   bindHomeSearch();
+  initHeroVideoPlaylist();
   tryPlayHomeHeroVideo();
   document.addEventListener(
     "visibilitychange",
