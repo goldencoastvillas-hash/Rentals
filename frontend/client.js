@@ -2,7 +2,7 @@ import { getClient, adminWhatsappDigits } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { mountGallery } from "./ui-gallery.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t, tInmueble } from "./i18n.js?v=2026-04-21-3";
+import { t, tInmueble } from "./i18n.js?v=2026-04-24-2";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -633,11 +633,9 @@ function initHeroVideoPlaylist() {
     vA.querySelectorAll?.("source")?.forEach((s) => s.remove());
   } catch (_e) {}
 
-  // Playlist: video remoto actual + videos del proyecto.
+  // Playlist: SOLO los 2 videos enviados (raíz del repo).
   // Nota: los mp4 en la raíz se referencian desde `frontend/` con `../` y espacios URL-encoded.
   const list = [
-    "https://videos.pexels.com/video-files/14037398/14037398-sd_640_360_30fps.mp4",
-    "assets/hero-beach.mp4",
     "../video%201.mp4",
     "../video%20playa.mp4",
   ];

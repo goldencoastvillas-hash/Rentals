@@ -312,11 +312,12 @@
         flex-direction: column;
         align-items: center;
         gap: 0.35rem;
-        color: var(--gold-bright);
+        /* Dorado del logo (más vivo) */
+        color: #d4af37;
         background: transparent !important;
         text-shadow:
           0 20px 70px rgba(0, 0, 0, 0.88),
-          0 0 46px rgba(212, 175, 55, 0.38),
+          0 0 58px rgba(212, 175, 55, 0.55),
           0 0 16px rgba(0, 0, 0, 0.65);
       }
 
@@ -340,11 +341,11 @@
       }
 
       .hero-video__brand-line1 {
-        color: var(--gold-bright);
+        color: #d4af37;
         -webkit-text-stroke: 0;
         text-shadow:
           0 22px 70px rgba(0, 0, 0, 0.9),
-          0 0 58px rgba(212, 175, 55, 0.45),
+          0 0 74px rgba(212, 175, 55, 0.62),
           0 0 14px rgba(0, 0, 0, 0.7);
       }
       .hero-video__brand-line2 {
@@ -1937,8 +1938,6 @@
       <div class="home-hero-cinematic-wrap">
         <div class="hero hero-video" aria-label="Video principal">
           <video class="hero-video__media" autoplay muted playsinline preload="auto" poster="">
-            <source src="https://videos.pexels.com/video-files/14037398/14037398-sd_640_360_30fps.mp4" type="video/mp4" />
-            <source src="assets/hero-beach.mp4" type="video/mp4" />
           </video>
           <div class="hero-video__overlay" aria-hidden="true"></div>
           <div class="hero-video__content">
@@ -2266,8 +2265,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="rentals-config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="rentals-supabase.js?v=2026-04-21-3"></script>
-    <script type="module" src="app.js?v=2026-04-21-3"></script>
+    <script type="module" src="rentals-supabase.js?v=2026-04-24-2"></script>
+    <script type="module" src="app.js?v=2026-04-24-2"></script>
   </body>
 </html>
 
