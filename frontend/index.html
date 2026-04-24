@@ -307,8 +307,10 @@
         flex-direction: column;
         align-items: center;
         gap: 0.35rem;
-        color: #fff;
-        text-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+        color: var(--gold-bright);
+        text-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.75),
+          0 0 28px rgba(201, 162, 39, 0.25);
       }
 
       .hero-video__brand-line1 {
@@ -328,6 +330,13 @@
         font-size: clamp(0.68rem, 1.6vw, 0.82rem);
         text-transform: uppercase;
         opacity: 0.92;
+      }
+
+      .hero-video__brand-line1 {
+        color: var(--gold-bright);
+      }
+      .hero-video__brand-line2 {
+        color: rgba(255, 255, 255, 0.92);
       }
 
       .home-search-section {
@@ -1957,7 +1966,6 @@
                     <span class="home-date-trigger__icon" aria-hidden="true">📅</span>
                     <span class="home-date-trigger__main">
                       <span class="home-date-trigger__value" id="home-dates-display">—</span>
-                      <span class="home-date-trigger__hint">Un solo calendario · azul = ocupado · dorado = tu selección</span>
                     </span>
                   </button>
                 </div>

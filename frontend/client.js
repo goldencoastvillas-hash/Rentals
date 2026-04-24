@@ -817,7 +817,6 @@ function openReservaForm(tipo, item) {
                   <span class="home-date-trigger__icon" aria-hidden="true">📅</span>
                   <span class="home-date-trigger__main">
                     <span class="home-date-trigger__value" id="reserva-dates-display"></span>
-                    <span class="home-date-trigger__hint">Un solo calendario · azul = ocupado · dorado = tu selección</span>
                   </span>
                 </button>
               </div>
