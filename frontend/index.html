@@ -312,7 +312,7 @@
         flex-direction: column;
         align-items: center;
         gap: 0.35rem;
-        /* Dorado del logo (más vivo) */
+        /* Dorado del logo */
         color: #d4af37;
         background: transparent !important;
         text-shadow:
@@ -341,7 +341,12 @@
       }
 
       .hero-video__brand-line1 {
-        color: #d4af37;
+        /* Dorado metálico como el logo */
+        background: linear-gradient(180deg, #f5d55a 0%, #d4af37 46%, #b8890f 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
         -webkit-text-stroke: 0;
         text-shadow:
           0 22px 70px rgba(0, 0, 0, 0.9),
