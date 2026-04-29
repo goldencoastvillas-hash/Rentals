@@ -288,10 +288,13 @@ for delete
 to anon, authenticated
 using (bucket_id = 'catalog-media');
 
--- Admin demo (como pediste)
+-- Admin demo (como pediste). Upsert real: el índice único es lower(username), no id.
 insert into public.admins (username, email, password_hash, activo)
 values ('Admin', 'admin@rentals.com', md5('Admin123'), true)
-on conflict do nothing;
+on conflict ((lower(username))) do update set
+  email = excluded.email,
+  password_hash = excluded.password_hash,
+  activo = excluded.activo;
 
 -- Datos de prueba (2 casas, 2 carros)
 insert into public.casas (

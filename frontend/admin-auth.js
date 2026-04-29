@@ -29,7 +29,7 @@ export function initAdminAuth() {
 
     const user = ($("#admin-user")?.value || "").trim();
     const email = ($("#admin-email")?.value || "").trim();
-    const pass = String($("#admin-pass")?.value || "").trim();
+    const pass = String($("#admin-pass")?.value || "");
 
     if (!user || !email || !pass) {
       showError(t("login.err.fill"));

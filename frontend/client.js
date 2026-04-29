@@ -2,7 +2,7 @@ import { getClient, adminWhatsappDigits } from "./rentals-supabase.js";
 import { initModal, openModal } from "./ui-modal.js";
 import { mountGallery } from "./ui-gallery.js";
 import { normalizePhotoUrl, normalizePhotoUrls } from "./url-media.js";
-import { t, tInmueble } from "./i18n.js?v=2026-04-24-2";
+import { t, tInmueble, getLang } from "./i18n.js?v=2026-04-24-2";
 
 function $(sel) {
   return document.querySelector(sel);
@@ -246,11 +246,15 @@ function addLocalDays(d, n) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 }
 
-function formatDateDisplayEs(iso) {
+function dateDisplayLocale() {
+  return getLang() === "en" ? "en-US" : "es";
+}
+
+function formatDateDisplay(iso) {
   const dt = parseISODate(iso);
-  if (!dt) return "Elegir fecha";
+  if (!dt) return t("home.dates.pick");
   try {
-    return new Intl.DateTimeFormat("es", {
+    return new Intl.DateTimeFormat(dateDisplayLocale(), {
       weekday: "short",
       day: "numeric",
       month: "short",
@@ -394,14 +398,13 @@ function setupRangeCalendarMount({
 
   function updateSub() {
     if (!subEl) return;
-    subEl.textContent =
-      phase === 0 ? "Paso 1: elige la fecha de entrada" : "Paso 2: elige la fecha de salida (noches en dorado)";
+    subEl.textContent = phase === 0 ? t("home.cal.step1") : t("home.cal.step2");
   }
 
   function render() {
     if (!gridEl || !titleEl) return;
     const first = new Date(viewYear, viewMonth, 1);
-    const monthLabel = new Intl.DateTimeFormat("es", { month: "long", year: "numeric" }).format(first);
+    const monthLabel = new Intl.DateTimeFormat(dateDisplayLocale(), { month: "long", year: "numeric" }).format(first);
     titleEl.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
     updateSub();
 
@@ -544,6 +547,12 @@ function setupRangeCalendarMount({
     },
     { signal }
   );
+
+  pop._rangeCalRefreshI18n = () => {
+    if (signal.aborted) return;
+    updateSub();
+    render();
+  };
 }
 
 function setupHomeRangeCalendar(checkinHidden, checkoutHidden, dispRange, btnOpen, snapshot, refreshRangeLabel) {
@@ -783,14 +792,14 @@ function bindHomeSearch() {
     const a = checkin.value;
     const b = checkout.value;
     if (!a) {
-      dispRange.textContent = "Elegir fechas";
+      dispRange.textContent = t("home.dates.pick");
       return;
     }
     if (!b) {
-      dispRange.textContent = `${formatDateDisplayEs(a)} → elige salida`;
+      dispRange.textContent = `${formatDateDisplay(a)} ${t("home.dates.sep")} ${t("home.dates.chooseCheckout")}`;
       return;
     }
-    dispRange.textContent = `${formatDateDisplayEs(a)} → ${formatDateDisplayEs(b)}`;
+    dispRange.textContent = `${formatDateDisplay(a)} ${t("home.dates.sep")} ${formatDateDisplay(b)}`;
   }
   updateRangeDisplay();
 
@@ -846,6 +855,15 @@ function bindHomeSearch() {
   }
 
   setupHomeRangeCalendar(checkin, checkout, dispRange, btnOpenDates, snapshot, updateRangeDisplay);
+
+  if (!window.__gcvHomeDatesLangListener) {
+    window.__gcvHomeDatesLangListener = true;
+    window.addEventListener("rentals-lang-change", () => {
+      updateRangeDisplay();
+      document.getElementById("home-cal-pop")?._rangeCalRefreshI18n?.();
+      document.getElementById("reserva-cal-pop")?._rangeCalRefreshI18n?.();
+    });
+  }
 
   bindTap(dec, () => {
     guests.value = String(Math.max(1, Number(guests.value || 1) - 1));
@@ -995,14 +1013,14 @@ function openReservaForm(tipo, item) {
     const a = form.desde.value;
     const b = form.hasta.value;
     if (!a) {
-      dispReservaRange.textContent = "Elegir fechas";
+      dispReservaRange.textContent = t("home.dates.pick");
       return;
     }
     if (!b) {
-      dispReservaRange.textContent = `${formatDateDisplayEs(a)} → elige salida`;
+      dispReservaRange.textContent = `${formatDateDisplay(a)} ${t("home.dates.sep")} ${t("home.dates.chooseCheckout")}`;
       return;
     }
-    dispReservaRange.textContent = `${formatDateDisplayEs(a)} → ${formatDateDisplayEs(b)}`;
+    dispReservaRange.textContent = `${formatDateDisplay(a)} ${t("home.dates.sep")} ${formatDateDisplay(b)}`;
   }
 
   function ensureReservaDatesCoherent() {

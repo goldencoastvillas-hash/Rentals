@@ -1,9 +1,5 @@
--- Login real del admin (usuario + correo + contraseña).
--- Ejecuta en Supabase SQL Editor cuando ya existe la tabla public.admins.
--- Debe coincidir con el seed de `000_supabase_reset_final.sql` (password_hash = md5(...)).
--- Si sigues viendo "credenciales incorrectas", ejecuta `010_admin_demo_sync.sql` en Supabase.
--- No usamos crypt(): requiere extensión pgcrypto y en muchos proyectos no está habilitada.
--- Esta RPC NO expone hashes; solo valida credenciales.
+-- Si el login web dice "credenciales incorrectas": fuerza la RPC md5 y el usuario demo.
+-- Ejecuta TODO en Supabase → SQL Editor (una vez).
 
 begin;
 
@@ -38,5 +34,18 @@ $$;
 
 grant execute on function public.web_admin_login(text, text, text) to anon, authenticated;
 
-commit;
+-- Asegura fila demo (mismo criterio que 000): usuario Admin + correo + md5(Admin123)
+update public.admins
+set
+  email = 'admin@rentals.com',
+  password_hash = md5('Admin123'),
+  activo = true
+where lower(trim(username)) = 'admin';
 
+insert into public.admins (username, email, password_hash, activo)
+select 'Admin', 'admin@rentals.com', md5('Admin123'), true
+where not exists (
+  select 1 from public.admins a where lower(trim(a.username)) = 'admin'
+);
+
+commit;

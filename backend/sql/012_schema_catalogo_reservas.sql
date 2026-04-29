@@ -3,12 +3,9 @@
 
 begin;
 
--- Helper: ¿el usuario autenticado es admin?
--- Compatible con:
---   - `011_admins_auth.sql`: tabla `admins` con columna `user_id` (Supabase Auth).
---   - `000_supabase_reset_final.sql`: tabla `admins` sin `user_id` (login web); aquí
---     esta función devuelve false (no hay JWT de admin vinculado). Las políticas que
---     usan is_admin() solo aplican tras migrar admins a modelo Auth o añadir `user_id`.
+-- Helper: ¿el usuario autenticado es admin? (Supabase Auth + fila en public.admins.user_id)
+-- Las políticas RLS de catálogo/reservas/storage en este script usan rol anon (MVP panel web).
+-- `is_admin()` queda disponible si más adelante añades políticas condicionadas a JWT.
 create or replace function public.is_admin()
 returns boolean
 language plpgsql
@@ -164,36 +161,32 @@ create index if not exists reservas_desde_hasta_idx on public.reservas using btr
 create index if not exists reservas_casa_idx on public.reservas using btree (casa_id);
 create index if not exists reservas_carro_idx on public.reservas using btree (carro_id);
 
--- RLS
+-- RLS (MVP sin Supabase Auth en el panel: el frontend usa la clave anon, como en 000).
+-- En producción, sustituir por políticas basadas en JWT/Edge o desactivar mutaciones públicas.
 alter table public.casas enable row level security;
 alter table public.carros enable row level security;
 alter table public.reservas enable row level security;
 
--- Casas: lectura pública, escritura solo admin
 drop policy if exists casas_public_read on public.casas;
 create policy casas_public_read on public.casas for select to anon, authenticated using (true);
 
 drop policy if exists casas_admin_write on public.casas;
 create policy casas_admin_write on public.casas
 for all
-to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+to anon, authenticated
+using (true)
+with check (true);
 
--- Carros: lectura pública, escritura solo admin
 drop policy if exists carros_public_read on public.carros;
 create policy carros_public_read on public.carros for select to anon, authenticated using (true);
 
 drop policy if exists carros_admin_write on public.carros;
 create policy carros_admin_write on public.carros
 for all
-to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+to anon, authenticated
+using (true)
+with check (true);
 
--- Reservas:
--- - clientes pueden crear (insert) (sin Auth) y no pueden listar todas
--- - admin puede leer / actualizar / borrar
 drop policy if exists reservas_public_insert on public.reservas;
 create policy reservas_public_insert on public.reservas
 for insert
@@ -203,21 +196,21 @@ with check (true);
 drop policy if exists reservas_admin_read on public.reservas;
 create policy reservas_admin_read on public.reservas
 for select
-to authenticated
-using (public.is_admin());
+to anon, authenticated
+using (true);
 
 drop policy if exists reservas_admin_write on public.reservas;
 create policy reservas_admin_write on public.reservas
 for update
-to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+to anon, authenticated
+using (true)
+with check (true);
 
 drop policy if exists reservas_admin_delete on public.reservas;
 create policy reservas_admin_delete on public.reservas
 for delete
-to authenticated
-using (public.is_admin());
+to anon, authenticated
+using (true);
 
 -- Storage bucket + policies (Supabase Storage)
 -- Nota: requiere que el proyecto tenga habilitado Storage.
@@ -233,28 +226,28 @@ for select
 to anon, authenticated
 using (bucket_id = 'catalog-media');
 
--- Escritura solo admins autenticados
+-- Escritura en catálogo (misma clave anon que el panel web)
 drop policy if exists "catalog_media_admin_insert" on storage.objects;
 create policy "catalog_media_admin_insert"
 on storage.objects
 for insert
-to authenticated
-with check (bucket_id = 'catalog-media' and public.is_admin());
+to anon, authenticated
+with check (bucket_id = 'catalog-media');
 
 drop policy if exists "catalog_media_admin_update" on storage.objects;
 create policy "catalog_media_admin_update"
 on storage.objects
 for update
-to authenticated
-using (bucket_id = 'catalog-media' and public.is_admin())
-with check (bucket_id = 'catalog-media' and public.is_admin());
+to anon, authenticated
+using (bucket_id = 'catalog-media')
+with check (bucket_id = 'catalog-media');
 
 drop policy if exists "catalog_media_admin_delete" on storage.objects;
 create policy "catalog_media_admin_delete"
 on storage.objects
 for delete
-to authenticated
-using (bucket_id = 'catalog-media' and public.is_admin());
+to anon, authenticated
+using (bucket_id = 'catalog-media');
 
 commit;
 

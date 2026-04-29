@@ -1967,13 +1967,13 @@
           <form id="home-search" class="home-search" autocomplete="off" aria-label="Buscar disponibilidad">
             <div class="home-search__grid">
               <div class="home-field">
-                <label for="home-dest">Lugar</label>
+                <label for="home-dest" data-i18n="home.place">Lugar</label>
                 <select id="home-dest" name="destino" required>
                   <option value="miami">Miami</option>
                 </select>
               </div>
               <div class="home-field home-field--dates">
-                <label id="home-dates-lbl">Entrada y salida</label>
+                <label id="home-dates-lbl" for="home-dates-open" data-i18n="home.dates.inOut">Entrada y salida</label>
                 <div class="home-date-field">
                   <input type="hidden" id="home-checkin" name="checkin" />
                   <input type="hidden" id="home-checkout" name="checkout" />
@@ -1993,25 +1993,41 @@
                 </div>
               </div>
               <div class="home-field">
-                <label for="home-guests">Huéspedes</label>
+                <label for="home-guests" data-i18n="home.guests">Huéspedes</label>
                 <div class="home-stepper">
-                  <button type="button" class="step-btn" id="home-guests-dec" aria-label="Disminuir huéspedes">−</button>
+                  <button
+                    type="button"
+                    class="step-btn"
+                    id="home-guests-dec"
+                    data-i18n-aria-label="home.guestsDecAria"
+                    aria-label="Disminuir huéspedes"
+                  >
+                    −
+                  </button>
                   <input id="home-guests" name="huespedes" type="number" min="1" step="1" value="1" inputmode="numeric" />
-                  <button type="button" class="step-btn" id="home-guests-inc" aria-label="Aumentar huéspedes">+</button>
+                  <button
+                    type="button"
+                    class="step-btn"
+                    id="home-guests-inc"
+                    data-i18n-aria-label="home.guestsIncAria"
+                    aria-label="Aumentar huéspedes"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
               <div class="home-field home-field--pets" style="grid-column: 1 / -1">
-                <span class="home-field__pets-label">¿Incluye mascotas?</span>
-                <div class="home-pets-seg" role="group" aria-label="Mascotas en la reserva">
-                  <button type="button" class="home-pets-seg__btn is-active" id="home-pets-no">No</button>
-                  <button type="button" class="home-pets-seg__btn" id="home-pets-yes">Sí</button>
+                <span class="home-field__pets-label" data-i18n="home.pets.label">¿Incluye mascotas?</span>
+                <div class="home-pets-seg" role="group" data-i18n-aria-label="home.pets.groupAria" aria-label="Mascotas en la reserva">
+                  <button type="button" class="home-pets-seg__btn is-active" id="home-pets-no" data-i18n="yesno.no">No</button>
+                  <button type="button" class="home-pets-seg__btn" id="home-pets-yes" data-i18n="yesno.si">Sí</button>
                 </div>
                 <input type="checkbox" id="home-pets" name="mascotas" class="home-pets-sr" />
               </div>
             </div>
             <div class="home-search__actions">
-              <button type="button" class="btn-casas" id="home-search-casas">Buscar casas</button>
-              <button type="button" class="btn-carros" id="home-search-carros">Buscar carros</button>
+              <button type="button" class="btn-casas" id="home-search-casas" data-i18n="home.search.casas">Buscar casas</button>
+              <button type="button" class="btn-carros" id="home-search-carros" data-i18n="home.search.carros">Buscar carros</button>
             </div>
           </form>
         </div>
@@ -2240,36 +2256,52 @@
     <!-- Calendario del buscador (Inicio): panel global -->
     <div id="home-cal-pop" class="home-cal-pop" aria-hidden="true">
       <div class="home-cal-pop__backdrop" data-home-cal-backdrop></div>
-      <div class="home-cal-pop__panel" role="dialog" aria-modal="true" aria-label="Elegir fecha">
+      <div
+        class="home-cal-pop__panel"
+        role="dialog"
+        aria-modal="true"
+        data-i18n-aria-label="home.cal.ariaHome"
+        aria-label="Elegir fechas de estancia"
+      >
         <div class="home-cal-pop__head">
-          <button type="button" data-home-cal-prev aria-label="Mes anterior">‹</button>
+          <button type="button" data-home-cal-prev data-i18n-aria-label="home.cal.prevMonth" aria-label="Mes anterior">‹</button>
           <div class="home-cal-pop__title" data-home-cal-title></div>
-          <button type="button" data-home-cal-next aria-label="Mes siguiente">›</button>
+          <button type="button" data-home-cal-next data-i18n-aria-label="home.cal.nextMonth" aria-label="Mes siguiente">›</button>
         </div>
         <p class="home-cal-pop__sub" data-home-cal-sub></p>
         <div class="home-cal-pop__week" aria-hidden="true">
-          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+          <span data-i18n="home.cal.wd1">Lun</span><span data-i18n="home.cal.wd2">Mar</span><span data-i18n="home.cal.wd3">Mié</span
+          ><span data-i18n="home.cal.wd4">Jue</span><span data-i18n="home.cal.wd5">Vie</span><span data-i18n="home.cal.wd6">Sáb</span
+          ><span data-i18n="home.cal.wd7">Dom</span>
         </div>
         <div class="home-cal-pop__grid" data-home-cal-grid></div>
-        <button type="button" class="home-cal-pop__done" data-home-cal-close>Listo</button>
+        <button type="button" class="home-cal-pop__done" data-home-cal-close data-i18n="home.cal.done">Listo</button>
       </div>
     </div>
 
     <!-- Calendario de rango para reservas (modal casas / carros) -->
     <div id="reserva-cal-pop" class="home-cal-pop" aria-hidden="true">
       <div class="home-cal-pop__backdrop" data-home-cal-backdrop></div>
-      <div class="home-cal-pop__panel" role="dialog" aria-modal="true" aria-label="Elegir fechas de reserva">
+      <div
+        class="home-cal-pop__panel"
+        role="dialog"
+        aria-modal="true"
+        data-i18n-aria-label="home.cal.ariaReserva"
+        aria-label="Elegir fechas de reserva"
+      >
         <div class="home-cal-pop__head">
-          <button type="button" data-home-cal-prev aria-label="Mes anterior">‹</button>
+          <button type="button" data-home-cal-prev data-i18n-aria-label="home.cal.prevMonth" aria-label="Mes anterior">‹</button>
           <div class="home-cal-pop__title" data-home-cal-title></div>
-          <button type="button" data-home-cal-next aria-label="Mes siguiente">›</button>
+          <button type="button" data-home-cal-next data-i18n-aria-label="home.cal.nextMonth" aria-label="Mes siguiente">›</button>
         </div>
         <p class="home-cal-pop__sub" data-home-cal-sub></p>
         <div class="home-cal-pop__week" aria-hidden="true">
-          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+          <span data-i18n="home.cal.wd1">Lun</span><span data-i18n="home.cal.wd2">Mar</span><span data-i18n="home.cal.wd3">Mié</span
+          ><span data-i18n="home.cal.wd4">Jue</span><span data-i18n="home.cal.wd5">Vie</span><span data-i18n="home.cal.wd6">Sáb</span
+          ><span data-i18n="home.cal.wd7">Dom</span>
         </div>
         <div class="home-cal-pop__grid" data-home-cal-grid></div>
-        <button type="button" class="home-cal-pop__done" data-home-cal-close>Listo</button>
+        <button type="button" class="home-cal-pop__done" data-home-cal-close data-i18n="home.cal.done">Listo</button>
       </div>
     </div>
 
